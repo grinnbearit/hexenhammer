@@ -4,6 +4,14 @@
 ;; Using the q, r, s coordinate system from https://www.redblobgames.com/grids/hexagons/
 
 
+(defn render-grass
+  "Returns a green hex with the coordinates printed"
+  [size q r s]
+  (seq
+   [(int/svg-hexagon size q r s :colour "green")
+    (int/svg-coordinates size q r s)]))
+
+
 (defn render-state
   "returns a hiccup svg datastructure representing the game state"
   [state]
@@ -13,4 +21,4 @@
            r (range (- size) (inc size))
            s (range (- size) (inc size))
            :when (zero? (+ q r s))]
-       (int/svg-hexagon size q r s))]))
+       (render-grass size q r s))]))

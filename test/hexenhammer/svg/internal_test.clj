@@ -59,9 +59,55 @@
  "svg hexagon"
 
  (svg-hexagon 0 0 0 0)
- => [:polygon {:points "0,52 30,0 90,0 120,52 90,104 30,104"
+ => [:polygon {:points "hexpoints"
                :fill "green" :stroke "black"}]
 
- (svg-hexagon 0 0 0 0 :colour "red" :stroke "green")
- => [:polygon {:points "0,52 30,0 90,0 120,52 90,104 30,104"
-               :fill "red" :stroke "green"}])
+ (provided
+  (cube->points 0 0 0) => [:x :y]
+  (translate-points 0 :x :y) => [:xt :yt]
+  (gen-hexpoints :xt :yt) => :hexpoints
+  (points->str :hexpoints) => "hexpoints")
+
+
+ (svg-hexagon 0 0 0 0 :fill "red" :stroke "green")
+ => [:polygon {:points "hexpoints"
+               :fill "red" :stroke "green"}]
+
+ (provided
+  (cube->points 0 0 0) => [:x :y]
+  (translate-points 0 :x :y) => [:xt :yt]
+  (gen-hexpoints :xt :yt) => :hexpoints
+  (points->str :hexpoints) => "hexpoints"))
+
+
+(facts
+ "svg coordinates"
+
+ (svg-coordinates 2 0 0 0)
+ => [:text {:font-family "monospace" :font-size "10"
+            :x -25 :y 5/2}
+     "[0, 0, 0]"]
+
+ (provided
+  (cube->points 0 0 0) => [:x :y]
+  (translate-points 2 :x :y) => [0 0])
+
+
+ (svg-coordinates 2 0 -1 1)
+ => [:text {:font-family "monospace" :font-size "10"
+            :x -30 :y 5/2}
+     "[0, -1, 1]"]
+
+ (provided
+  (cube->points 0 -1 1) => [:x :y]
+  (translate-points 2 :x :y) => [0 0])
+
+
+ (svg-coordinates 2 2 -1 -1)
+ => [:text {:font-family "monospace" :font-size "10"
+            :x -35 :y 5/2}
+     "[2, -1, -1]"]
+
+ (provided
+  (cube->points 2 -1 -1) => [:x :y]
+  (translate-points 2 :x :y) => [0 0]))

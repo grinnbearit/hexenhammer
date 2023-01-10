@@ -4,6 +4,7 @@
 
 
 (def WIDTH 120)
+(def FONT-SIZE 10)
 (def HEIGHT (Math/round (* (Math/sqrt 3) (/ WIDTH 2))))
 
 
@@ -54,9 +55,22 @@
 (defn svg-hexagon
   "Given the size of the sheet and the (q, r, s) cube coordinates
   returns an svg hexagon"
-  [size q r s & {:keys [colour stroke] :or {colour "green" stroke "black"}}]
+  [size q r s & {:keys [fill stroke] :or {fill "green" stroke "black"}}]
   [:polygon {:points (->> (cube->points q r s)
                           (apply translate-points size)
                           (apply gen-hexpoints)
                           (points->str))
-             :fill colour :stroke stroke}])
+             :fill fill :stroke stroke}])
+
+
+(defn svg-coordinates
+  "Writes the cube coordinates of the cell on the hex"
+  [size q r s]
+  (let [[x y] (->> (cube->points q r s)
+                   (apply translate-points size))
+        num-neg (->> [q r s]
+                     (map (comp {false 0 true 1} neg?))
+                     (apply +))]
+    [:text {:x (- x (* (+ 5 num-neg) 1/2 FONT-SIZE)) :y (+ y (/ FONT-SIZE 4))
+            :font-family "monospace" :font-size (format "%d" FONT-SIZE)}
+     (format "[%d, %d, %d]" q r s)]))
