@@ -57,6 +57,16 @@
 
 
 (facts
+ "translate cube"
+
+ (translate-cube 4 3 2 1) => [:xt :yt]
+
+ (provided
+  (cube->points 3 2 1) => [:x :y]
+  (translate-points 4 :x :y) => [:xt :yt]))
+
+
+(facts
  "svg hexagon"
 
  (svg-hexagon 0 0 0 0)

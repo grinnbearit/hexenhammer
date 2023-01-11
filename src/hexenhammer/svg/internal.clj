@@ -57,12 +57,18 @@
        (+ y (/ height 2))])))
 
 
+(defn translate-cube
+  "combines cube->points and translate-points"
+  [size q r s]
+  (->> (cube->points q r s)
+       (apply translate-points size)))
+
+
 (defn svg-hexagon
   "Given the size of the sheet and the (q, r, s) cube coordinates
   returns an svg hexagon"
   [size q r s & {:keys [fill stroke] :or {fill "green" stroke "black"}}]
-  [:polygon {:points (->> (cube->points q r s)
-                          (apply translate-points size)
+  [:polygon {:points (->> (translate-cube size q r s)
                           (apply gen-hexpoints)
                           (points->str))
              :fill fill :stroke stroke}])
@@ -71,8 +77,7 @@
 (defn svg-coordinates
   "Writes the cube coordinates of the cell on the hex"
   [size q r s]
-  (let [[x y] (->> (cube->points q r s)
-                   (apply translate-points size))
+  (let [[x y] (translate-cube size q r s)
         num-neg (->> [q r s]
                      (map (comp {false 0 true 1} neg?))
                      (apply +))]
