@@ -47,9 +47,14 @@
 (defn translate-points
   "Given a size, returns the translated centre'd x, y coordinates for an svg sheet of that size"
   [size x y]
-  (let [{:keys [width height]} (size->dim size)]
-    [(+ x (/ width 2))
-     (+ y (/ height 2))]))
+  (let [{:keys [width height]} (size->dim size)
+        x-t (+ x (/ width 2))
+        y-t (+ y (/ height 2))]
+    (if (or (< width x-t)
+            (< height y-t))
+      (throw (ex-info "Out of Bounds" {:x x-t :y y-t}))
+      [(+ x (/ width 2))
+       (+ y (/ height 2))])))
 
 
 (defn svg-hexagon

@@ -52,7 +52,8 @@
  "translate points"
 
  (translate-points 0 0 0) => [60 52]
- (translate-points 1 0 0) => [150 156])
+ (translate-points 1 0 0) => [150 156]
+ (translate-points 1 300 300) => (throws clojure.lang.ExceptionInfo))
 
 
 (facts
