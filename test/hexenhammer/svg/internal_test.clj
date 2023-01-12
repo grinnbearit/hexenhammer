@@ -74,9 +74,8 @@
                :fill "green" :stroke "black"}]
 
  (provided
-  (cube->points 0 0 0) => [:x :y]
-  (translate-points 0 :x :y) => [:xt :yt]
-  (gen-hexpoints :xt :yt) => :hexpoints
+  (translate-cube 0 0 0 0) => [:x :y]
+  (gen-hexpoints :x :y) => :hexpoints
   (points->str :hexpoints) => "hexpoints")
 
 
@@ -85,40 +84,55 @@
                :fill "red" :stroke "green"}]
 
  (provided
-  (cube->points 0 0 0) => [:x :y]
-  (translate-points 0 :x :y) => [:xt :yt]
-  (gen-hexpoints :xt :yt) => :hexpoints
+  (translate-cube 0 0 0 0) => [:x :y]
+  (gen-hexpoints :x :y) => :hexpoints
   (points->str :hexpoints) => "hexpoints"))
+
+
+(facts
+ "svg text"
+
+ (svg-text 0 0 0 0 0 "")
+ => [:text {:font-family "monospace" :font-size "12" :x -3 :y 3} ""]
+
+ (provided
+  (translate-cube 0 0 0 0)
+  => [0 0])
+
+
+ (svg-text 0 0 0 0 1 "0")
+ => [:text {:font-family "monospace" :font-size "12" :x -6 :y 15} "0"]
+
+ (provided
+  (translate-cube 0 0 0 0)
+  => [0 0])
+
+
+ (svg-text 0 0 0 0 -1 "0")
+ => [:text {:font-family "monospace" :font-size "12" :x -6 :y -9} "0"]
+
+ (provided
+  (translate-cube 0 0 0 0)
+  => [0 0]))
 
 
 (facts
  "svg coordinates"
 
  (svg-coordinates 2 0 0 0)
- => [:text {:font-family "monospace" :font-size "10"
-            :x -25 :y 5/2}
-     "[0, 0, 0]"]
+ => [:svg-text 2 0 0 0 0 "[0, 0, 0]"]
 
  (provided
-  (cube->points 0 0 0) => [:x :y]
-  (translate-points 2 :x :y) => [0 0])
+  (svg-text 2 0 0 0 0 "[0, 0, 0]") => [:svg-text 2 0 0 0 0 "[0, 0, 0]"]))
 
 
- (svg-coordinates 2 0 -1 1)
- => [:text {:font-family "monospace" :font-size "10"
-            :x -30 :y 5/2}
-     "[0, -1, 1]"]
+(facts
+ "svg unit"
 
- (provided
-  (cube->points 0 -1 1) => [:x :y]
-  (translate-points 2 :x :y) => [0 0])
-
-
- (svg-coordinates 2 2 -1 -1)
- => [:text {:font-family "monospace" :font-size "10"
-            :x -35 :y 5/2}
-     "[2, -1, -1]"]
+ (svg-unit 2 0 0 0 "warrior" 1 12)
+ => [[:svg-text 2 0 0 0 -1 "warrior - 1"]
+     [:svg-text 2 0 0 0 1 "(12)"]]
 
  (provided
-  (cube->points 2 -1 -1) => [:x :y]
-  (translate-points 2 :x :y) => [0 0]))
+  (svg-text 2 0 0 0 -1 "warrior - 1") => [:svg-text 2 0 0 0 -1 "warrior - 1"]
+  (svg-text 2 0 0 0 1 "(12)") => [:svg-text 2 0 0 0 1 "(12)"]))

@@ -4,7 +4,7 @@
 
 
 (def WIDTH 120)
-(def FONT-SIZE 10)
+(def FONT-SIZE 12)
 (def HEIGHT (Math/round (* (Math/sqrt 3) (/ WIDTH 2))))
 
 
@@ -74,13 +74,27 @@
              :fill fill :stroke stroke}])
 
 
+(defn svg-text
+  "Returns an svg text element with the text position
+  row is a text offset from the centre of the hex"
+  [size q r s row text]
+  (let [[x y] (translate-cube size q r s)
+        x-offset (* (/ (inc (count text)) 2) 1/2 FONT-SIZE)
+        y-offset (+ (* row FONT-SIZE) (/ FONT-SIZE 4))]
+    [:text {:x (- x x-offset) :y (+ y y-offset)
+            :font-family "monospace" :font-size (str FONT-SIZE)}
+     text]))
+
+
 (defn svg-coordinates
   "Writes the cube coordinates of the cell on the hex"
   [size q r s]
-  (let [[x y] (translate-cube size q r s)
-        num-neg (->> [q r s]
-                     (map (comp {false 0 true 1} neg?))
-                     (apply +))]
-    [:text {:x (- x (* (+ 5 num-neg) 1/2 FONT-SIZE)) :y (+ y (/ FONT-SIZE 4))
-            :font-family "monospace" :font-size (format "%d" FONT-SIZE)}
-     (format "[%d, %d, %d]" q r s)]))
+  (svg-text size q r s 0 (format "[%d, %d, %d]" q r s)))
+
+
+(defn svg-unit
+  "Writes unit information on the hex"
+  [size q r s unit id models]
+  (list
+   (svg-text size q r s -1 (format "%s - %d" unit id))
+   (svg-text size q r s 1 (format "(%d)" models))))
