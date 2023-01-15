@@ -17,7 +17,7 @@
 
 (defn gen-hexpoints
   "Given the centre points of a hexagon
-  Returns a vector of vector of hexagon points"
+  Returns a vector of hexagon points"
   [x y]
   [[(- x (/ WIDTH 2)) y]
    [(- x (/ WIDTH 4)) (- y (/ HEIGHT 2))]
@@ -31,7 +31,7 @@
   "Given a seq of points, converts to an svg points string"
   [hexpoints]
   (->> (for [[x y] hexpoints]
-         (str x "," y))
+         (str (float x) "," (float y)))
        (str/join " ")))
 
 
