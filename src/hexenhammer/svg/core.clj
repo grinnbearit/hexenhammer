@@ -4,48 +4,38 @@
 ;; Using the q, r, s coordinate system from https://www.redblobgames.com/grids/hexagons/
 
 
-(defn render-grass
+(defn svg-unit
+  "Writes unit information on the hex"
+  [size q r s unit]
+  (int/svg-translate
+   size q r s
+   [:g {}
+    (int/svg-hexagon :fill "#8b0000")
+    (int/svg-text -1 (format "%s - %d" (:unit/name unit) (:unit/id unit)))
+    (int/svg-text  1 (format "(%d)" (:unit/models unit)))]))
+
+
+(defn svg-grass
   "Returns a green hex with the coordinates printed"
   [size q r s]
-  (seq
-   [(int/svg-hexagon size q r s :fill "green")
-    (int/svg-coordinates size q r s)]))
+  (int/svg-translate
+   size q r s
+   [:g {}
+    (int/svg-hexagon :fill "green")
+    (int/svg-coordinates q r s)]))
 
 
-(defn render-unit
-  "Returns a unit hex with the unit name, model count and unit id"
-  [size q r s unit]
-  (seq
-   [(int/svg-hexagon size q r s :fill "#8b0000")
-    (int/svg-unit size q r s (unit :unit/name) (unit :unit/id) (unit :unit/models))
-    (int/svg-facing size q r s (unit :unit/facing))]))
-
-
-(defn gen-grass-render-map
-  "given a size, returns a map of (q r s) -> grass-render-fn"
-  [size]
-  (->> (for [q (range (- size) (inc size))
-             r (range (- size) (inc size))
-             s (range (- size) (inc size))
-             :when (zero? (+ q r s))]
-         [[q r s] (partial render-grass size q r s)])
-       (into {})))
-
-
-(defn gen-unit-render-map
-  "given a unit list, returns a map of (q r s) -> unit-render-fn"
-  [size units]
-  (->> (for [[[q r s] unit] units]
-         [[q r s] (partial render-unit size q r s unit)])
-       (into {})))
-
-
-(defn state->render-map
-  "converts a state to a map of (q r s) -> render-fn"
+(defn state->svg
+  "converts a state to an svg datastructure representing the map"
   [state]
   (let [{:keys [map/size map/units]} state]
-    (merge (gen-grass-render-map size)
-           (gen-unit-render-map size units))))
+    (for [q (range (- size) (inc size))
+          r (range (- size) (inc size))
+          s (range (- size) (inc size))
+          :when (zero? (+ q r s))]
+      (if-let [unit (units [q r s])]
+        (svg-unit size q r s unit)
+        (svg-grass size q r s)))))
 
 
 (defn render-state
@@ -56,5 +46,4 @@
    [:body
     (let [{:keys [map/size]} state]
       [:svg (int/size->dim size)
-       (for [[_ render-fn] (state->render-map state)]
-         (render-fn))])]])
+       (state->svg state)])]])

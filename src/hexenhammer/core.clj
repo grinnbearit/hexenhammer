@@ -9,5 +9,4 @@
       (html (svg/render-state {:map/size 2
                                :map/units {[0 0 0] {:unit/name "warrior"
                                                     :unit/id 1
-                                                    :unit/models 12
-                                                    :unit/facing :n}}})))
+                                                    :unit/models 12}}})))

@@ -10,91 +10,88 @@
 
 (defn size->dim
   "converts a map size into an svg dimension {:width _ :height _}"
-  [size]
-  {:width (* WIDTH  (+ 1 (* 3/2 size)))
-   :height (* HEIGHT (inc (* 2 size)))})
+  [size & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  {:width (* width  (+ 1 (* 3/2 size)))
+   :height (* height (inc (* 2 size)))})
 
 
 (defn gen-hexpoints
-  "Given the centre points of a hexagon
-  Returns a vector of hexagon points"
-  [x y]
-  [[(- x (/ WIDTH 2)) y]
-   [(- x (/ WIDTH 4)) (- y (/ HEIGHT 2))]
-   [(+ x (/ WIDTH 4)) (- y (/ HEIGHT 2))]
-   [(+ x (/ WIDTH 2)) y]
-   [(+ x (/ WIDTH 4)) (+ y (/ HEIGHT 2))]
-   [(- x (/ WIDTH 4)) (+ y (/ HEIGHT 2))]])
+  ;; points of a hexagon, centred at 0, 0
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[(- (/ width 2)) 0]
+   [(- (/ width 4)) (- (/ height 2))]
+   [(/ width 4) (- (/ height 2))]
+   [(/ width 2) 0]
+   [(/ width 4) (/ height 2)]
+   [(- (/ width 4)) (/ height 2)]])
 
 
 (defn points->str
   "Given a seq of points, converts to an svg points string"
-  [hexpoints]
-  (->> (for [[x y] hexpoints]
+  [points]
+  (->> (for [[x y] points]
          (str (float x) "," (float y)))
        (str/join " ")))
 
 
 (defn cube->points
   "converts cube coordinates to x y, where x, y is the centre of the coordinate grid"
-  [q r s]
+  [q r s & {:keys [width height] :or {width WIDTH height HEIGHT}}]
   {:pre [(= (+ q s r) 0)]}
-  [(* q WIDTH 3/4)
-   (+ (* r (/ HEIGHT 2))
-      (- (* s (/ HEIGHT 2))))])
+  [(* q width 3/4)
+   (+ (* r (/ height 2))
+      (- (* s (/ height 2))))])
 
 
 (defn translate-points
   "Given a size, returns the translated centre'd x, y coordinates for an svg sheet of that size"
-  [size x y]
-  (let [{:keys [width height]} (size->dim size)
-        x-t (+ x (/ width 2))
-        y-t (+ y (/ height 2))]
-    (if (or (< width x-t)
-            (< height y-t))
+  [size x y & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (let [dim (size->dim size :width width :height height)
+        x-t (+ x (/ (dim :width) 2))
+        y-t (+ y (/ (dim :height) 2))]
+    (if (or (< (dim :width) x-t)
+            (< (dim :height) y-t))
       (throw (ex-info "Out of Bounds" {:x x-t :y y-t}))
-      [(+ x (/ width 2))
-       (+ y (/ height 2))])))
+      [(+ x (/ (dim :width) 2))
+       (+ y (/ (dim :height) 2))])))
 
 
 (defn translate-cube
   "combines cube->points and translate-points"
-  [size q r s]
-  (->> (cube->points q r s)
-       (apply translate-points size)))
+  [size q r s & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (let [[x y] (cube->points q r s :width width :height height)]
+    (translate-points size x y :width width :height height)))
+
+
+(defn svg-translate
+  "Returns the element with a transform attribute that traslates it
+  according to (size, q, r, s)"
+  [size q r s element & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (let [attrs (element 1)
+        [x y] (translate-cube size q r s :width width :height height)
+        tran-str (format "translate(%.2f, %.2f)" (float x) (float y))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
 
 
 (defn svg-hexagon
-  "Given the size of the sheet and the (q, r, s) cube coordinates
-  returns an svg hexagon"
-  [size q r s & {:keys [fill stroke] :or {fill "green" stroke "black"}}]
-  [:polygon {:points (->> (translate-cube size q r s)
-                          (apply gen-hexpoints)
-                          (points->str))
+  "returns an svg hexagon"
+  [& {:keys [fill stroke width height]
+      :or {fill "green" stroke "black" width WIDTH height HEIGHT}}]
+  [:polygon {:points (points->str (gen-hexpoints :width width :height height))
              :fill fill :stroke stroke}])
 
 
 (defn svg-text
-  "Returns an svg text element with the text position
-  row is a text offset from the centre of the hex"
-  [size q r s row text]
-  (let [[x y] (translate-cube size q r s)
-        x-offset (* (/ (inc (count text)) 2) 1/2 FONT-SIZE)
-        y-offset (+ (* row FONT-SIZE) (/ FONT-SIZE 4))]
-    [:text {:x (- x x-offset) :y (+ y y-offset)
-            :font-family "monospace" :font-size (str FONT-SIZE)}
+  "Returns an svg text element withis a text offset from the centre of the hex"
+  [row text & {:keys [font-size] :or {font-size FONT-SIZE}}]
+  (let [x-offset (- (* (/ (inc (count text)) 2) 1/2 font-size))
+        y-offset (+ (* row font-size) (/ font-size 4))]
+    [:text {:x x-offset :y y-offset
+            :font-family "monospace" :font-size (str font-size)}
      text]))
 
 
 (defn svg-coordinates
   "Writes the cube coordinates of the cell on the hex"
-  [size q r s]
-  (svg-text size q r s 0 (format "[%d, %d, %d]" q r s)))
-
-
-(defn svg-unit
-  "Writes unit information on the hex"
-  [size q r s unit id models]
-  (list
-   (svg-text size q r s -1 (format "%s - %d" unit id))
-   (svg-text size q r s 1 (format "(%d)" models))))
+  [q r s]
+  (svg-text 0 (format "[%d, %d, %d]" q r s)))
