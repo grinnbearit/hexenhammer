@@ -98,6 +98,16 @@
 
 
 (facts
+ "svg rotate"
+
+ (svg-rotate 30 [:g {}])
+ => [:g {:transform "rotate(30.00)"}]
+
+ (svg-rotate 30 [:g {:transform "rotate(60.00)"}])
+ => [:g {:transform "rotate(30.00) rotate(60.00)"}])
+
+
+(facts
  "svg hexagon"
 
  (svg-hexagon :width 200 :height 100)
@@ -140,3 +150,33 @@
  (provided
   (svg-text 0 "[3, 2, 1]")
   => [:text "[3, 2, 1]"]))
+
+
+(facts
+ "gen chepoints"
+
+ (gen-chevpoints :width 200 :height 100)
+ => [[0 50] [-10 45] [10 45]])
+
+
+(facts
+ "svg chevron"
+
+ (svg-chevron :n :width 200 :height 100)
+ => [:polyline {:points :points-str :transform "rotate" :stroke "black"}]
+
+ (provided
+  (gen-chevpoints :width 200 :height 100) => :chevpoints
+  (points->str :chevpoints) => :points-str
+  (svg-rotate 180 [:polyline {:points :points-str :stroke "black"}])
+  => [:polyline {:points :points-str :transform "rotate" :stroke "black"}])
+
+
+ (svg-chevron :se :width 200 :height 100)
+ => [:polyline {:points :points-str :transform "rotate" :stroke "black"}]
+
+ (provided
+  (gen-chevpoints :width 200 :height 100) => :chevpoints
+  (points->str :chevpoints) => :points-str
+  (svg-rotate 300 [:polyline {:points :points-str :stroke "black"}])
+  => [:polyline {:points :points-str :transform "rotate" :stroke "black"}]))

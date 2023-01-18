@@ -15,25 +15,6 @@
    :height (* height (inc (* 2 size)))})
 
 
-(defn gen-hexpoints
-  ;; points of a hexagon, centred at 0, 0
-  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  [[(- (/ width 2)) 0]
-   [(- (/ width 4)) (- (/ height 2))]
-   [(/ width 4) (- (/ height 2))]
-   [(/ width 2) 0]
-   [(/ width 4) (/ height 2)]
-   [(- (/ width 4)) (/ height 2)]])
-
-
-(defn points->str
-  "Given a seq of points, converts to an svg points string"
-  [points]
-  (->> (for [[x y] points]
-         (str (float x) "," (float y)))
-       (str/join " ")))
-
-
 (defn cube->points
   "converts cube coordinates to x y, where x, y is the centre of the coordinate grid"
   [q r s & {:keys [width height] :or {width WIDTH height HEIGHT}}]
@@ -73,6 +54,33 @@
     (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
 
 
+(defn svg-rotate
+  "Returns the element with a transform attribute that rotates it by angle `angle`'"
+  [angle element]
+  (let [attrs (element 1)
+        tran-str (format "rotate(%.2f)" (float angle))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
+
+
+(defn points->str
+  "Given a seq of points, converts to an svg points string"
+  [points]
+  (->> (for [[x y] points]
+         (str (float x) "," (float y)))
+       (str/join " ")))
+
+
+(defn gen-hexpoints
+  ;; points of a hexagon, centred at 0, 0
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[(- (/ width 2)) 0]
+   [(- (/ width 4)) (- (/ height 2))]
+   [(/ width 4) (- (/ height 2))]
+   [(/ width 2) 0]
+   [(/ width 4) (/ height 2)]
+   [(- (/ width 4)) (/ height 2)]])
+
+
 (defn svg-hexagon
   "returns an svg hexagon"
   [& {:keys [fill stroke width height]
@@ -95,3 +103,22 @@
   "Writes the cube coordinates of the cell on the hex"
   [q r s]
   (svg-text 0 (format "[%d, %d, %d]" q r s)))
+
+
+(defn gen-chevpoints
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[0 (/ height 2)]
+   [(- (* width 1/20)) (* height 45/100)]
+   [(+ (* width 1/20)) (* height 45/100)]])
+
+
+(defn svg-chevron
+  "draws a tiny chevron pointing to a face of the hex"
+  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  {:pre [(#{:nw :n :ne :se :s :sw} facing)]}
+  (let [facing->angle (zipmap [:s :sw :nw :n :ne :se]
+                              (map #(* 60 %) (range)))]
+    (svg-rotate
+     (facing->angle facing)
+     [:polyline {:points (points->str (gen-chevpoints :width width :height height))
+                 :stroke "black"}])))

@@ -11,8 +11,10 @@
    size q r s
    [:g {}
     (int/svg-hexagon :fill "#8b0000")
-    (int/svg-text -1 (format "%s - %d" (:unit/name unit) (:unit/id unit)))
-    (int/svg-text  1 (format "(%d)" (:unit/models unit)))]))
+    (int/svg-text -1 (format "%s" (:unit/name unit)))
+    (int/svg-text 0 (format "%s" (:unit/id unit)))
+    (int/svg-text 1 (format "(%d)" (:unit/models unit)))
+    (int/svg-chevron (:unit/facing unit))]))
 
 
 (defn svg-grass
