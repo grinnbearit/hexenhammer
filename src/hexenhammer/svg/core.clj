@@ -1,14 +1,15 @@
 (ns hexenhammer.svg.core
-  (:require [hexenhammer.svg.internal :as int]))
+  (:require [hexenhammer.svg.internal :as int]
+            [hexenhammer.cube :as cube]))
 
 ;; Using the q, r, s coordinate system from https://www.redblobgames.com/grids/hexagons/
 
 
 (defn svg-unit
   "Writes unit information on the hex"
-  [size q r s unit]
+  [size cube unit]
   (int/svg-translate
-   size q r s
+   size cube
    [:g {}
     (int/svg-hexagon :fill "#8b0000")
     (int/svg-text -1 (format "%s" (:unit/name unit)))
@@ -19,12 +20,12 @@
 
 (defn svg-grass
   "Returns a green hex with the coordinates printed"
-  [size q r s]
+  [size cube]
   (int/svg-translate
-   size q r s
+   size cube
    [:g {}
     (int/svg-hexagon :fill "green")
-    (int/svg-coordinates q r s)]))
+    (int/svg-coordinates cube)]))
 
 
 (defn state->svg
@@ -34,10 +35,11 @@
     (for [q (range (- size) (inc size))
           r (range (- size) (inc size))
           s (range (- size) (inc size))
-          :when (zero? (+ q r s))]
-      (if-let [unit (units [q r s])]
-        (svg-unit size q r s unit)
-        (svg-grass size q r s)))))
+          :when (zero? (+ q r s))
+          :let [cube (cube/->Cube q r s)]]
+      (if-let [unit (units cube)]
+        (svg-unit size cube unit)
+        (svg-grass size cube)))))
 
 
 (defn render-state

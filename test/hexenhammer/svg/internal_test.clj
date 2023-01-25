@@ -1,6 +1,7 @@
 (ns hexenhammer.svg.internal-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.svg.internal :refer :all]))
+            [hexenhammer.svg.internal :refer :all]
+            [hexenhammer.cube :as cube]))
 
 
 (facts
@@ -29,38 +30,35 @@
 
 
 (facts
- "cube -> points"
+ "cube -> point"
 
- (cube->points 0 0 0 :width 200 :height 100)
+ (cube->point (cube/->Cube 0 0 0) :width 200 :height 100)
  => [0 0]
 
- (cube->points 1 0 0 :width 200 :height 100)
- => (throws AssertionError)
-
- (cube->points 0 1 -1 :width 200 :height 100)
+ (cube->point (cube/->Cube 0 1 -1) :width 200 :height 100)
  => [0 100]
 
- (cube->points 0 -1 1 :width 200 :height 100)
+ (cube->point (cube/->Cube 0 -1 1) :width 200 :height 100)
  => [0 -100]
 
- (cube->points 1 -1 0 :width 200 :height 100)
+ (cube->point (cube/->Cube 1 -1 0) :width 200 :height 100)
  => [150 -50]
 
- (cube->points 1 0 -1 :width 200 :height 100)
+ (cube->point (cube/->Cube 1 0 -1) :width 200 :height 100)
  => [150 50])
 
 
 (facts
- "translate points"
+ "translate point"
 
- (translate-points 0 0 0 :width 200 :height 100)
+ (translate-point 0 [0 0] :width 200 :height 100)
  => [100 50]
 
  (provided
   (size->dim 0 :width 200 :height 100)
   => {:width 200 :height 100})
 
- (translate-points 0 300 300 :width 200 :height 100)
+ (translate-point 0 [300 300] :width 200 :height 100)
  => (throws clojure.lang.ExceptionInfo)
 
  (provided
@@ -71,29 +69,29 @@
 (facts
  "translate cube"
 
- (translate-cube 4 3 2 1 :width 200 :height 100)
+ (translate-cube 4 (cube/->Cube 3 2 1) :width 200 :height 100)
  => [:xt :yt]
 
  (provided
-  (cube->points 3 2 1 :width 200 :height 100) => [:x :y]
-  (translate-points 4 :x :y :width 200 :height 100) => [:xt :yt]))
+  (cube->point (cube/->Cube 3 2 1) :width 200 :height 100) => [:x :y]
+  (translate-point 4 [:x :y] :width 200 :height 100) => [:xt :yt]))
 
 
 (facts
  "svg translate"
 
- (svg-translate 4 3 2 1 [:g {}] :width 200 :height 100)
+ (svg-translate 4 (cube/->Cube 3 2 1) [:g {}] :width 200 :height 100)
  => [:g {:transform "translate(10.50, 20.50)"}]
 
  (provided
-  (translate-cube 4 3 2 1 :width 200 :height 100)
+  (translate-cube 4 (cube/->Cube 3 2 1) :width 200 :height 100)
   => [10.5 20.5])
 
- (svg-translate 4 3 2 1 [:g {:transform "rotate(30)"}] :width 200 :height 100)
+ (svg-translate 4 (cube/->Cube 3 2 1) [:g {:transform "rotate(30)"}] :width 200 :height 100)
  => [:g {:transform "translate(10.50, 20.50) rotate(30)"}]
 
  (provided
-  (translate-cube 4 3 2 1 :width 200 :height 100)
+  (translate-cube 4 (cube/->Cube 3 2 1) :width 200 :height 100)
   => [10.5 20.5]))
 
 
@@ -144,7 +142,7 @@
 
 (facts
  "svg coordinates"
- (svg-coordinates 3 2 1)
+ (svg-coordinates (cube/->Cube 3 2 1))
  => [:text "[3, 2, 1]"]
 
  (provided

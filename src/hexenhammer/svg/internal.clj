@@ -3,8 +3,8 @@
             [hiccup.core :refer [html]]))
 
 
-(def WIDTH 120)
-(def FONT-SIZE 12)
+(def WIDTH 80)
+(def FONT-SIZE (/ WIDTH 10))
 (def HEIGHT (Math/round (* (Math/sqrt 3) (/ WIDTH 2))))
 
 
@@ -15,18 +15,17 @@
    :height (* height (inc (* 2 size)))})
 
 
-(defn cube->points
+(defn cube->point
   "converts cube coordinates to x y, where x, y is the centre of the coordinate grid"
-  [q r s & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  {:pre [(= (+ q s r) 0)]}
-  [(* q width 3/4)
-   (+ (* r (/ height 2))
-      (- (* s (/ height 2))))])
+  [cube & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [(* (.q cube) width 3/4)
+   (+ (* (.r cube) (/ height 2))
+      (- (* (.s cube) (/ height 2))))])
 
 
-(defn translate-points
+(defn translate-point
   "Given a size, returns the translated centre'd x, y coordinates for an svg sheet of that size"
-  [size x y & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [size [x y] & {:keys [width height] :or {width WIDTH height HEIGHT}}]
   (let [dim (size->dim size :width width :height height)
         x-t (+ x (/ (dim :width) 2))
         y-t (+ y (/ (dim :height) 2))]
@@ -38,18 +37,18 @@
 
 
 (defn translate-cube
-  "combines cube->points and translate-points"
-  [size q r s & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  (let [[x y] (cube->points q r s :width width :height height)]
-    (translate-points size x y :width width :height height)))
+  "composes cube->points and translate-point"
+  [size cube & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (let [point (cube->point cube :width width :height height)]
+    (translate-point size point :width width :height height)))
 
 
 (defn svg-translate
   "Returns the element with a transform attribute that traslates it
   according to (size, q, r, s)"
-  [size q r s element & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [size cube element & {:keys [width height] :or {width WIDTH height HEIGHT}}]
   (let [attrs (element 1)
-        [x y] (translate-cube size q r s :width width :height height)
+        [x y] (translate-cube size cube :width width :height height)
         tran-str (format "translate(%.2f, %.2f)" (float x) (float y))]
     (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
 
@@ -101,8 +100,8 @@
 
 (defn svg-coordinates
   "Writes the cube coordinates of the cell on the hex"
-  [q r s]
-  (svg-text 0 (format "[%d, %d, %d]" q r s)))
+  [cube]
+  (svg-text 0 (format "[%d, %d, %d]" (.q cube) (.r cube) (.s cube))))
 
 
 (defn gen-chevpoints
