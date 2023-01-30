@@ -9,46 +9,31 @@
 
 
 (defn size->dim
-  "converts a map size into an svg dimension {:width _ :height _}"
-  [size & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  {:width (* width  (+ 1 (* 3/2 size)))
-   :height (* height (inc (* 2 size)))})
+  "converts rows columns into an svg dimension {:width _ :height _}"
+  [rows columns & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  {:pre [(and (pos? rows) (pos? columns))]}
+  {:width (* width (+ 1 (* 3/4 (dec columns))))
+   :height (if (= 1 columns)
+             (* height rows)
+             (* height (+ 1/2 rows)))})
 
 
 (defn cube->point
-  "converts cube coordinates to x y, where x, y is the centre of the coordinate grid"
+  "converts cube coordinates to x y"
   [cube & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  [(* (.q cube) width 3/4)
-   (+ (* (.r cube) (/ height 2))
-      (- (* (.s cube) (/ height 2))))])
-
-
-(defn translate-point
-  "Given a size, returns the translated centre'd x, y coordinates for an svg sheet of that size"
-  [size [x y] & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  (let [dim (size->dim size :width width :height height)
-        x-t (+ x (/ (dim :width) 2))
-        y-t (+ y (/ (dim :height) 2))]
-    (if (or (< (dim :width) x-t)
-            (< (dim :height) y-t))
-      (throw (ex-info "Out of Bounds" {:x x-t :y y-t}))
-      [(+ x (/ (dim :width) 2))
-       (+ y (/ (dim :height) 2))])))
-
-
-(defn translate-cube
-  "composes cube->points and translate-point"
-  [size cube & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  (let [point (cube->point cube :width width :height height)]
-    (translate-point size point :width width :height height)))
+  [(+ (/ width 2)
+      (* (.q cube) width 3/4))
+   (+ (/ height 2)
+      (* (.r cube) (/ height 2))
+      (* (- (.s cube)) (/ height 2)))])
 
 
 (defn svg-translate
   "Returns the element with a transform attribute that traslates it
   according to (size, q, r, s)"
-  [size cube element & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [cube element & {:keys [width height] :or {width WIDTH height HEIGHT}}]
   (let [attrs (element 1)
-        [x y] (translate-cube size cube :width width :height height)
+        [x y] (cube->point cube :width width :height height)
         tran-str (format "translate(%.2f, %.2f)" (float x) (float y))]
     (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
 

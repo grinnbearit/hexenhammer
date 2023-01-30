@@ -3,3 +3,10 @@
 
 
 (defrecord Cube [q r s])
+
+
+(defn cube-add
+  [cx cy]
+  (->Cube (+ (.q cx) (.q cy))
+          (+ (.r cx) (.r cy))
+          (+ (.s cx) (.s cy))))

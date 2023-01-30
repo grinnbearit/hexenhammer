@@ -4,42 +4,47 @@
 
 ;; Using the q, r, s coordinate system from https://www.redblobgames.com/grids/hexagons/
 
-
 (defn svg-unit
   "Writes unit information on the hex"
-  [size cube unit]
-  (int/svg-translate
-   size cube
-   [:g {}
-    (int/svg-hexagon :fill "#8b0000")
-    (int/svg-text -1 (format "%s" (:unit/name unit)))
-    (int/svg-text 0 (format "%s" (:unit/id unit)))
-    (int/svg-text 1 (format "(%d)" (:unit/models unit)))
-    (int/svg-chevron (:unit/facing unit))]))
+  [unit]
+  [:g {}
+   (int/svg-hexagon :fill "#8b0000")
+   (int/svg-text -1 (format "%s" (:unit/name unit)))
+   (int/svg-text 0 (format "%s" (:unit/id unit)))
+   (int/svg-text 1 (format "(%d)" (:unit/models unit)))
+   (int/svg-chevron (:unit/facing unit))])
 
 
 (defn svg-grass
   "Returns a green hex with the coordinates printed"
-  [size cube]
-  (int/svg-translate
-   size cube
-   [:g {}
-    (int/svg-hexagon :fill "green")
-    (int/svg-coordinates cube)]))
+  [cube]
+  [:g {}
+   (int/svg-hexagon :fill "green")
+   (int/svg-coordinates cube)])
+
+
+(defn gen-battlefield-cubes
+  "Returns a list of cube coordinates for a battlefield of size rows x columns"
+  [rows columns]
+  (let [hop-right (partial cube/cube-add (cube/->Cube 2 -1 -1))
+        hop-down (partial cube/cube-add (cube/->Cube 0 1 -1))]
+    (->> (interleave (iterate hop-right (cube/->Cube 0 0 0))
+                     (iterate hop-right (cube/->Cube 1 0 -1)))
+         (take columns)
+         (iterate #(map hop-down %))
+         (take rows)
+         (apply concat))))
 
 
 (defn state->svg
   "converts a state to an svg datastructure representing the map"
-  [state]
-  (let [{:keys [map/size map/units]} state]
-    (for [q (range (- size) (inc size))
-          r (range (- size) (inc size))
-          s (range (- size) (inc size))
-          :when (zero? (+ q r s))
-          :let [cube (cube/->Cube q r s)]]
-      (if-let [unit (units cube)]
-        (svg-unit size cube unit)
-        (svg-grass size cube)))))
+  [{:keys [map/rows map/columns map/units]}]
+  (for [cube (gen-battlefield-cubes rows columns)]
+    (int/svg-translate
+     cube
+     (if-let [unit (units cube)]
+       (svg-unit unit)
+       (svg-grass cube)))))
 
 
 (defn render-state
@@ -48,6 +53,6 @@
   [:html
    [:head]
    [:body
-    (let [{:keys [map/size]} state]
-      [:svg (int/size->dim size)
+    (let [{:keys [map/rows map/columns]} state]
+      [:svg (int/size->dim rows columns)
        (state->svg state)])]])

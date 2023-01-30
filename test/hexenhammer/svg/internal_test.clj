@@ -7,91 +7,52 @@
 (facts
  "size -> dim"
 
- (size->dim 0 :width 200 :height 100)
- => {:width 200 :height 100}
+ (size->dim 0 0 :width 200 :height 100)
+ => (throws AssertionError)
 
- (size->dim 1 :width 200 :height 100)
- => {:width 500 :height 300})
+ (size->dim 1 1 :width 200 :height 100)
+ => {:width 200
+     :height 100}
 
+ (size->dim 2 1 :width 200 :height 100)
+ => {:width 200
+     :height 200}
 
-(facts
- "gen hexpoints"
-
- (gen-hexpoints :width 200 :height 100)
- => [[-100 0] [-50 -50] [50 -50]
-     [100 0] [50 50] [-50 50]])
-
-
-(facts
- "points -> str"
-
- (points->str [[1/2 1] [2 3] [4 5]])
- => "0.5,1.0 2.0,3.0 4.0,5.0")
+ (size->dim 2 2 :width 200 :height 100)
+ => {:width 350
+     :height 250})
 
 
 (facts
  "cube -> point"
 
  (cube->point (cube/->Cube 0 0 0) :width 200 :height 100)
- => [0 0]
-
- (cube->point (cube/->Cube 0 1 -1) :width 200 :height 100)
- => [0 100]
-
- (cube->point (cube/->Cube 0 -1 1) :width 200 :height 100)
- => [0 -100]
-
- (cube->point (cube/->Cube 1 -1 0) :width 200 :height 100)
- => [150 -50]
-
- (cube->point (cube/->Cube 1 0 -1) :width 200 :height 100)
- => [150 50])
-
-
-(facts
- "translate point"
-
- (translate-point 0 [0 0] :width 200 :height 100)
  => [100 50]
 
- (provided
-  (size->dim 0 :width 200 :height 100)
-  => {:width 200 :height 100})
+ (cube->point (cube/->Cube 1 -1 0) :width 200 :height 100)
+ => [250 0]
 
- (translate-point 0 [300 300] :width 200 :height 100)
- => (throws clojure.lang.ExceptionInfo)
-
- (provided
-  (size->dim 0 :width 200 :height 100)
-  => {:width 200 :height 100}))
-
-
-(facts
- "translate cube"
-
- (translate-cube 4 (cube/->Cube 3 2 1) :width 200 :height 100)
- => [:xt :yt]
-
- (provided
-  (cube->point (cube/->Cube 3 2 1) :width 200 :height 100) => [:x :y]
-  (translate-point 4 [:x :y] :width 200 :height 100) => [:xt :yt]))
+ (cube->point (cube/->Cube 1 0 -1) :width 200 :height 100)
+ => [250 100])
 
 
 (facts
  "svg translate"
 
- (svg-translate 4 (cube/->Cube 3 2 1) [:g {}] :width 200 :height 100)
+ (svg-translate (cube/->Cube 3 2 1)
+                [:g {}] :width 200 :height 100)
  => [:g {:transform "translate(10.50, 20.50)"}]
 
  (provided
-  (translate-cube 4 (cube/->Cube 3 2 1) :width 200 :height 100)
+  (cube->point (cube/->Cube 3 2 1) :width 200 :height 100)
   => [10.5 20.5])
 
- (svg-translate 4 (cube/->Cube 3 2 1) [:g {:transform "rotate(30)"}] :width 200 :height 100)
+ (svg-translate (cube/->Cube 3 2 1)
+                [:g {:transform "rotate(30)"}] :width 200 :height 100)
  => [:g {:transform "translate(10.50, 20.50) rotate(30)"}]
 
  (provided
-  (translate-cube 4 (cube/->Cube 3 2 1) :width 200 :height 100)
+  (cube->point (cube/->Cube 3 2 1) :width 200 :height 100)
   => [10.5 20.5]))
 
 
@@ -103,6 +64,21 @@
 
  (svg-rotate 30 [:g {:transform "rotate(60.00)"}])
  => [:g {:transform "rotate(30.00) rotate(60.00)"}])
+
+
+(facts
+ "points -> str"
+
+ (points->str [[1/2 1] [2 3] [4 5]])
+ => "0.5,1.0 2.0,3.0 4.0,5.0")
+
+
+(facts
+ "gen hexpoints"
+
+ (gen-hexpoints :width 200 :height 100)
+ => [[-100 0] [-50 -50] [50 -50]
+     [100 0] [50 50] [-50 50]])
 
 
 (facts
