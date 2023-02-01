@@ -23,28 +23,15 @@
    (int/svg-coordinates cube)])
 
 
-(defn gen-battlefield-cubes
-  "Returns a list of cube coordinates for a battlefield of size rows x columns"
-  [rows columns]
-  (let [hop-right (partial cube/cube-add (cube/->Cube 2 -1 -1))
-        hop-down (partial cube/cube-add (cube/->Cube 0 1 -1))]
-    (->> (interleave (iterate hop-right (cube/->Cube 0 0 0))
-                     (iterate hop-right (cube/->Cube 1 0 -1)))
-         (take columns)
-         (iterate #(map hop-down %))
-         (take rows)
-         (apply concat))))
-
-
 (defn state->svg
   "converts a state to an svg datastructure representing the map"
-  [{:keys [map/rows map/columns map/units]}]
-  (for [cube (gen-battlefield-cubes rows columns)]
+  [{:keys [map/battlefield map/units]}]
+  (for [[cube hex-obj] battlefield]
     (int/svg-translate
      cube
-     (if-let [unit (units cube)]
-       (svg-unit unit)
-       (svg-grass cube)))))
+     (case (:hexenhammer/class hex-obj)
+       :terrain (svg-grass cube)
+       :unit (svg-unit hex-obj)))))
 
 
 (defn render-state

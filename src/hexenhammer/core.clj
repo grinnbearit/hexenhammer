@@ -1,15 +1,17 @@
 (ns hexenhammer.core
-  (:require [clojure.string :as str]
-            [hiccup.core :refer [html]]
+  (:require [hiccup.core :refer [html]]
+            [hexenhammer.cube :as cube]
+            [hexenhammer.unit :as unit]
             [hexenhammer.svg.core :as svg]
-            [hexenhammer.cube :as cube]))
+            [hexenhammer.transition :as transition]))
 
+
+(def hexenhammer-state (atom nil))
+(transition/!init-state hexenhammer-state 8 12)
+(transition/!place-unit hexenhammer-state
+                        (cube/->Cube 6 1 -7)
+                        (unit/gen-warrior "i" :facing :n))
 
 
 (spit "index.html"
-      (html (svg/render-state {:map/rows 8
-                               :map/columns 12
-                               :map/units {(cube/->Cube 6 1 -7) {:unit/name "warrior"
-                                                                 :unit/id "i"
-                                                                 :unit/models 12
-                                                                 :unit/facing :n}}})))
+      (html (svg/render-state @hexenhammer-state)))

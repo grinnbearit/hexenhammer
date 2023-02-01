@@ -43,55 +43,19 @@
 
 
 (facts
- "gen battlefield cubes"
-
- (gen-battlefield-cubes 0 0)
- => []
-
- (gen-battlefield-cubes 1 2)
- => [(cube/->Cube 0 0 0)
-     (cube/->Cube 1 0 -1)]
-
- (gen-battlefield-cubes 2 4)
- => [(cube/->Cube 0 0 0)
-     (cube/->Cube 1 0 -1)
-     (cube/->Cube 2 -1 -1)
-     (cube/->Cube 3 -1 -2)
-
-     (cube/->Cube 0 1 -1)
-     (cube/->Cube 1 1 -2)
-     (cube/->Cube 2 0 -2)
-     (cube/->Cube 3 0 -3)])
-
-
-
-(facts
  "state -> svg"
 
- (let [cube (cube/->Cube 0 0 0)]
+ (let [cube-0 (cube/->Cube 0 0 0)
+       cube-1 (cube/->Cube 1 0 -1)]
 
-   (state->svg {:map/rows 1 :map/columns 1 :map/units {}})
-   => [[:svg-grass {:transform "translate(40.00, 34.50)"} cube]]
-
-   (provided
-
-    (gen-battlefield-cubes 1 1)
-    => [cube]
-
-    (svg-grass cube)
-    => [:svg-grass {} cube])
-
-
-   (state->svg {:map/rows 1 :map/columns 1 :map/units {cube :unit}})
-   => [[:svg-unit {:transform "translate(40.00, 34.50)"} :unit]]
+   (state->svg {:map/battlefield {cube-0 {:hexenhammer/class :terrain}
+                                  cube-1 {:hexenhammer/class :unit}}})
+   => [[:svg-grass {:transform "translate(40.00, 34.50)"}]
+       [:svg-unit {:transform "translate(100.00, 69.00)"}]]
 
    (provided
-
-    (gen-battlefield-cubes 1 1)
-    => [cube]
-
-    (svg-unit :unit)
-    => [:svg-unit {} :unit])))
+    (svg-grass cube-0) => [:svg-grass {}]
+    (svg-unit {:hexenhammer/class :unit}) => [:svg-unit {}])))
 
 
 (facts
