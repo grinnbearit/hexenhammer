@@ -25,16 +25,6 @@
                                      :terrain/name :grass}))})
 
 
-(defn !init-state
-  [state rows columns]
-  (reset! state (gen-initial-state rows columns)))
-
-
 (defn place-unit
   [state cube unit]
   (assoc-in state [:map/battlefield cube] unit))
-
-
-(defn !place-unit
-  [state cube unit]
-  (swap! state place-unit cube unit))

@@ -6,10 +6,10 @@
 
 
 (def hexenhammer-state (atom nil))
-(transition/!init-state hexenhammer-state 8 12)
-(transition/!place-unit hexenhammer-state
-                        (cube/->Cube 6 1 -7)
-                        (unit/gen-warrior "i" :facing :n))
+(reset! hexenhammer-state (transition/gen-initial-state 8 12))
+(swap! hexenhammer-state transition/place-unit
+       (cube/->Cube 6 1 -7)
+       (unit/gen-warrior "i" :facing :n))
 
 
 (spit "index.html" (svg/render-state @hexenhammer-state))
