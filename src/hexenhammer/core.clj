@@ -1,6 +1,5 @@
 (ns hexenhammer.core
-  (:require [hiccup.core :refer [html]]
-            [hexenhammer.cube :as cube]
+  (:require [hexenhammer.cube :as cube]
             [hexenhammer.unit :as unit]
             [hexenhammer.svg.core :as svg]
             [hexenhammer.transition :as transition]))
@@ -13,5 +12,4 @@
                         (unit/gen-warrior "i" :facing :n))
 
 
-(spit "index.html"
-      (html (svg/render-state @hexenhammer-state)))
+(spit "index.html" (svg/render-state @hexenhammer-state))

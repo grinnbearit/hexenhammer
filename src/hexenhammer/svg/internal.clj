@@ -46,6 +46,14 @@
     (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
 
 
+(defn svg-scale
+  "Returns the element with a transform attribute that scales it by a factor `factor`"
+  [factor element]
+  (let [attrs (element 1)
+        tran-str (format "scale(%.2f)" (float factor))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
+
+
 (defn points->str
   "Given a seq of points, converts to an svg points string"
   [points]
@@ -67,10 +75,10 @@
 
 (defn svg-hexagon
   "returns an svg hexagon"
-  [& {:keys [fill stroke width height]
-      :or {fill "green" stroke "black" width WIDTH height HEIGHT}}]
+  [& {:keys [width height classes]
+      :or {width WIDTH height HEIGHT classes []}}]
   [:polygon {:points (points->str (gen-hexpoints :width width :height height))
-             :fill fill :stroke stroke}])
+             :class (str/join " " classes)}])
 
 
 (defn svg-text

@@ -67,6 +67,16 @@
 
 
 (facts
+ "svg scale"
+
+ (svg-scale 1/2 [:g {}])
+ => [:g {:transform "scale(0.50)"}]
+
+ (svg-scale 1/2 [:g {:transform "scale(0.90)"}])
+ => [:g {:transform "scale(0.50) scale(0.90)"}])
+
+
+(facts
  "points -> str"
 
  (points->str [[1/2 1] [2 3] [4 5]])
@@ -85,21 +95,19 @@
  "svg hexagon"
 
  (svg-hexagon :width 200 :height 100)
- => [:polygon {:points "hexpoints"
-               :fill "green" :stroke "black"}]
+ => [:polygon {:points "hexpoints" :class ""}]
 
  (provided
   (gen-hexpoints :width 200 :height 100) => :hexpoints
   (points->str :hexpoints) => "hexpoints")
 
 
- (svg-hexagon :fill "red" :stroke "green" :width 200 :height 100)
- => [:polygon {:points "hexpoints"
-               :fill "red" :stroke "green"}]
+ (svg-hexagon :width 200 :height 100 :classes ["terrain" "grass"])
+ => [:polygon {:points "hexpoints" :class "terrain grass"}]
 
  (provided
   (gen-hexpoints :width 200 :height 100) => :hexpoints
-  (points->str :hexpoints) => "hexpoints") )
+  (points->str :hexpoints) => "hexpoints"))
 
 
 (facts
