@@ -1,10 +1,10 @@
 (ns hexenhammer.unit)
 
 
-(defn gen-warrior
+(defn gen-infantry
   [id & {:keys [facing] :or {facing :n}}]
   {:hexenhammer/class :unit
-   :unit/name "warrior"
+   :unit/name "infantry"
    :unit/id id
    :unit/models 12
    :unit/facing facing})

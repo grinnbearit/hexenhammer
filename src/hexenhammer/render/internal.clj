@@ -1,4 +1,4 @@
-(ns hexenhammer.svg.internal
+(ns hexenhammer.render.internal
   (:require [clojure.string :as str]
             [hiccup.core :refer [html]]))
 

@@ -28,3 +28,18 @@
 (defn place-unit
   [state cube unit]
   (assoc-in state [:map/battlefield cube] unit))
+
+
+(defn select-cube
+  [{:keys [map/selected] :as state} cube]
+  (if (= selected cube)
+    (dissoc state :map/selected)
+    (let [object (get-in state [:map/battlefield cube])]
+      (case (:hexenhammer/class state)
+        :terrain )
+      (assoc state :map/selected cube))))
+
+
+(defn unselect-cube
+  [state]
+  (dissoc state :map/selected))

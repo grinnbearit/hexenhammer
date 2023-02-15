@@ -1,6 +1,6 @@
-(ns hexenhammer.svg.internal-test
+(ns hexenhammer.render.internal-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.svg.internal :refer :all]
+            [hexenhammer.render.internal :refer :all]
             [hexenhammer.cube :as cube]))
 
 

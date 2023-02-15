@@ -1,5 +1,5 @@
-(ns hexenhammer.svg.render
-  (:require [hexenhammer.svg.internal :as int]
+(ns hexenhammer.render.svg
+  (:require [hexenhammer.render.internal :as int]
             [hexenhammer.cube :as cube]))
 
 
@@ -20,7 +20,7 @@
 
 (defn svg-terrain
   "Returns a green hex with the coordinates printed"
-  [cube]
+  [cube & {:keys [selected?] :or {selected? false}}]
   [:g {}
-   (int/svg-hexagon :classes ["grass"])
+   (int/svg-hexagon :classes (if selected? ["grass" "selected"] ["grass"]))
    (int/svg-coordinates cube)])

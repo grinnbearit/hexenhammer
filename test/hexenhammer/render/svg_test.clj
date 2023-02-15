@@ -1,7 +1,7 @@
-(ns hexenhammer.svg.render-test
+(ns hexenhammer.render.svg-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.svg.render :refer :all]
-            [hexenhammer.svg.internal :as int]
+            [hexenhammer.render.svg :refer :all]
+            [hexenhammer.render.internal :as int]
             [hexenhammer.cube :as cube]))
 
 
