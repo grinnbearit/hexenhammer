@@ -8,14 +8,15 @@
 (facts
  "svg unit"
 
- (svg-unit {:unit/name "unit-name"
-            :unit/id "i"
+ (svg-unit {:unit/player 0
+            :unit/name "unit-name"
+            :unit/id 0
             :unit/models 12
             :unit/facing :s})
  => [:g {}
      [:hexagon {:class "grass"}]
      [:g {:transform "scale(0.90)"}
-      [:hexagon {:class "unit"}]
+      [:hexagon {:class "unit player-0"}]
       [:text -1 "unitname"]
       [:text 0 "i"]
       [:text 1 "(12)"]
@@ -23,7 +24,7 @@
 
  (provided
   (int/svg-hexagon :classes ["grass"]) => [:hexagon {:class "grass"}]
-  (int/svg-hexagon :classes ["unit"]) => [:hexagon {:class "unit"}]
+  (int/svg-hexagon :classes ["unit" "player-0"]) => [:hexagon {:class "unit player-0"}]
   (int/svg-text -1 "unit-name") => [:text -1 "unitname"]
   (int/svg-text 0 "i") => [:text 0 "i"]
   (int/svg-text 1 "(12)") => [:text 1 "(12)"]
@@ -36,10 +37,7 @@
  (let [cube (cube/->Cube 0 0 0)]
 
    (svg-terrain cube)
-   => [:g {}
-       [:hexagon {:class "grass"}]
-       [:svg-coordinates 0 0 0]]
+   => [:hexagon {:class "grass"}]
 
    (provided
-    (int/svg-hexagon :classes ["grass"]) => [:hexagon {:class "grass"}]
-    (int/svg-coordinates cube) => [:svg-coordinates 0 0 0])))
+    (int/svg-hexagon :classes ["grass"]) => [:hexagon {:class "grass"}])))

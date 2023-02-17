@@ -1,5 +1,6 @@
 (ns hexenhammer.transition
-  (:require [hexenhammer.cube :as cube]))
+  (:require [hexenhammer.cube :as cube]
+            [hexenhammer.component :as component]))
 
 
 (defn gen-battlefield-cubes
@@ -21,25 +22,32 @@
   {:map/rows rows
    :map/columns columns
    :map/battlefield (zipmap (gen-battlefield-cubes rows columns)
-                            (repeat {:hexenhammer/class :terrain
-                                     :terrain/name :grass}))})
-
-
-(defn place-unit
-  [state cube unit]
-  (assoc-in state [:map/battlefield cube] unit))
-
-
-(defn select-cube
-  [{:keys [map/selected] :as state} cube]
-  (if (= selected cube)
-    (dissoc state :map/selected)
-    (let [object (get-in state [:map/battlefield cube])]
-      (case (:hexenhammer/class state)
-        :terrain )
-      (assoc state :map/selected cube))))
+                            (repeat (component/gen-grass)))})
 
 
 (defn unselect-cube
   [state]
   (dissoc state :map/selected))
+
+
+(defn select-cube
+  [{:keys [map/selected map/battlefield] :as state} cube]
+  (if (= selected cube)
+    (unselect-cube state)
+    (assoc state :map/selected cube)))
+
+
+(defn add-unit
+  [state cube & {:keys [player facing]}]
+  (let [new-id (get-in state [:map/players player "infantry" :counter] 0)
+        new-unit (component/gen-infantry player new-id :facing facing)]
+    (-> (unselect-cube state)
+        (assoc-in [:map/battlefield cube] new-unit)
+        (update-in [:map/players player "infantry" :counter] (fnil inc 0)))))
+
+
+(defn remove-unit
+  [state cube]
+  (let [{:keys [unit/player unit/id]} (get-in state [:map/battlefield cube])]
+    (-> (unselect-cube state)
+        (assoc-in [:map/battlefield cube] (component/gen-grass)))))

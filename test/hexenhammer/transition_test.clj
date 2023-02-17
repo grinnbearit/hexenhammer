@@ -1,7 +1,8 @@
 (ns hexenhammer.unit-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.cube :as cube]
-            [hexenhammer.transition :refer :all]))
+            [hexenhammer.transition :refer :all]
+            [hexenhammer.component :as component]
+            [hexenhammer.cube :as cube]))
 
 
 (facts
@@ -33,9 +34,9 @@
  => {:map/rows 3
      :map/columns 4
      :map/battlefield {(cube/->Cube 0 0 0) {:hexenhammer/class :terrain
-                                            :terrain/name :grass}
+                                            :terrain/name "grass"}
                        (cube/->Cube 1 0 -1) {:hexenhammer/class :terrain
-                                             :terrain/name :grass}}}
+                                             :terrain/name "grass"}}}
 
  (provided
   (gen-battlefield-cubes 3 4)
@@ -44,9 +45,49 @@
 
 
 (facts
- "place unit"
+ "unselect cube"
 
- (place-unit {:map/battlefield {(cube/->Cube 0 0 0) :grass}}
-             (cube/->Cube 0 0 0)
-             :unit)
- => {:map/battlefield {(cube/->Cube 0 0 0) :unit}})
+ (unselect-cube {:map/battlefield {}
+                 :map/selected (cube/->Cube 0 0 0)})
+ => {:map/battlefield {}})
+
+
+(facts
+ "select cube"
+
+ (select-cube {} (cube/->Cube 0 0 0))
+ => {:map/selected (cube/->Cube 0 0 0)}
+
+
+ (select-cube {:map/selected (cube/->Cube 0 0 0)}
+              (cube/->Cube 0 0 0))
+ => {}
+
+ (provided
+  (unselect-cube {:map/selected (cube/->Cube 0 0 0)})
+  => {}))
+
+
+(facts
+ "add unit"
+
+ (add-unit {:map/state :state} (cube/->Cube 0 0 0) :player 0 :facing :e)
+ => {:map/players {0 {"infantry" {:counter 1}}}
+     :map/battlefield {(cube/->Cube 0 0 0) [:infantry :e]}}
+
+ (provided
+  (component/gen-infantry 0 0 :facing :e) => [:infantry :e]
+  (unselect-cube {:map/state :state}) => {}))
+
+
+(facts
+ "remove unit"
+
+ (let [state {:map/battlefield {(cube/->Cube 0 0 0) [:unit]}}]
+
+   (remove-unit state (cube/->Cube 0 0 0))
+   => {:map/battlefield {(cube/->Cube 0 0 0) [:grass]}}
+
+   (provided
+    (unselect-cube state) => state
+    (component/gen-grass) => [:grass])))
