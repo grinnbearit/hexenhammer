@@ -87,7 +87,7 @@
   (let [x-offset (- (* (/ (inc (count text)) 2) 1/2 font-size))
         y-offset (+ (* row font-size) (/ font-size 4))]
     [:text {:x x-offset :y y-offset
-            :font-family "monospace" :font-size (str font-size)}
+            :font-family "monospace" :font-size (str font-size) :fill "white"}
      text]))
 
 
@@ -113,4 +113,4 @@
     (svg-rotate
      (facing->angle facing)
      [:polyline {:points (points->str (gen-chevpoints :width width :height height))
-                 :stroke "black"}])))
+                 :stroke "white" :fill "white"}])))

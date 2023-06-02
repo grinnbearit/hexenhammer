@@ -9,13 +9,14 @@
 ;; Using the q, r, s coordinate system from https://www.redblobgames.com/grids/hexagons/
 
 
+;; https://spreadsheet.dev/how-to-get-the-hexadecimal-codes-of-colors-in-google-sheets
 (def STYLESHEET
   (css [:polygon
-        [:&.grass {:fill "green" :stroke "black"}
+        [:&.grass {:fill "#6aa84f" :stroke "black"} ;
          [:&.selected {:stroke "yellow"}]]
         [:&.unit
-         [:&.player-0 {:fill "red" :stroke "black"}]
-         [:&.player-1 {:fill "blue" :stroke "black"}]]]
+         [:&.player-0 {:fill "#990000" :stroke "black"}]
+         [:&.player-1 {:fill "#1155cc" :stroke "black"}]]]
        [:table :th :td {:border "1px solid"}]))
 
 

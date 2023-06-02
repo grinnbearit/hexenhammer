@@ -13,5 +13,6 @@
    :unit/player player
    :unit/name "infantry"
    :unit/id id
-   :unit/models 12
+   :unit/files 4
+   :unit/ranks 4
    :unit/facing facing})

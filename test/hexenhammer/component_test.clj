@@ -12,14 +12,15 @@
 
 
 (facts
- "gen warrior"
+ "gen infantry"
 
  (gen-infantry 0 1)
  => {:hexenhammer/class :unit
      :unit/player 0
      :unit/name "infantry"
      :unit/id 1
-     :unit/models 12
+     :unit/files 4
+     :unit/ranks 4
      :unit/facing :n}
 
 
@@ -28,5 +29,6 @@
      :unit/player 1
      :unit/name "infantry"
      :unit/id 2
-     :unit/models 12
+     :unit/files 4
+     :unit/ranks 4
      :unit/facing :s})

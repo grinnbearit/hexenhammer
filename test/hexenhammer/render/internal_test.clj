@@ -114,14 +114,14 @@
  "svg text"
 
  (svg-text 0 "" :font-size 12)
- => [:text {:font-family "monospace" :font-size "12" :x -3 :y 3} ""]
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -3 :y 3} ""]
 
 
  (svg-text 1 "0" :font-size 12)
- => [:text {:font-family "monospace" :font-size "12" :x -6 :y 15} "0"]
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y 15} "0"]
 
  (svg-text -1 "0" :font-size 12)
- => [:text {:font-family "monospace" :font-size "12" :x -6 :y -9} "0"])
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y -9} "0"])
 
 
 (facts
@@ -145,20 +145,20 @@
  "svg chevron"
 
  (svg-chevron :n :width 200 :height 100)
- => [:polyline {:points :points-str :transform "rotate" :stroke "black"}]
+ => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]
 
  (provided
   (gen-chevpoints :width 200 :height 100) => :chevpoints
   (points->str :chevpoints) => :points-str
-  (svg-rotate 180 [:polyline {:points :points-str :stroke "black"}])
-  => [:polyline {:points :points-str :transform "rotate" :stroke "black"}])
+  (svg-rotate 180 [:polyline {:points :points-str :stroke "white" :fill "white"}])
+  => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}])
 
 
  (svg-chevron :se :width 200 :height 100)
- => [:polyline {:points :points-str :transform "rotate" :stroke "black"}]
+ => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]
 
  (provided
   (gen-chevpoints :width 200 :height 100) => :chevpoints
   (points->str :chevpoints) => :points-str
-  (svg-rotate 300 [:polyline {:points :points-str :stroke "black"}])
-  => [:polyline {:points :points-str :transform "rotate" :stroke "black"}]))
+  (svg-rotate 300 [:polyline {:points :points-str :stroke "white" :fill "white"}])
+  => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]))

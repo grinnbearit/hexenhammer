@@ -3,7 +3,6 @@
             [hexenhammer.cube :as cube]))
 
 
-
 (defn svg-unit
   "Writes unit information on the hex"
   [unit & {:keys [selected?] :or {selected? false}}]
@@ -15,8 +14,8 @@
       [:g {}
        (int/svg-hexagon :classes ["unit" (str "player-" (:unit/player unit))])
        (int/svg-text -1 (format "%s" (:unit/name unit)))
-       (int/svg-text 0 (format "%s" (int->roman (:unit/id unit))))
-       (int/svg-text 1 (format "(%d)" (:unit/models unit)))
+       (int/svg-text 0 (format "%d x %d" (:unit/files unit) (:unit/ranks unit)))
+       (int/svg-text 2 (format "%s" (int->roman (:unit/id unit))))
        (int/svg-chevron (:unit/facing unit))])]))
 
 

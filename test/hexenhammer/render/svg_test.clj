@@ -11,23 +11,24 @@
  (svg-unit {:unit/player 0
             :unit/name "unit-name"
             :unit/id 0
-            :unit/models 12
+            :unit/files 4
+            :unit/ranks 4
             :unit/facing :s})
  => [:g {}
      [:hexagon {:class "grass"}]
      [:g {:transform "scale(0.90)"}
       [:hexagon {:class "unit player-0"}]
       [:text -1 "unitname"]
-      [:text 0 "i"]
-      [:text 1 "(12)"]
+      [:text 0 "4 x 4"]
+      [:text 2 "i"]
       [:chevron :s]]]
 
  (provided
   (int/svg-hexagon :classes ["grass"]) => [:hexagon {:class "grass"}]
   (int/svg-hexagon :classes ["unit" "player-0"]) => [:hexagon {:class "unit player-0"}]
   (int/svg-text -1 "unit-name") => [:text -1 "unitname"]
-  (int/svg-text 0 "i") => [:text 0 "i"]
-  (int/svg-text 1 "(12)") => [:text 1 "(12)"]
+  (int/svg-text 0 "4 x 4") => [:text 0 "4 x 4"]
+  (int/svg-text 2 "i") => [:text 2 "i"]
   (int/svg-chevron :s) => [:chevron :s]))
 
 
