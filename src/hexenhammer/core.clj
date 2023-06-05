@@ -14,7 +14,21 @@
 
 (defn default-handler
   [request]
-  (render/render-state @hexenhammer-state))
+  (do (swap! hexenhammer-state transition/unselect-cube)
+      (render/render-state @hexenhammer-state)))
+
+
+(defn select-handler
+  [{params :query-params}]
+  (let [{:strs [q r s]} params]
+    (if q
+      (let [cube (cube/->Cube (Integer/parseInt q)
+                              (Integer/parseInt r)
+                              (Integer/parseInt s))]
+        (do (swap! hexenhammer-state transition/select-cube cube)
+            (render/render-state @hexenhammer-state)))
+      (do (swap! hexenhammer-state transition/unselect-cube)
+          (render/render-state @hexenhammer-state)))))
 
 
 (defn modify-handler
@@ -52,6 +66,7 @@
 
 (defroutes app-handler
   (GET "/" [] default-handler)
+  (GET "/select" [] select-handler)
   (GET "/modify" [] modify-handler)
   (POST "/modify/add-unit" [] add-unit-handler)
   (POST "/modify/remove-unit" [] remove-unit-handler))

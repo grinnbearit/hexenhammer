@@ -21,7 +21,7 @@
 
 
 (defn render-state
-  "Returns the html content for modifying the state"
+  "Returns the html content for displaying the state"
   [state]
   (html
    [:html
@@ -29,15 +29,25 @@
      [:h1 "Play"]
      [:a {:href "/modify"} "modify"] [:br]
      [:style STYLESHEET]
-     [:body
-      (let [{:keys [map/rows map/columns map/battlefield]} state]
+     (let [{:keys [map/rows map/columns map/battlefield map/selected]} state]
+       [:body
+
+        ;; Battlefield
         [:svg (int/size->dim rows columns)
          (for [[cube hex-obj] battlefield]
            (int/svg-translate
             cube
             (case (:hexenhammer/class hex-obj)
               :terrain (svg/svg-terrain cube)
-              :unit (svg/svg-unit hex-obj))))])]]]))
+              :unit [:a {:href (str "/select?" (form-encode cube))}
+                     (svg/svg-unit hex-obj)])))
+         (when-let [hexobj (and selected (battlefield selected))]
+          (int/svg-translate
+           selected
+           [:a {:href "/"}
+            (case (hexobj :hexenhammer/class)
+              :terrain (svg/svg-terrain selected :selected? true)
+              :unit (svg/svg-unit hexobj :selected? true))]))]])]]))
 
 
 (defn render-modify
