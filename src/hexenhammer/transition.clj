@@ -1,6 +1,6 @@
 (ns hexenhammer.transition
   (:require [hexenhammer.cube :as cube]
-            [hexenhammer.component :as component]))
+            [hexenhammer.engine.component :as component]))
 
 
 (defn gen-battlefield-cubes

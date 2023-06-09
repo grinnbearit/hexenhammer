@@ -1,4 +1,4 @@
-(ns hexenhammer.component)
+(ns hexenhammer.engine.component)
 
 
 (defn gen-grass

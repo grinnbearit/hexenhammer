@@ -1,6 +1,6 @@
-(ns hexenhammer.component-test
+(ns hexenhammer.engine.component-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.component :refer :all]))
+            [hexenhammer.engine.component :refer :all]))
 
 
 (facts
