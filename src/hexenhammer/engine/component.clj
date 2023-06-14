@@ -15,4 +15,12 @@
    :unit/id id
    :unit/files 4
    :unit/ranks 4
-   :unit/facing facing})
+   :unit/facing facing
+   :unit/M 4})
+
+
+(defn gen-shadow
+  [cube facing]
+  {:hexenhammer/class :shadow
+   :shadow/cube cube
+   :shadow/facing facing})

@@ -28,3 +28,11 @@
     (max (abs (.q cube))
          (abs (.r cube))
          (abs (.s cube)))))
+
+
+(defn step
+  "return the adjacent cube in the direction given by facing"
+  [position facing]
+  (let [facing->offset {:n (->Cube 0 -1 1) :ne (->Cube 1 -1 0) :se (->Cube 1 0 -1)
+                        :s (->Cube 0 1 -1) :sw (->Cube -1 1 0) :nw (->Cube -1 0 1)}]
+    (add position (facing->offset facing))))
