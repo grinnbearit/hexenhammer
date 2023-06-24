@@ -7,40 +7,32 @@
 (facts
  "gen grass"
 
- (gen-grass)
+ (gen-grass (cube/->Cube 0 0 0))
  => {:hexenhammer/class :terrain
-     :terrain/name "grass"})
+     :terrain/name "grass"
+     :terrain/position (cube/->Cube 0 0 0)})
 
 
 (facts
  "gen infantry"
 
- (gen-infantry 0 1)
+ (gen-infantry 0 1 (cube/->Cube 0 0 0) :n)
  => {:hexenhammer/class :unit
      :unit/player 0
      :unit/name "infantry"
      :unit/id 1
      :unit/files 4
      :unit/ranks 4
+     :unit/position (cube/->Cube 0 0 0)
      :unit/facing :n
-     :unit/M 4}
-
-
- (gen-infantry 1 2 :facing :s)
- => {:hexenhammer/class :unit
-     :unit/player 1
-     :unit/name "infantry"
-     :unit/id 2
-     :unit/files 4
-     :unit/ranks 4
-     :unit/facing :s
      :unit/M 4})
 
 
 (facts
  "gen shadow"
 
- (gen-shadow (cube/->Cube 0 0 0) :n)
+ (gen-shadow 1 (cube/->Cube 0 0 0) :n)
  => {:hexenhammer/class :shadow
-     :shadow/cube (cube/->Cube 0 0 0)
+     :shadow/player 1
+     :shadow/position (cube/->Cube 0 0 0)
      :shadow/facing :n})

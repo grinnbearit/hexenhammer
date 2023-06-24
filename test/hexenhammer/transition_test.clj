@@ -1,7 +1,7 @@
 (ns hexenhammer.unit-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.transition :refer :all]
-            [hexenhammer.component :as component]
+            [hexenhammer.engine.component :as component]
             [hexenhammer.cube :as cube]))
 
 
@@ -34,9 +34,11 @@
  => {:map/rows 3
      :map/columns 4
      :map/battlefield {(cube/->Cube 0 0 0) {:hexenhammer/class :terrain
-                                            :terrain/name "grass"}
+                                            :terrain/name "grass"
+                                            :terrain/position (cube/->Cube 0 0 0)}
                        (cube/->Cube 1 0 -1) {:hexenhammer/class :terrain
-                                             :terrain/name "grass"}}}
+                                             :terrain/name "grass"
+                                             :terrain/position (cube/->Cube 1 0 -1)}}}
 
  (provided
   (gen-battlefield-cubes 3 4)
@@ -71,23 +73,23 @@
 (facts
  "add unit"
 
- (add-unit {:map/state :state} (cube/->Cube 0 0 0) :player 0 :facing :e)
+ (add-unit {:map/state :state} :cube :player 0 :facing :e)
  => {:map/players {0 {"infantry" {:counter 1}}}
-     :map/battlefield {(cube/->Cube 0 0 0) [:infantry :e]}}
+     :map/battlefield {:cube [:infantry :cube :e]}}
 
  (provided
-  (component/gen-infantry 0 0 :facing :e) => [:infantry :e]
+  (component/gen-infantry 0 0 :cube :e) => [:infantry :cube :e]
   (unselect-cube {:map/state :state}) => {}))
 
 
 (facts
  "remove unit"
 
- (let [state {:map/battlefield {(cube/->Cube 0 0 0) [:unit]}}]
+ (let [state {:map/battlefield {:cube [:unit :cube]}}]
 
-   (remove-unit state (cube/->Cube 0 0 0))
-   => {:map/battlefield {(cube/->Cube 0 0 0) [:grass]}}
+   (remove-unit state :cube)
+   => {:map/battlefield {:cube [:grass :cube]}}
 
    (provided
     (unselect-cube state) => state
-    (component/gen-grass) => [:grass])))
+    (component/gen-grass :cube) => [:grass :cube])))

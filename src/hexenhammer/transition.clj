@@ -21,8 +21,9 @@
   [rows columns]
   {:map/rows rows
    :map/columns columns
-   :map/battlefield (zipmap (gen-battlefield-cubes rows columns)
-                            (repeat (component/gen-grass)))})
+   :map/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
+                           [cube (component/gen-grass cube)])
+                         (into {}))})
 
 
 (defn unselect-cube
@@ -40,7 +41,7 @@
 (defn add-unit
   [state cube & {:keys [player facing]}]
   (let [new-id (get-in state [:map/players player "infantry" :counter] 0)
-        new-unit (component/gen-infantry player new-id :facing facing)]
+        new-unit (component/gen-infantry player new-id cube facing)]
     (-> (unselect-cube state)
         (assoc-in [:map/battlefield cube] new-unit)
         (update-in [:map/players player "infantry" :counter] (fnil inc 0)))))
@@ -50,4 +51,4 @@
   [state cube]
   (let [{:keys [unit/player unit/id]} (get-in state [:map/battlefield cube])]
     (-> (unselect-cube state)
-        (assoc-in [:map/battlefield cube] (component/gen-grass)))))
+        (assoc-in [:map/battlefield cube] (component/gen-grass cube)))))
