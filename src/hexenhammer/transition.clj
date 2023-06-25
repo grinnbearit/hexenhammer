@@ -19,7 +19,8 @@
 (defn gen-initial-state
   "Returns the initial hexenhammer state given a list of rows and columns"
   [rows columns]
-  {:map/rows rows
+  {:game/phase :setup
+   :map/rows rows
    :map/columns columns
    :map/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
                            [cube (component/gen-grass cube)])
@@ -52,3 +53,8 @@
   (let [{:keys [unit/player unit/id]} (get-in state [:map/battlefield cube])]
     (-> (unselect-cube state)
         (assoc-in [:map/battlefield cube] (component/gen-grass cube)))))
+
+
+(defn to-movement
+  [state]
+  (assoc state :game/phase :movement))

@@ -31,7 +31,8 @@
  "gen initial state"
 
  (gen-initial-state 3 4)
- => {:map/rows 3
+ => {:game/phase :setup
+     :map/rows 3
      :map/columns 4
      :map/battlefield {(cube/->Cube 0 0 0) {:hexenhammer/class :terrain
                                             :terrain/name "grass"
@@ -93,3 +94,10 @@
    (provided
     (unselect-cube state) => state
     (component/gen-grass :cube) => [:grass :cube])))
+
+
+(facts
+ "to movement"
+
+ (to-movement {:game/phase :setup})
+ => {:game/phase :movement})

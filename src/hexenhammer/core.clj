@@ -14,8 +14,7 @@
 
 (defn default-handler
   [request]
-  (do (swap! hexenhammer-state transition/unselect-cube)
-      (render/render-state @hexenhammer-state)))
+  (render/render-state @hexenhammer-state))
 
 
 (defn select-handler
@@ -26,22 +25,9 @@
                               (Integer/parseInt r)
                               (Integer/parseInt s))]
         (do (swap! hexenhammer-state transition/select-cube cube)
-            (render/render-state @hexenhammer-state)))
+            (redirect "/")))
       (do (swap! hexenhammer-state transition/unselect-cube)
-          (render/render-state @hexenhammer-state)))))
-
-
-(defn modify-handler
-  [{params :query-params}]
-  (let [{:strs [q r s]} params]
-    (if q
-      (let [cube (cube/->Cube (Integer/parseInt q)
-                              (Integer/parseInt r)
-                              (Integer/parseInt s))]
-        (do (swap! hexenhammer-state transition/select-cube cube)
-            (render/render-modify @hexenhammer-state)))
-      (do (swap! hexenhammer-state transition/unselect-cube)
-          (render/render-modify @hexenhammer-state)))))
+          (redirect "/")))))
 
 
 (defn add-unit-handler
@@ -52,7 +38,7 @@
     (do (swap! hexenhammer-state transition/add-unit cube
                :player (Integer/parseInt player)
                :facing (keyword facing))
-        (redirect "/modify"))))
+        (redirect "/"))))
 
 
 (defn remove-unit-handler
@@ -61,15 +47,21 @@
                           (Integer/parseInt r)
                           (Integer/parseInt s))]
     (do (swap! hexenhammer-state transition/remove-unit cube)
-        (redirect "/modify"))))
+        (redirect "/"))))
+
+
+(defn to-movement-handler
+  [request]
+  (do (swap! hexenhammer-state transition/to-movement)
+      (redirect "/")))
 
 
 (defroutes app-handler
   (GET "/" [] default-handler)
   (GET "/select" [] select-handler)
-  (GET "/modify" [] modify-handler)
-  (POST "/modify/add-unit" [] add-unit-handler)
-  (POST "/modify/remove-unit" [] remove-unit-handler))
+  (POST "/setup/add-unit" [] add-unit-handler)
+  (POST "/setup/remove-unit" [] remove-unit-handler)
+  (POST "/setup/to-movement" [] to-movement-handler))
 
 
 (def app
