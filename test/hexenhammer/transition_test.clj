@@ -1,6 +1,7 @@
 (ns hexenhammer.unit-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.transition :refer :all]
+            [hexenhammer.engine.logic :as logic]
             [hexenhammer.engine.component :as component]
             [hexenhammer.cube :as cube]))
 
@@ -32,6 +33,7 @@
 
  (gen-initial-state 3 4)
  => {:game/phase :setup
+     :game/player 1
      :map/rows 3
      :map/columns 4
      :map/battlefield {(cube/->Cube 0 0 0) {:hexenhammer/class :terrain
@@ -75,7 +77,8 @@
  "add unit"
 
  (add-unit {:map/state :state} :cube :player 0 :facing :e)
- => {:map/players {0 {"infantry" {:counter 1}}}
+ => {:map/players {0 {"infantry" {:counter 1}
+                      :cubes #{:cube}}}
      :map/battlefield {:cube [:infantry :cube :e]}}
 
  (provided
@@ -86,10 +89,14 @@
 (facts
  "remove unit"
 
- (let [state {:map/battlefield {:cube [:unit :cube]}}]
+ (let [state {:map/battlefield {:cube {:unit/player 0}}
+              :map/players {0 {"infantry" {:counter 1}
+                               :cubes #{:cube}}}}]
 
    (remove-unit state :cube)
-   => {:map/battlefield {:cube [:grass :cube]}}
+   => {:map/battlefield {:cube [:grass :cube]}
+       :map/players {0 {"infantry" {:counter 1}
+                        :cubes #{}}}}
 
    (provided
     (unselect-cube state) => state
@@ -99,5 +106,23 @@
 (facts
  "to movement"
 
- (to-movement {:game/phase :setup})
- => {:game/phase :movement})
+ (let [battlefield {:cube-1 {:unit/id :unit-1}
+                    :cube-2 {:unit/id :unit-2}
+                    :cube-3 {:unit/id :unit-3}}]
+
+   (to-movement {:game/phase :setup
+                 :game/player 0
+                 :map/battlefield battlefield
+                 :map/players {0 {:cubes #{:cube-1 :cube-2}}}})
+
+   => {:game/phase :movement
+       :game/player 0
+       :map/battlefield {:cube-1 {:unit/id :unit-1
+                                  :unit/status :movable}
+                         :cube-2 {:unit/id :unit-2}
+                         :cube-3 {:unit/id :unit-3}}
+       :map/players {0 {:cubes #{:cube-1 :cube-2}}}}
+
+   (provided
+    (logic/movable? battlefield {:unit/id :unit-1}) => true
+    (logic/movable? battlefield {:unit/id :unit-2}) => false)))

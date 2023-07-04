@@ -16,9 +16,9 @@
 
 
 (facts
- "make pivots"
+ "show pivots"
 
- (make-pivots (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
+ (show-pivots (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
  => #{(component/gen-shadow 1 (cube/->Cube 0 0 0) :nw)
       (component/gen-shadow 1 (cube/->Cube 0 0 0) :ne)})
 
@@ -31,7 +31,7 @@
 
 
 (facts
- "make forward step"
+ "show forward step"
 
  (let [battlefield (->> (for [q (range -1 2)
                               r (range -1 2)
@@ -40,20 +40,20 @@
                           [(cube/->Cube q r s) {:hexenhammer/class :terrain}])
                         (into {}))]
 
-   (make-forward-step battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
+   (show-forward-step battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
    => #{(component/gen-shadow 1 (cube/->Cube 0 0 0) :nw)
         (component/gen-shadow 1 (cube/->Cube 0 0 0) :ne)
         (component/gen-shadow 1 (cube/->Cube 0 -1 1) :n)
         (component/gen-shadow 1 (cube/->Cube 0 -1 1) :ne)
         (component/gen-shadow 1 (cube/->Cube 0 -1 1) :nw)}
 
-   (make-forward-step battlefield (component/gen-shadow 1 (cube/->Cube 0 -1 1) :n))
+   (show-forward-step battlefield (component/gen-shadow 1 (cube/->Cube 0 -1 1) :n))
    => #{(component/gen-shadow 1 (cube/->Cube 0 -1 1) :nw)
         (component/gen-shadow 1 (cube/->Cube 0 -1 1) :ne)}))
 
 
 (facts
- "make forward steps"
+ "show forward steps"
 
  (let [battlefield (->> (for [q (range -2 3)
                               r (range -2 3)
@@ -62,10 +62,10 @@
                           [(cube/->Cube q r s) {:hexenhammer/class :terrain}])
                         (into {}))]
 
-   (make-forward-steps battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 0)
+   (show-forward-steps battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 0)
    => #{(component/gen-shadow 1 (cube/->Cube 0 0 0) :n)}
 
-   (make-forward-steps battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 1)
+   (show-forward-steps battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 1)
    => #{(component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
 
         (component/gen-shadow 1 (cube/->Cube 0 0 0) :nw)
@@ -74,7 +74,7 @@
         (component/gen-shadow 1 (cube/->Cube 0 -1 1) :ne)
         (component/gen-shadow 1 (cube/->Cube 0 -1 1) :nw)}
 
-   (make-forward-steps battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 2)
+   (show-forward-steps battlefield (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 2)
    => #{(component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
 
         (component/gen-shadow 1 (cube/->Cube 0 0 0) :nw)
@@ -107,7 +107,7 @@
         (component/gen-shadow 1 (cube/->Cube 1 -2 1) :n)
         (component/gen-shadow 1 (cube/->Cube 1 -2 1) :se)}
 
-   (make-forward-steps (assoc battlefield (cube/->Cube 0 -1 1) {:hexenhammer/class :unit})
+   (show-forward-steps (assoc battlefield (cube/->Cube 0 -1 1) {:hexenhammer/class :unit})
                        (component/gen-shadow 1 (cube/->Cube 0 0 0) :n) 2)
    => #{(component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
 
@@ -126,35 +126,35 @@
 
 
 (facts
- "enemies?"
+ "shadow enemies?"
 
- (enemies? (component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
-           (component/gen-infantry 1 1 (cube/->Cube 0 0 0) :n))
+ (shadow-enemies? (component/gen-infantry 1 1 (cube/->Cube 0 0 0) :n)
+                  (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
  => false
 
 
- (enemies? (component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
-           (component/gen-infantry 2 1 (cube/->Cube 0 0 0) :n))
+ (shadow-enemies? (component/gen-infantry 2 1 (cube/->Cube 0 0 0) :n)
+                  (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
  => true)
 
 
 (facts
- "engaged?"
+ "shadow engaged?"
 
- (engaged? (component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
-           (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :n))
+ (shadow-engaged? (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :n)
+                  (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
  => true
 
- (engaged? (component/gen-shadow 1 (cube/->Cube 0 0 0) :s)
-           (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :s))
+ (shadow-engaged? (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :s)
+                  (component/gen-shadow 1 (cube/->Cube 0 0 0) :s))
  => true
 
- (engaged? (component/gen-shadow 1 (cube/->Cube 0 0 0) :s)
-           (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :n))
+ (shadow-engaged? (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :n)
+                  (component/gen-shadow 1 (cube/->Cube 0 0 0) :s))
  => false
 
- (engaged? (component/gen-shadow 1 (cube/->Cube 0 0 0) :n)
-           (component/gen-infantry 1 1 (cube/->Cube 0 -1 1) :s))
+ (shadow-engaged? (component/gen-infantry 1 1 (cube/->Cube 0 -1 1) :s)
+                  (component/gen-shadow 1 (cube/->Cube 0 0 0) :n))
  => false)
 
 
@@ -166,18 +166,18 @@
 
 
 (facts
- "engaged battlefield?"
+ "shadow engaged battlefield?"
 
  (let [cube (cube/->Cube 0 0 0)]
 
-   (engaged-battlefield? :battlefield {:shadow/position cube})
+   (shadow-battlefield-engaged? :battlefield {:shadow/position cube})
    => false
 
    (provided
     (cube/neighbours cube) => [])
 
 
-   (engaged-battlefield? {cube :unit} {:shadow/position cube})
+   (shadow-battlefield-engaged?  {cube :unit} {:shadow/position cube})
    => false
 
    (provided
@@ -187,7 +187,7 @@
     (unit? :unit)
     => false)
 
-   (engaged-battlefield? {cube :unit} {:shadow/position cube})
+   (shadow-battlefield-engaged? {cube :unit} {:shadow/position cube} )
    => true
 
    (provided
@@ -197,24 +197,109 @@
     (unit? :unit)
     => true
 
-    (engaged? {:shadow/position cube} :unit)
+    (shadow-engaged? :unit {:shadow/position cube})
     => true)))
 
 
 (facts
- "move unit forwards"
+ "show move unit forwards"
 
- (move-unit-forwards :battlefield {:unit/M 4 :unit/player 1 :unit/position :cube :unit/facing :n})
+ (show-move-unit-forwards :battlefield {:unit/M 4 :unit/player 1 :unit/position :cube :unit/facing :n})
  => []
 
  (provided
   (component/gen-shadow 1 :cube :n) => :shadow
-  (make-forward-steps :battlefield :shadow 1) => #{:shadow})
+  (show-forward-steps :battlefield :shadow 1) => #{:shadow})
 
- (move-unit-forwards :battlefield {:unit/M 4 :unit/player 1 :unit/position :cube :unit/facing :n})
+ (show-move-unit-forwards :battlefield {:unit/M 4 :unit/player 1 :unit/position :cube :unit/facing :n})
  => [:step]
 
  (provided
   (component/gen-shadow 1 :cube :n) => :shadow
-  (make-forward-steps :battlefield :shadow 1) => #{:step :shadow}
-  (engaged? :battlefield :step) => false))
+  (show-forward-steps :battlefield :shadow 1) => #{:step :shadow}
+  (shadow-battlefield-engaged? :battlefield :step) => false))
+
+
+(facts
+ "enemies?"
+
+ (enemies? (component/gen-infantry 1 1 (cube/->Cube 0 0 0) :n)
+           (component/gen-infantry 1 2 (cube/->Cube 0 0 0) :n))
+ => false
+
+
+ (enemies? (component/gen-infantry 2 1 (cube/->Cube 0 0 0) :n)
+           (component/gen-infantry 1 1 (cube/->Cube 0 0 0) :n))
+ => true)
+
+
+(facts
+ "units engaged?"
+
+ (engaged? (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :n)
+           (component/gen-infantry 1 1 ( cube/->Cube 0 0 0) :n))
+ => true
+
+ (engaged? (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :s)
+           (component/gen-infantry 1 1 (cube/->Cube 0 0 0) :s))
+ => true
+
+ (engaged? (component/gen-infantry 2 1 (cube/->Cube 0 -1 1) :n)
+           (component/gen-infantry 1 1 (cube/->Cube 0 0 0) :s))
+ => false
+
+ (engaged? (component/gen-infantry 1 1 (cube/->Cube 0 -1 1) :s)
+           (component/gen-infantry 1 2 (cube/->Cube 0 0 0) :n))
+ => false)
+
+
+(facts
+ "engaged battlefield?"
+
+ (let [cube (cube/->Cube 0 0 0)]
+
+   (battlefield-engaged? :battlefield {:unit/position cube})
+   => false
+
+   (provided
+    (cube/neighbours cube) => [])
+
+
+   (battlefield-engaged? {cube :unit} {:unit/position cube})
+   => false
+
+   (provided
+    (cube/neighbours cube)
+    => [cube]
+
+    (unit? :unit)
+    => false)
+
+   (battlefield-engaged? {cube :unit} {:unit/position cube} )
+   => true
+
+   (provided
+    (cube/neighbours cube)
+    => [cube]
+
+    (unit? :unit)
+    => true
+
+    (engaged? :unit {:unit/position cube})
+    => true)))
+
+
+(facts
+ "movable?"
+
+ (movable? :battlefield :unit)
+ => false
+
+ (provided
+  (battlefield-engaged? :battlefield :unit) => true)
+
+ (movable? :battlefield :unit)
+ => true
+
+ (provided
+  (battlefield-engaged? :battlefield :unit) => false))

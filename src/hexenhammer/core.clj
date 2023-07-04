@@ -61,7 +61,8 @@
   (GET "/select" [] select-handler)
   (POST "/setup/add-unit" [] add-unit-handler)
   (POST "/setup/remove-unit" [] remove-unit-handler)
-  (POST "/setup/to-movement" [] to-movement-handler))
+  (POST "/setup/to-movement" [] to-movement-handler)
+  (route/not-found "oops"))
 
 
 (def app

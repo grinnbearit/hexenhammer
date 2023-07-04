@@ -1,5 +1,6 @@
 (ns hexenhammer.transition
   (:require [hexenhammer.cube :as cube]
+            [hexenhammer.engine.logic :as logic]
             [hexenhammer.engine.component :as component]))
 
 
@@ -20,6 +21,7 @@
   "Returns the initial hexenhammer state given a list of rows and columns"
   [rows columns]
   {:game/phase :setup
+   :game/player 1
    :map/rows rows
    :map/columns columns
    :map/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
@@ -45,16 +47,25 @@
         new-unit (component/gen-infantry player new-id cube facing)]
     (-> (unselect-cube state)
         (assoc-in [:map/battlefield cube] new-unit)
-        (update-in [:map/players player "infantry" :counter] (fnil inc 0)))))
+        (update-in [:map/players player "infantry" :counter] (fnil inc 0))
+        (update-in [:map/players player :cubes] (fnil conj #{}) cube))))
 
 
 (defn remove-unit
   [state cube]
-  (let [{:keys [unit/player unit/id]} (get-in state [:map/battlefield cube])]
+  (let [{:keys [unit/player]} (get-in state [:map/battlefield cube])]
     (-> (unselect-cube state)
-        (assoc-in [:map/battlefield cube] (component/gen-grass cube)))))
+        (assoc-in [:map/battlefield cube] (component/gen-grass cube))
+        (update-in [:map/players player :cubes] disj cube))))
 
 
 (defn to-movement
   [state]
-  (assoc state :game/phase :movement))
+  (letfn [(update-movement-status [battlefield cube]
+            (update battlefield cube assoc :unit/status :movable))]
+
+    (let [{:keys [game/player map/battlefield]} state]
+      (->> (get-in state [:map/players player :cubes])
+           (filter #(logic/movable? battlefield (battlefield %)))
+           (reduce update-movement-status battlefield)
+           (assoc state :game/phase :movement :map/battlefield)))))

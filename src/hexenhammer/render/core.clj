@@ -94,7 +94,8 @@
   [:html
    [:head
     [:h1 "Hexenhammer"]
-    [:h2 "Movement"]
+    [:h2 (format "Player %d" (:game/player state))]
+    [:h3 "Movement"]
     [:style STYLESHEET]
     (let [{:keys [map/rows map/columns map/battlefield map/selected]} state]
       [:body
