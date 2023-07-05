@@ -5,14 +5,18 @@
 
 (defn svg-unit
   "Writes unit information on the hex"
-  [unit & {:keys [selected?] :or {selected? false}}]
+  [unit & {:keys [selected? highlighted?] :or {selected? false highlighted? false}}]
   (let [int->roman ["i" "ii" "iii" "iv" "v" "vi" "vii" "viii" "ix" "x"]]
+
     [:g {}
-     (int/svg-hexagon :classes (if selected? ["grass" "selected"] ["grass"]))
+     (int/svg-hexagon :classes (cond-> ["grass"]
+                                 selected? (conj "selected")))
      (int/svg-scale
       9/10
       [:g {}
-       (int/svg-hexagon :classes ["unit" (str "player-" (:unit/player unit))])
+       (int/svg-hexagon :classes (cond-> ["unit" (str "player-" (:unit/player unit))]
+                                   highlighted? (conj "highlighted")))
+
        (int/svg-text -1 (format "%s" (:unit/name unit)))
        (int/svg-text 0 (format "%d x %d" (:unit/files unit) (:unit/ranks unit)))
        (int/svg-text 2 (format "%s" (int->roman (:unit/id unit))))

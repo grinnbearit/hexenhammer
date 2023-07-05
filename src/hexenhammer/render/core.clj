@@ -15,8 +15,10 @@
         [:&.grass {:fill "#6aa84f" :stroke "black"} ;
          [:&.selected {:stroke "yellow"}]]
         [:&.unit
-         [:&.player-0 {:fill "#990000" :stroke "black"}]
-         [:&.player-1 {:fill "#1155cc" :stroke "black"}]]]
+         [:&.player-1 {:fill "#990000" :stroke "black"}
+          [:&.highlighted {:stroke "#cc0000"}]]
+         [:&.player-2 {:fill "#1155cc" :stroke "black"}
+          [:&.highlighted {:stroke "#efefef"}]]]]
        [:table :th :td {:border "1px solid"}]))
 
 
@@ -63,8 +65,8 @@
               [:td
                [:label {:for "player"} "Player"]]
               [:td
-               [:input {:type "radio" :id "player" :name "player" :value "0" :checked true} "1"]
-               [:input {:type "radio" :name "player" :value "1"} "2"]]]
+               [:input {:type "radio" :id "player" :name "player" :value "1" :checked true} "1"]
+               [:input {:type "radio" :name "player" :value "2"} "2"]]]
              [:tr
               [:td
                [:label {:for "facing"} "Facing"]]
@@ -97,18 +99,21 @@
     [:h2 (format "Player %d" (:game/player state))]
     [:h3 "Movement"]
     [:style STYLESHEET]
-    (let [{:keys [map/rows map/columns map/battlefield map/selected]} state]
+    (let [{:keys [map/rows map/columns map/battlefield map/players map/selected game/player]} state]
       [:body
 
        ;; Battlefield
        [:svg (int/size->dim rows columns)
+
         (for [[cube component] battlefield]
           (int/svg-translate
            cube
            (case (:hexenhammer/class component)
              :terrain (svg/svg-terrain cube)
-             :unit [:a {:href (str "/select?" (form-encode cube))}
-                    (svg/svg-unit component)])))
+             :unit (if (= (:unit/status component) :movable)
+                     (svg/svg-unit component :highlighted? true)
+                     (svg/svg-unit component)))))
+
         (when-let [component (and selected (battlefield selected))]
           (int/svg-translate
            selected
