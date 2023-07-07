@@ -1,20 +1,14 @@
 (ns hexenhammer.view.html
   (:require [garden.core :refer [css]]
             [hiccup.core :refer [html]]
-            [hexenhammer.view.svg :as svg]))
+            [hexenhammer.view.svg :as svg]
+            [hexenhammer.view.entity :as entity]))
 
 
 (def STYLESHEET
   (css
    [:polygon
-    [:&.grass {:fill "#6aa84f" :stroke "black"} ;
-     [:&.selected {:stroke "yellow"}]]
-    [:&.unit
-     [:&.player-1 {:fill "#990000" :stroke "black"}
-      [:&.highlighted {:stroke "#cc0000"}]]
-     [:&.player-2 {:fill "#1155cc" :stroke "black"}
-      [:&.highlighted {:stroke "#efefef"}]]]]
-   [:table :th :td {:border "1px solid"}]))
+    [:&.terrain {:fill "#6aa84f" :stroke "black"}]]))
 
 
 (defmulti render :game/phase)
@@ -32,4 +26,6 @@
       [:body
 
        ;; Battlefield
-       [:svg (svg/size->dim rows columns)]])]))
+       [:svg (svg/size->dim rows columns)
+        (for [entity (vals battlefield)]
+          (entity/render entity))]])]))
