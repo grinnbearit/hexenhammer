@@ -8,7 +8,16 @@
 (def STYLESHEET
   (css
    [:polygon
-    [:&.terrain {:fill "#6aa84f" :stroke "black"}]]))
+    [:&.terrain {:fill "#6aa84f" :stroke "black"}
+     [:&.selected {:stroke "yellow"}]]]))
+
+
+(defn entity->z
+  "Returns the z index value for the passed entity depending on the presentation status"
+  [entity]
+  (let [presentation->rank {:default 0 :selected 1}]
+    (-> (:entity/presentation entity)
+        (presentation->rank))))
 
 
 (defmulti render :game/phase)
@@ -22,10 +31,10 @@
      [:h1 "Hexenhammer"]
      [:h2 "Setup"]
      [:style STYLESHEET]]
-    (let [{:keys [map/rows map/columns map/battlefield]} state]
+    (let [{:keys [game/rows game/columns game/battlefield]} state]
       [:body
 
        ;; Battlefield
        [:svg (svg/size->dim rows columns)
-        (for [entity (vals battlefield)]
+        (for [entity (sort-by entity->z (vals battlefield))]
           (entity/render entity))]])]))

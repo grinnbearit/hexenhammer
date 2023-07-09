@@ -7,13 +7,29 @@
 (facts
  "render terrain"
 
- (render {:hexenhammer/entity :terrain
-          :terrain/cube :cube-1})
- => [:hexagon "terrain" :cube-1]
+ (render {:entity/name :terrain
+          :entity/cube :cube-1})
+ => [:hexagon {:class "terrain"} :cube-1]
 
  (provided
-  (svg/hexagon :classes ["terrain"])
-  => [:hexagon "terrain"]
+  (svg/hexagon) => [:hexagon {}]
 
-  (svg/translate :cube-1 [:hexagon "terrain"])
-  => [:hexagon "terrain" :cube-1]))
+  (svg/translate [:hexagon {:class "terrain"}] :cube-1)
+  => [:hexagon {:class "terrain"} :cube-1])
+
+
+ (render {:entity/name :terrain
+          :entity/cube :cube-1
+          :entity/interaction :selectable
+          :entity/presentation :selected})
+
+ => [:hexagon {:class "terrain selected"} :cube-1 :cube-1]
+
+ (provided
+  (svg/hexagon) => [:hexagon {}]
+
+  (svg/translate [:hexagon {:class "terrain"}] :cube-1)
+  => [:hexagon {:class "terrain"} :cube-1]
+
+  (svg/selectable [:hexagon {:class "terrain selected"} :cube-1] :cube-1)
+  => [:hexagon {:class "terrain selected"} :cube-1 :cube-1]))

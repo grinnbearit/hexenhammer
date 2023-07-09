@@ -1,5 +1,6 @@
 (ns hexenhammer.view.svg
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [ring.util.codec :refer [form-encode]]))
 
 
 (def WIDTH 80)
@@ -29,7 +30,7 @@
 (defn translate
   "Returns the element with a transform attribute that traslates it
   according to (size, q, r, s)"
-  [cube element & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [element cube & {:keys [width height] :or {width WIDTH height HEIGHT}}]
   (let [attrs (element 1)
         [x y] (cube->point cube :width width :height height)
         tran-str (format "translate(%.2f, %.2f)" (float x) (float y))]
@@ -57,7 +58,25 @@
 
 (defn hexagon
   "returns an svg hexagon"
-  [& {:keys [width height classes]
+  [& {:keys [width height]
       :or {width WIDTH height HEIGHT classes []}}]
-  [:polygon {:points (points->str (gen-hexpoints :width width :height height))
-             :class (str/join " " classes)}])
+  [:polygon {:points (points->str (gen-hexpoints :width width :height height))}])
+
+
+(defn add-classes
+  "adds the passed classes to the element"
+  [element classes]
+  (let [class-str (str/join " " classes)]
+    (update-in element [1 :class] #(if % (str % " " class-str) class-str))))
+
+
+(defn anchor
+  "given an element, wraps it in an anchor tag with the passed href"
+  [element href]
+  [:a {:href href} element])
+
+
+(defn selectable
+  "given an element and a cube, wraps it in an anchor tag  pointing to /select?[cube]"
+  [element cube]
+  (anchor element (str "/select?" (form-encode cube))))

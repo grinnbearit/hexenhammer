@@ -33,10 +33,12 @@
  (gen-initial-state 3 4)
  => {:game/phase :setup
      :game/player 1
-     :map/rows 3
-     :map/columns 4
-     :map/battlefield {:cube-1 {:hexenhammer/entity :terrain :terrain/cube :cube-1}
-                       :cube-2 {:hexenhammer/entity :terrain :terrain/cube :cube-2}}}
+     :game/rows 3
+     :game/columns 4
+     :game/battlefield {:cube-1 :entity-1
+                        :cube-2 :entity-2}}
 
  (provided
-  (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]))
+  (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]
+  (entity/gen-terrain :cube-1 :interaction :selectable) => :entity-1
+  (entity/gen-terrain :cube-2 :interaction :selectable) => :entity-2))

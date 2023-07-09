@@ -39,14 +39,14 @@
 (facts
  "translate"
 
- (translate :cube-1 [:g {}] :width :width-1 :height :height-1)
+ (translate [:g {}] :cube-1 :width :width-1 :height :height-1)
  => [:g {:transform "translate(10.50, 20.50)"}]
 
  (provided
   (cube->point :cube-1 :width :width-1 :height :height-1)
   => [10.5 20.5])
 
- (translate :cube-2 [:g {:transform "rotate(30)"}] :width :width-2 :height :height-2)
+ (translate [:g {:transform "rotate(30)"}] :cube-2 :width :width-2 :height :height-2)
  => [:g {:transform "translate(10.50, 20.50) rotate(30)"}]
 
  (provided
@@ -73,16 +73,32 @@
  "hexagon"
 
  (hexagon :width :width-1 :height :height-1)
- => [:polygon {:points "hexpoints-1" :class ""}]
+ => [:polygon {:points "hexpoints-1"}]
 
  (provided
   (gen-hexpoints :width :width-1 :height :height-1) => :hexpoints-1
-  (points->str :hexpoints-1) => "hexpoints-1")
+  (points->str :hexpoints-1) => "hexpoints-1"))
 
 
- (hexagon :width :width-2 :height :height-2 :classes ["terrain" "grass"])
- => [:polygon {:points "hexpoints-2" :class "terrain grass"}]
+(facts
+ "add-classes"
 
- (provided
-  (gen-hexpoints :width :width-2 :height :height-2) => :hexpoints-2
-  (points->str :hexpoints-2) => "hexpoints-2"))
+ (add-classes [:element-1 {}] ["class-1" "class-2"])
+ => [:element-1 {:class "class-1 class-2"}]
+
+ (add-classes [:element-1 {:class "class-1"}] ["class-2" "class-3"])
+ => [:element-1 {:class "class-1 class-2 class-3"}])
+
+
+(facts
+ "anchor"
+
+ (anchor :element-1 :href-1)
+ => [:a {:href :href-1} :element-1])
+
+
+(facts
+ "selectable"
+
+ (selectable :element-1 {:q 1 :r 1 :s 1})
+ => [:a {:href "/select?q=1&r=1&s=1"} :element-1])

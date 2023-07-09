@@ -2,11 +2,17 @@
   (:require [hexenhammer.view.svg :as svg]))
 
 
-(defmulti render :hexenhammer/entity)
+(defmulti render :entity/name)
 
 
 (defmethod render :terrain
   [terrain]
-  (svg/translate
-   (:terrain/cube terrain)
-   (svg/hexagon :classes ["terrain"])))
+  (cond-> (-> (svg/hexagon)
+              (svg/add-classes ["terrain"])
+              (svg/translate (:entity/cube terrain)))
+
+    (= :selected (:entity/presentation terrain))
+    (svg/add-classes ["selected"])
+
+    (= :selectable (:entity/interaction terrain))
+    (svg/selectable (:entity/cube terrain))))

@@ -21,8 +21,8 @@
   [rows columns]
   {:game/phase :setup
    :game/player 1
-   :map/rows rows
-   :map/columns columns
-   :map/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
-                           [cube (entity/gen-terrain cube)])
-                         (into {}))})
+   :game/rows rows
+   :game/columns columns
+   :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
+                             [cube (entity/gen-terrain cube :interaction :selectable)])
+                           (into {}))})
