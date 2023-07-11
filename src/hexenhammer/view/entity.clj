@@ -2,7 +2,7 @@
   (:require [hexenhammer.view.svg :as svg]))
 
 
-(defmulti render :entity/name)
+(defmulti render :entity/class)
 
 
 (defmethod render :terrain

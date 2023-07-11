@@ -32,6 +32,7 @@
 
  (gen-initial-state 3 4)
  => {:game/phase :setup
+     :game/subphase :select-hex
      :game/player 1
      :game/rows 3
      :game/columns 4

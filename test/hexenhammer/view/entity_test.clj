@@ -7,7 +7,7 @@
 (facts
  "render terrain"
 
- (render {:entity/name :terrain
+ (render {:entity/class :terrain
           :entity/cube :cube-1})
  => [:hexagon {:class "terrain"} :cube-1]
 
@@ -18,7 +18,7 @@
   => [:hexagon {:class "terrain"} :cube-1])
 
 
- (render {:entity/name :terrain
+ (render {:entity/class :terrain
           :entity/cube :cube-1
           :entity/interaction :selectable
           :entity/presentation :selected})

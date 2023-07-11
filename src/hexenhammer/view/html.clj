@@ -20,10 +20,17 @@
         (presentation->rank))))
 
 
-(defmulti render :game/phase)
+(defn render-battlefield
+  [{:keys [game/rows game/columns game/battlefield]}]
+  [:svg (svg/size->dim rows columns)
+   (for [entity (sort-by entity->z (vals battlefield))]
+     (entity/render entity))])
 
 
-(defmethod render :setup
+(defmulti render (juxt :game/phase :game/subphase))
+
+
+(defmethod render [:setup :select-hex]
   [state]
   (html
    [:html
@@ -31,10 +38,18 @@
      [:h1 "Hexenhammer"]
      [:h2 "Setup"]
      [:style STYLESHEET]]
-    (let [{:keys [game/rows game/columns game/battlefield]} state]
-      [:body
+    [:body
+     (render-battlefield state)]]))
 
-       ;; Battlefield
-       [:svg (svg/size->dim rows columns)
-        (for [entity (sort-by entity->z (vals battlefield))]
-          (entity/render entity))]])]))
+
+(defmethod render [:setup :add-unit]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Setup - Add Unit"]
+     [:style STYLESHEET]]
+    [:body
+     (render-battlefield state)
+     [:h2 "Add Unit"]]]))
