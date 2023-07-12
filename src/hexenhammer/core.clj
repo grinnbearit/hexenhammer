@@ -1,5 +1,5 @@
 (ns hexenhammer.core
-  (:require [compojure.core :refer [defroutes GET]]
+  (:require [compojure.core :refer [defroutes GET POST]]
             [hexenhammer.model.core :as model]
             [hexenhammer.model.cube :as cube]
             [hexenhammer.view.html :as view]
@@ -19,19 +19,28 @@
 
 
 (defn select-handler
-  [{params :query-params}]
-  (let [{:strs [q r s]} params
-        cube (cube/->Cube (Integer/parseInt q)
+  [{{:strs [q r s]} :params}]
+  (let [cube (cube/->Cube (Integer/parseInt q)
                           (Integer/parseInt r)
                           (Integer/parseInt s))]
     (do (swap! hexenhammer-state controller/select cube)
         (redirect "/"))))
 
 
+(defn setup-add-unit-handler
+  [{{:strs [player facing]} :params}]
+  (let [player (Integer/parseInt player)
+        facing (keyword facing)]
+    (do (swap! hexenhammer-state controller/add-unit player facing)
+        (redirect "/"))))
+
+
 (defroutes hexenhammer-handler
   (GET "/" [] render-handler)
   (GET "/select" [] select-handler)
-  (GET "/favicon.ico" [] ""))
+  (GET "/favicon.ico" [] "")
+  (POST "/setup/add-unit" [] setup-add-unit-handler)
+  (POST "/setup/remove-unit" [] (do (swap! hexenhammer-state controller/remove-unit) (redirect "/"))))
 
 
 (def hexenhammer-app

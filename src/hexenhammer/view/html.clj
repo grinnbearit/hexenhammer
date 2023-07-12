@@ -9,7 +9,13 @@
   (css
    [:polygon
     [:&.terrain {:fill "#6aa84f" :stroke "black"}
-     [:&.selected {:stroke "yellow"}]]]))
+     [:&.selected {:stroke "yellow"}]]
+    [:&.unit
+     [:&.player-1 {:fill "#990000" :stroke "black"}
+      [:&.selected {:stroke "yellow"}]]
+     [:&.player-2 {:fill "#1155cc" :stroke "black"}
+      [:&.selected {:stroke "yellow"}]]]]
+   [:table :th :td {:border "1px solid"}]))
 
 
 (defn entity->z
@@ -51,5 +57,36 @@
      [:h2 "Setup - Add Unit"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state)
-     [:h2 "Add Unit"]]]))
+     (render-battlefield state) [:br] [:br]
+     [:form {:action "/setup/add-unit" :method "post"}
+      [:table
+       [:tr
+        [:td
+         [:label {:for "player"} "Player"]]
+        [:td
+         [:input {:type "radio" :id "player" :name "player" :value "1" :checked true} "1"]
+         [:input {:type "radio" :name "player" :value "2"} "2"]]]
+       [:tr
+        [:td
+         [:label {:for "facing"} "Facing"]]
+        [:td
+         [:select {:id "facing" :name "facing"}
+          (for [[facing-code facing-name]
+                [["n" "North"] ["ne" "North-East"] ["se" "South-East"]
+                 ["s" "South"] ["sw" "South-West"] ["nw" "North-West"]]]
+            [:option {:value facing-code} facing-name])]]]]
+      [:input {:type "submit" :value "Add Unit"}]]]]))
+
+
+(defmethod render [:setup :remove-unit]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Setup - Remove Unit"]
+     [:style STYLESHEET]]
+    [:body
+     (render-battlefield state) [:br] [:br]
+     [:form {:action "/setup/remove-unit" :method "post"}
+      [:input {:type "submit" :value "Remove Unit"}]]]]))

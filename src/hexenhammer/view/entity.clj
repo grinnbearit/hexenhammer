@@ -16,3 +16,16 @@
 
     (= :selectable (:entity/interaction terrain))
     (svg/selectable (:entity/cube terrain))))
+
+
+(defmethod render :unit
+  [unit]
+  (cond-> (-> (svg/hexagon)
+              (svg/add-classes ["unit" (str "player-" (:unit/player unit))])
+              (svg/translate (:entity/cube unit)))
+
+    (= :selected (:entity/presentation unit))
+    (svg/add-classes ["selected"])
+
+    (= :selectable (:entity/interaction unit))
+    (svg/selectable (:entity/cube unit))))

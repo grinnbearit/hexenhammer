@@ -9,3 +9,15 @@
    :entity/cube cube
    :entity/presentation presentation
    :entity/interaction interaction})
+
+
+(defn gen-unit
+  "Returns a generic unit entity"
+  [cube player facing & {:keys [presentation interaction] :or {presentation :default interaction :default}}]
+  {:entity/class :unit
+   :entity/name "unit"
+   :entity/cube cube
+   :entity/presentation presentation
+   :entity/interaction interaction
+   :unit/player player
+   :unit/facing facing})
