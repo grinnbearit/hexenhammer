@@ -80,3 +80,11 @@
   "given an element and a cube, wraps it in an anchor tag  pointing to /select?[cube]"
   [element cube]
   (anchor element (str "/select?" (form-encode cube))))
+
+
+(defn scale
+  "Returns the element with a transform attribute that scales it by a factor `factor`"
+  [element factor]
+  (let [attrs (element 1)
+        tran-str (format "scale(%.2f)" (float factor))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))

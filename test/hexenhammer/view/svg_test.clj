@@ -102,3 +102,13 @@
 
  (selectable :element-1 {:q 1 :r 1 :s 1})
  => [:a {:href "/select?q=1&r=1&s=1"} :element-1])
+
+
+(facts
+ "scale"
+
+ (scale [:g {}] 9/10)
+ => [:g {:transform "scale(0.90)"}]
+
+ (scale [:g {:transform "rotate(30)"}] 9/10)
+ => [:g {:transform "scale(0.90) rotate(30)"}])

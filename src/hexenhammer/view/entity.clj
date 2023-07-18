@@ -5,14 +5,20 @@
 (defmulti render :entity/class)
 
 
-(defmethod render :terrain
+(defn render-terrain
+  "Generates a base, selectable svg terrain entity"
   [terrain]
   (cond-> (-> (svg/hexagon)
-              (svg/add-classes ["terrain"])
-              (svg/translate (:entity/cube terrain)))
+              (svg/add-classes ["terrain"]))
 
     (= :selected (:entity/presentation terrain))
-    (svg/add-classes ["selected"])
+    (svg/add-classes ["selected"])))
+
+
+(defmethod render :terrain
+  [terrain]
+  (cond-> (-> (render-terrain terrain)
+              (svg/translate (:entity/cube terrain)))
 
     (= :selectable (:entity/interaction terrain))
     (svg/selectable (:entity/cube terrain))))
@@ -20,12 +26,13 @@
 
 (defmethod render :unit
   [unit]
-  (cond-> (-> (svg/hexagon)
-              (svg/add-classes ["unit" (str "player-" (:unit/player unit))])
-              (svg/translate (:entity/cube unit)))
+  (cond-> (-> [:g {}
+               (render-terrain unit)
+               (-> (svg/hexagon)
+                   (svg/scale 9/10)
+                   (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))]
 
-    (= :selected (:entity/presentation unit))
-    (svg/add-classes ["selected"])
+              (svg/translate (:entity/cube unit)))
 
     (= :selectable (:entity/interaction unit))
     (svg/selectable (:entity/cube unit))))
