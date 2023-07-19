@@ -5,6 +5,7 @@
 
 (def WIDTH 80)
 (def HEIGHT (Math/round (* (Math/sqrt 3) (/ WIDTH 2))))
+(def FONT-SIZE (/ WIDTH 10))
 
 
 (defn size->dim
@@ -115,3 +116,13 @@
      [:polyline {:points (points->str (gen-chevpoints :width width :height height))
                  :stroke "white" :fill "white"}]
      (facing->angle facing))))
+
+
+(defn text
+  "Returns an svg text element withis a text offset from the centre of the hex"
+  [text row & {:keys [font-size] :or {font-size FONT-SIZE}}]
+  (let [x-offset (- (* (/ (inc (count text)) 2) 1/2 font-size))
+        y-offset (+ (* row font-size) (/ font-size 4))]
+    [:text {:x x-offset :y y-offset
+            :font-family "monospace" :font-size (str font-size) :fill "white"}
+     text]))

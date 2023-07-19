@@ -31,7 +31,8 @@
                (-> [:g {}
                     (-> (svg/hexagon)
                         (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
-                    (svg/chevron (:unit/facing unit))]
+                    (svg/chevron (:unit/facing unit))
+                    (svg/text "unit" 0)]
                    (svg/scale 9/10))]
 
               (svg/translate (:entity/cube unit)))

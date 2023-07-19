@@ -152,3 +152,17 @@
   (points->str :chevpoints) => :points-str
   (rotate [:polyline {:points :points-str :stroke "white" :fill "white"}] 300)
   => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]))
+
+
+(facts
+ "text"
+
+ (text "" 0 :font-size 12)
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -3 :y 3} ""]
+
+
+ (text "0" 1 :font-size 12)
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y 15} "0"]
+
+ (text "0" -1 :font-size 12)
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y -9} "0"])
