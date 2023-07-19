@@ -112,3 +112,43 @@
 
  (scale [:g {:transform "rotate(30)"}] 9/10)
  => [:g {:transform "scale(0.90) rotate(30)"}])
+
+
+(facts
+ "rotate"
+
+ (rotate [:element {}] 30)
+ => [:element {:transform "rotate(30.00)"}]
+
+ (rotate [:element {:transform "scale(0.90)"}] 30)
+ => [:element {:transform "rotate(30.00) scale(0.90)"}])
+
+
+(facts
+ "gen chevpoints"
+
+ (gen-chevpoints :width 200 :height 100)
+ => [[0 50] [-10 45] [10 45]])
+
+
+(facts
+ "chevron"
+
+ (chevron :n :width 200 :height 100)
+ => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]
+
+ (provided
+  (gen-chevpoints :width 200 :height 100) => :chevpoints
+  (points->str :chevpoints) => :points-str
+  (rotate [:polyline {:points :points-str :stroke "white" :fill "white"}] 180)
+  => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}])
+
+
+ (chevron :se :width 200 :height 100)
+ => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]
+
+ (provided
+  (gen-chevpoints :width 200 :height 100) => :chevpoints
+  (points->str :chevpoints) => :points-str
+  (rotate [:polyline {:points :points-str :stroke "white" :fill "white"}] 300)
+  => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]))

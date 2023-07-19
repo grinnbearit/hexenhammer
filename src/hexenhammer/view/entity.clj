@@ -28,9 +28,11 @@
   [unit]
   (cond-> (-> [:g {}
                (render-terrain unit)
-               (-> (svg/hexagon)
-                   (svg/scale 9/10)
-                   (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))]
+               (-> [:g {}
+                    (-> (svg/hexagon)
+                        (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
+                    (svg/chevron (:unit/facing unit))]
+                   (svg/scale 9/10))]
 
               (svg/translate (:entity/cube unit)))
 

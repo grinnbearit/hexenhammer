@@ -62,61 +62,85 @@
 
  (render {:entity/class :unit
           :entity/cube :cube-1
-          :unit/player 1})
+          :unit/player 1
+          :unit/facing :n})
 
  => [:g {:translate :cube-1}
      [:terrain {}]
-     [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]
-
- (provided
-  (render-terrain {:entity/class :unit
-                   :entity/cube :cube-1
-                   :unit/player 1})
-  => [:terrain {}]
-
-  (svg/hexagon) => [:hexagon {}]
-
-  (svg/translate [:g {}
-                  [:terrain {}]
-                  [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]
-                 :cube-1)
-  => [:g {:translate :cube-1}
-      [:terrain {}]
-      [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]])
-
-
- (render {:entity/class :unit
-          :entity/cube :cube-1
-          :unit/player 1
-          :entity/interaction :selectable})
-
- => [:g {:translate :cube-1
-         :selectable :cube-1}
-     [:terrain {}]
-     [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]
+     [:g {:transform "scale(0.90)"}
+      [:hexagon {:class "unit player-1"}]
+      [:chevron :n]]]
 
  (provided
   (render-terrain {:entity/class :unit
                    :entity/cube :cube-1
                    :unit/player 1
+                   :unit/facing :n})
+  => [:terrain {}]
+
+  (svg/hexagon) => [:hexagon {}]
+
+  (svg/chevron :n) => [:chevron :n]
+
+  (svg/translate [:g {}
+                  [:terrain {}]
+                  [:g {:transform "scale(0.90)"}
+                   [:hexagon {:class "unit player-1"}]
+                   [:chevron :n]]]
+                 :cube-1)
+  => [:g {:translate :cube-1}
+      [:terrain {}]
+      [:g {:transform "scale(0.90)"}
+       [:hexagon {:class "unit player-1"}]
+       [:chevron :n]]])
+
+
+ (render {:entity/class :unit
+          :entity/cube :cube-1
+          :unit/player 1
+          :unit/facing :n
+          :entity/interaction :selectable})
+
+ => [:g {:translate :cube-1
+         :selectable :cube-1}
+     [:terrain {}]
+     [:g {:transform "scale(0.90)"}
+      [:hexagon {:class "unit player-1"}]
+      [:chevron :n]]]
+
+ (provided
+  (render-terrain {:entity/class :unit
+                   :entity/cube :cube-1
+                   :unit/player 1
+                   :unit/facing :n
                    :entity/interaction :selectable})
   => [:terrain {}]
 
   (svg/hexagon) => [:hexagon {}]
 
+  (svg/chevron :n) => [:chevron :n]
+
   (svg/translate [:g {}
                   [:terrain {}]
-                  [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]
+                  [:g {:transform "scale(0.90)"}
+                   [:hexagon {:class "unit player-1"}]
+                   [:chevron :n]]]
                  :cube-1)
   => [:g {:translate :cube-1}
       [:terrain {}]
-      [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]
+      [:g {:transform "scale(0.90)"}
+       [:hexagon {:class "unit player-1"}]
+       [:chevron :n]]]
 
   (svg/selectable [:g {:translate :cube-1}
                    [:terrain {}]
-                   [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]
+                   [:g {:transform "scale(0.90)"}
+                    [:hexagon {:class "unit player-1"}]
+                    [:chevron :n]]]
                   :cube-1)
   => [:g {:translate :cube-1
           :selectable :cube-1}
       [:terrain {}]
-      [:hexagon {:transform "scale(0.90)" :class "unit player-1"}]]))
+      [:g {:transform "scale(0.90)"}
+       [:hexagon {:class "unit player-1"}]
+       [:chevron :n]]]))

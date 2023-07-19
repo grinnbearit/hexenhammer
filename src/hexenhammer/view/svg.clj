@@ -88,3 +88,30 @@
   (let [attrs (element 1)
         tran-str (format "scale(%.2f)" (float factor))]
     (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
+
+
+(defn rotate
+  "Returns the element with a transform attribute that rotates it by angle `angle`'"
+  [element angle]
+  (let [attrs (element 1)
+        tran-str (format "rotate(%.2f)" (float angle))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
+
+
+(defn gen-chevpoints
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[0 (/ height 2)]
+   [(- (* width 1/20)) (* height 45/100)]
+   [(+ (* width 1/20)) (* height 45/100)]])
+
+
+(defn chevron
+  "draws a tiny chevron pointing to a face of the hex"
+  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  {:pre [(#{:nw :n :ne :se :s :sw} facing)]}
+  (let [facing->angle (zipmap [:s :sw :nw :n :ne :se]
+                              (map #(* 60 %) (range)))]
+    (rotate
+     [:polyline {:points (points->str (gen-chevpoints :width width :height height))
+                 :stroke "white" :fill "white"}]
+     (facing->angle facing))))
