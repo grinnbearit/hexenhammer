@@ -21,7 +21,6 @@
   [rows columns]
   {:game/phase :setup
    :game/subphase :select-hex
-   :game/player 1
    :game/rows rows
    :game/columns columns
    :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
