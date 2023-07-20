@@ -26,16 +26,18 @@
 
 (defmethod render :unit
   [unit]
-  (cond-> (-> [:g {}
-               (render-terrain unit)
-               (-> [:g {}
-                    (-> (svg/hexagon)
-                        (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
-                    (svg/chevron (:unit/facing unit))
-                    (svg/text "unit" 0)]
-                   (svg/scale 9/10))]
+  (let [int->roman ["0" "i" "ii" "iii" "iv" "v" "vi" "vii" "viii" "ix" "x"]]
+    (cond-> (-> [:g {}
+                 (render-terrain unit)
+                 (-> [:g {}
+                      (-> (svg/hexagon)
+                          (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
+                      (svg/chevron (:unit/facing unit))
+                      (svg/text (:entity/name unit) -1)
+                      (svg/text (int->roman (:unit/id unit)) 2)]
+                     (svg/scale 9/10))]
 
-              (svg/translate (:entity/cube unit)))
+                (svg/translate (:entity/cube unit)))
 
-    (= :selectable (:entity/interaction unit))
-    (svg/selectable (:entity/cube unit))))
+      (= :selectable (:entity/interaction unit))
+      (svg/selectable (:entity/cube unit)))))

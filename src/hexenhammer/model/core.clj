@@ -23,6 +23,8 @@
    :game/subphase :select-hex
    :game/rows rows
    :game/columns columns
+   :game/units {1 {:counter 0 :cubes {}}
+                2 {:counter 0 :cubes {}}}
    :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
                             [cube (entity/gen-terrain cube :interaction :selectable)])
                           (into {}))})

@@ -41,13 +41,20 @@
 
 (defn add-unit
   [state player facing]
-  (let [unit (entity/gen-unit (:game/selected state) player facing :interaction :selectable)]
-    (-> (assoc-in state [:game/battlefield (:game/selected state)] unit)
+  (let [cube (:game/selected state)
+        id (inc (get-in state [:game/units player :counter]))
+        unit (entity/gen-unit cube player id facing :interaction :selectable)]
+    (-> (assoc-in state [:game/battlefield cube] unit)
+        (assoc-in [:game/units player :cubes id] cube)
+        (assoc-in [:game/units player :counter] id)
         (unselect))))
 
 
 (defn remove-unit
   [state]
-  (let [terrain (entity/gen-terrain (:game/selected state) :interaction :selectable)]
-    (-> (assoc-in state [:game/battlefield (:game/selected state)] terrain)
+  (let [cube (:game/selected state)
+        terrain (entity/gen-terrain cube :interaction :selectable)
+        unit (get-in state [:game/battlefield cube])]
+    (-> (assoc-in state [:game/battlefield cube] terrain)
+        (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
         (unselect))))

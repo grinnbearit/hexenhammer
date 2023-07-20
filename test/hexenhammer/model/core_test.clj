@@ -35,6 +35,8 @@
      :game/subphase :select-hex
      :game/rows 3
      :game/columns 4
+     :game/units {1 {:counter 0 :cubes {}}
+                  2 {:counter 0 :cubes {}}}
      :game/battlefield {:cube-1 :entity-1
                         :cube-2 :entity-2}}
 
