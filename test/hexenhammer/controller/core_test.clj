@@ -133,3 +133,12 @@
  (provided
   (entity/gen-terrain :cube-1 :interaction :selectable)
   => {:entity/class :terrain}))
+
+
+(facts
+ "to movement"
+
+ (to-movement {:game/battlefield {:cube-1 {:entity/interaction :selectable}}})
+ => {:game/phase :movement
+     :game/subphase :select-hex
+     :game/battlefield {:cube-1 {:entity/interaction :default}}})

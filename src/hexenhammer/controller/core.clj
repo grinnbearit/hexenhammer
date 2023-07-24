@@ -58,3 +58,12 @@
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
         (unselect))))
+
+
+(defn to-movement
+  [state]
+  (letfn [(->unselectable [entity]
+            (assoc entity :entity/interaction :default))]
+
+    (-> (assoc state :game/phase :movement :game/subphase :select-hex)
+        (update :game/battlefield update-vals ->unselectable))))

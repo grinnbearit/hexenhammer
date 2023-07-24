@@ -45,7 +45,9 @@
      [:h2 "Setup"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state)]]))
+     (render-battlefield state)
+     [:form {:action "/setup/to-movement" :method "post"}
+      [:input {:type "submit" :value "To Movement"}]]]]))
 
 
 (defmethod render [:setup :add-unit]
@@ -90,3 +92,16 @@
      (render-battlefield state) [:br] [:br]
      [:form {:action "/setup/remove-unit" :method "post"}
       [:input {:type "submit" :value "Remove Unit"}]]]]))
+
+
+(defmethod render [:movement :select-hex]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 (str "Player - " (:game/player state))]
+     [:h3 "Movement"]
+     [:style STYLESHEET]]
+    [:body
+     (render-battlefield state)]]))

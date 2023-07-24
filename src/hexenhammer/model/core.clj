@@ -21,6 +21,7 @@
   [rows columns]
   {:game/phase :setup
    :game/subphase :select-hex
+   :game/player 1
    :game/rows rows
    :game/columns columns
    :game/units {1 {:counter 0 :cubes {}}
