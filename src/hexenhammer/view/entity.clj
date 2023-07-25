@@ -12,7 +12,10 @@
               (svg/add-classes ["terrain"]))
 
     (= :selected (:entity/presentation terrain))
-    (svg/add-classes ["selected"])))
+    (svg/add-classes ["selected"])
+
+    (= :highlighted (:entity/presentation terrain))
+    (svg/add-classes ["highlighted"])))
 
 
 (defmethod render :terrain

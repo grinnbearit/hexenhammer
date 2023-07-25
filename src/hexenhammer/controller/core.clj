@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.core
-  (:require [hexenhammer.model.entity :as entity]))
+  (:require [hexenhammer.model.entity :as entity]
+            [hexenhammer.model.logic :as logic]))
 
 
 (defmulti select (fn [state cube] [(:game/phase state) (:game/subphase state)]))
@@ -62,8 +63,12 @@
 
 (defn to-movement
   [state]
-  (letfn [(->unselectable [entity]
-            (assoc entity :entity/interaction :default))]
+  (letfn [(highlight-engaged [entity]
+            (cond-> (assoc entity :entity/interaction :default)
+
+              (and (= (:unit/player entity) (:game/player state))
+                   (not (logic/battlefield-engaged? (:game/battlefield state) entity)))
+              (assoc :entity/presentation :highlighted)))]
 
     (-> (assoc state :game/phase :movement :game/subphase :select-hex)
-        (update :game/battlefield update-vals ->unselectable))))
+        (update :game/battlefield update-vals highlight-engaged))))

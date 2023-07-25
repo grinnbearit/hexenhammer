@@ -9,19 +9,18 @@
   (css
    [:polygon
     [:&.terrain {:fill "#6aa84f" :stroke "black"}
-     [:&.selected {:stroke "yellow"}]]
+     [:&.selected {:stroke "yellow"}]
+     [:&.highlighted {:stroke "orange"}]]
     [:&.unit
-     [:&.player-1 {:fill "#990000" :stroke "black"}
-      [:&.selected {:stroke "yellow"}]]
-     [:&.player-2 {:fill "#1155cc" :stroke "black"}
-      [:&.selected {:stroke "yellow"}]]]]
+     [:&.player-1 {:fill "#990000" :stroke "black"}]
+     [:&.player-2 {:fill "#1155cc" :stroke "black"}]]]
    [:table :th :td {:border "1px solid"}]))
 
 
 (defn entity->z
   "Returns the z index value for the passed entity depending on the presentation status"
   [entity]
-  (let [presentation->rank {:default 0 :selected 1}]
+  (let [presentation->rank {:default 0 :highlighted 1 :selected 2}]
     (-> (:entity/presentation entity)
         (presentation->rank))))
 

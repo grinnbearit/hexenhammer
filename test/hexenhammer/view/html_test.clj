@@ -9,7 +9,8 @@
  "entity -> z"
 
  (entity->z {:entity/presentation :default}) => 0
- (entity->z {:entity/presentation :selected}) => 1)
+ (entity->z {:entity/presentation :highlighted}) => 1
+ (entity->z {:entity/presentation :selected}) => 2)
 
 
 (facts

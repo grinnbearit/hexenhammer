@@ -19,6 +19,14 @@
  => [:hexagon {:class "terrain selected"}]
 
  (provided
+  (svg/hexagon) => [:hexagon {}])
+
+
+ (render-terrain {:entity/class :terrain
+                  :entity/presentation :highlighted})
+ => [:hexagon {:class "terrain highlighted"}]
+
+ (provided
   (svg/hexagon) => [:hexagon {}]))
 
 
