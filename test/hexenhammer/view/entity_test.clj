@@ -184,3 +184,47 @@
        [:chevron :n]
        [:text "unit" -1]
        [:text "i" 2]]]))
+
+
+(facts
+ "render mover"
+
+ (render {:entity/class :mover
+          :unit/player 1
+          :unit/facing :n
+          :entity/cube :cube-1})
+ => [:translate :element-2 :cube-1]
+
+ (provided
+  (render-terrain {:entity/class :mover
+                   :unit/player 1
+                   :unit/facing :n
+                   :entity/cube :cube-1})
+  => :terrain-1
+
+  (svg/hexagon) => [:hexagon {}]
+
+  (svg/arrow :n) => [:arrow {} :n]
+  (svg/arrow :ne) => [:arrow {} :ne]
+  (svg/arrow :se) => [:arrow {} :se]
+  (svg/arrow :s) => [:arrow {} :s]
+  (svg/arrow :sw) => [:arrow {} :sw]
+  (svg/arrow :nw) => [:arrow {} :nw]
+
+  (svg/scale [:g {}
+              [:hexagon {:class "unit player-1"}]
+              (list [:arrow {:class "arrow selected"} :n]
+                    [:arrow {:class "arrow"} :ne]
+                    [:arrow {:class "arrow"} :se]
+                    [:arrow {:class "arrow"} :s]
+                    [:arrow {:class "arrow"} :sw]
+                    [:arrow {:class "arrow"} :nw])]
+             9/10)
+
+  => [:scale :element-1 9/10]
+
+  (svg/translate [:g {}
+                  :terrain-1
+                  [:scale :element-1 9/10]]
+                 :cube-1)
+  => [:translate :element-2 :cube-1]))

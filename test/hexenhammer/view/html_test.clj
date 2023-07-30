@@ -19,14 +19,15 @@
  (render-battlefield {:game/rows 3
                       :game/columns 4
                       :game/battlefield {:cube-1 :entity-1
-                                         :cube-2 :entity-2}})
+                                         :cube-2 :entity-2}
+                      :game/battlemap {:cube-2 :entity-3}})
  => [:svg [:svg-size->dim 3 4]
-     (list [:render :entity-2]
+     (list [:render :entity-3]
            [:render :entity-1])]
 
  (provided
   (svg/size->dim 3 4) => [:svg-size->dim 3 4]
   (entity->z :entity-1) => 2
-  (entity->z :entity-2) => 1
+  (entity->z :entity-3) => 1
   (entity/render :entity-1) => [:render :entity-1]
-  (entity/render :entity-2) => [:render :entity-2]))
+  (entity/render :entity-3) => [:render :entity-3]))

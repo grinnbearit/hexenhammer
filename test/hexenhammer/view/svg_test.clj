@@ -132,26 +132,46 @@
 
 
 (facts
+ "gen arrpoints"
+
+ (gen-arrpoints :width 200 :height 100)
+ => [[0 50] [-20 35] [20 35]])
+
+
+(facts
+ "wrap pointer"
+
+ (wrap-pointer :n :points-1)
+ => :rotated-1
+
+ (provided
+  (points->str :points-1)
+  => :points-str-1
+
+  (rotate [:polygon {:points :points-str-1 :stroke "white" :fill "white"}] 180)
+  => :rotated-1))
+
+
+(facts
  "chevron"
 
- (chevron :n :width 200 :height 100)
- => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]
+ (chevron :facing-1 :width 200 :height 100)
+ => :wrapped-1
 
  (provided
-  (gen-chevpoints :width 200 :height 100) => :chevpoints
-  (points->str :chevpoints) => :points-str
-  (rotate [:polyline {:points :points-str :stroke "white" :fill "white"}] 180)
-  => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}])
+  (gen-chevpoints :width 200 :height 100) => :chevpoints-1
+  (wrap-pointer :facing-1 :chevpoints-1) => :wrapped-1))
 
 
- (chevron :se :width 200 :height 100)
- => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]
+(facts
+ "arrow"
+
+ (arrow :facing-1 :width 200 :height 100)
+ => :wrapped-1
 
  (provided
-  (gen-chevpoints :width 200 :height 100) => :chevpoints
-  (points->str :chevpoints) => :points-str
-  (rotate [:polyline {:points :points-str :stroke "white" :fill "white"}] 300)
-  => [:polyline {:points :points-str :transform "rotate" :stroke "white" :fill "white"}]))
+  (gen-arrpoints :width 200 :height 100) => :arrpoints-1
+  (wrap-pointer :facing-1 :arrpoints-1) => :wrapped-1))
 
 
 (facts

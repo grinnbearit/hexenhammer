@@ -169,8 +169,50 @@
                                    :entity/interaction :default}
                           :cube-3 {:unit/player 1
                                    :entity/presentation :highlighted
-                                   :entity/interaction :default}}}
+                                   :entity/interaction :selectable}}}
 
    (provided
     (logic/battlefield-engaged? battlefield {:unit/player 1})
     => false)))
+
+
+(facts
+ "select movement select-hex"
+
+ (select {:game/phase :movement
+          :game/subphase :select-hex
+          :game/player :player-1
+          :game/battlefield {:cube-1 {:unit/facing :facing-1}}}
+         :cube-1)
+
+ => {:game/phase :movement
+     :game/subphase :reform
+     :game/selected :cube-1
+     :game/player :player-1
+     :game/battlefield {:cube-1 {:unit/facing :facing-1}}
+     :game/battlemap {:cube-1 :mover-1}}
+
+ (provided
+  (entity/gen-mover :cube-1 :player-1 :facing-1
+                    :presentation :selected)
+  => :mover-1))
+
+
+(facts
+ "select movement reform"
+
+ (select {:game/phase :movement
+          :game/subphase :reform
+          :game/player :player-1
+          :game/battlefield {:cube-1 {:unit/facing :facing-1}}}
+         :cube-1)
+ => {:game/phase :movement
+     :game/subphase :reform
+     :game/player :player-1
+     :game/battlefield {:cube-1 {:unit/facing :facing-1}}
+     :game/selected :cube-1
+     :game/battlemap {:cube-1 :mover-1}}
+
+ (provided
+  (entity/gen-mover :cube-1 :player-1 :facing-1 :presentation :selected)
+  => :mover-1))

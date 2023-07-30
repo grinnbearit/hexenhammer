@@ -13,7 +13,9 @@
      [:&.highlighted {:stroke "orange"}]]
     [:&.unit
      [:&.player-1 {:fill "#990000" :stroke "black"}]
-     [:&.player-2 {:fill "#1155cc" :stroke "black"}]]]
+     [:&.player-2 {:fill "#1155cc" :stroke "black"}]]
+    [:&.arrow
+     [:&.selected {:stroke "yellow" :fill "yellow"}]]]
    [:table :th :td {:border "1px solid"}]))
 
 
@@ -26,9 +28,11 @@
 
 
 (defn render-battlefield
-  [{:keys [game/rows game/columns game/battlefield]}]
+  [{:keys [game/rows game/columns game/battlefield game/battlemap]}]
   [:svg (svg/size->dim rows columns)
-   (for [entity (sort-by entity->z (vals battlefield))]
+   (for [entity (->> (merge battlefield battlemap)
+                     (vals)
+                     (sort-by entity->z))]
      (entity/render entity))])
 
 
@@ -98,9 +102,20 @@
   (html
    [:html
     [:head
-     [:h1 "Hexenhammer"]
-     [:h2 (str "Player - " (:game/player state))]
-     [:h3 "Movement"]
+     [:h1 (str "Player - " (:game/player state))]
+     [:h2 "Movement"]
+     [:style STYLESHEET]]
+    [:body
+     (render-battlefield state)]]))
+
+
+(defmethod render [:movement :reform]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 (str "Player - " (:game/player state))]
+     [:h2 "Movement - Reform"]
      [:style STYLESHEET]]
     [:body
      (render-battlefield state)]]))

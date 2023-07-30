@@ -44,3 +44,21 @@
 
       (= :selectable (:entity/interaction unit))
       (svg/selectable (:entity/cube unit)))))
+
+
+(defmethod render :mover
+  [mover]
+  (-> [:g {}
+       (render-terrain mover)
+       (-> [:g {}
+            (-> (svg/hexagon)
+                (svg/add-classes ["unit" (str "player-" (:unit/player mover))]))
+            (for [facing [:n :ne :se :s :sw :nw]]
+              (cond-> (-> (svg/arrow facing)
+                          (svg/add-classes ["arrow"]))
+
+                (= facing (:unit/facing mover))
+                (svg/add-classes ["selected"])))]
+           (svg/scale 9/10))]
+
+      (svg/translate (:entity/cube mover))))

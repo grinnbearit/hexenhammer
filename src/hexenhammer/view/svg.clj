@@ -106,16 +106,32 @@
    [(+ (* width 1/20)) (* height 45/100)]])
 
 
-(defn chevron
-  "draws a tiny chevron pointing to a face of the hex"
-  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
-  {:pre [(#{:nw :n :ne :se :s :sw} facing)]}
-  (let [facing->angle (zipmap [:s :sw :nw :n :ne :se]
-                              (map #(* 60 %) (range)))]
+(defn gen-arrpoints
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[0 (/ height 2)]
+   [(- (* width 1/10)) (* height 35/100)]
+   [(+ (* width 1/10)) (* height 35/100)]])
+
+
+(defn wrap-pointer
+  "wraps a sequence of chevron or marker points"
+  [facing points]
+  (let [facing->angle (zipmap [:s :sw :nw :n :ne :se] (map #(* 60 %) (range)))]
     (rotate
-     [:polyline {:points (points->str (gen-chevpoints :width width :height height))
-                 :stroke "white" :fill "white"}]
+     [:polygon {:points (points->str points) :stroke "white" :fill "white"}]
      (facing->angle facing))))
+
+
+(defn chevron
+  "draws a chevron pointing to a face of the hex"
+  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (wrap-pointer facing (gen-chevpoints :width width :height height)))
+
+
+(defn arrow
+  "draws a large chevron pointing to a face of the hex"
+  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (wrap-pointer facing (gen-arrpoints :width width :height height)))
 
 
 (defn text

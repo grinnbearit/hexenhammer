@@ -68,7 +68,23 @@
 
               (and (= (:unit/player entity) (:game/player state))
                    (not (logic/battlefield-engaged? (:game/battlefield state) entity)))
-              (assoc :entity/presentation :highlighted)))]
+              (assoc :entity/presentation :highlighted
+                     :entity/interaction :selectable)))]
 
     (-> (assoc state :game/phase :movement :game/subphase :select-hex)
         (update :game/battlefield update-vals highlight-engaged))))
+
+
+(defmethod select [:movement :select-hex]
+  [state cube]
+  (-> (assoc state :game/subphase :reform)
+      (select cube)))
+
+
+(defmethod select [:movement :reform]
+  [state cube]
+  (let [unit (get-in state [:game/battlefield cube])
+        mover (entity/gen-mover cube (:game/player state) (:unit/facing unit)
+                                :presentation :selected)]
+    (-> (assoc state :game/selected cube)
+        (assoc :game/battlemap {cube mover}))))

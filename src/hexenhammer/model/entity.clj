@@ -22,3 +22,15 @@
    :unit/player player
    :unit/id id
    :unit/facing facing})
+
+
+(defn gen-mover
+  "Returns a mover entity all 6 facings with 1 selected"
+  [cube player facing & {:keys [presentation interaction]
+                         :or {presentation :default interaction :default}}]
+  {:entity/class :mover
+   :entity/cube cube
+   :entity/presentation presentation
+   :entity/interaction interaction
+   :unit/player player
+   :unit/facing facing})
