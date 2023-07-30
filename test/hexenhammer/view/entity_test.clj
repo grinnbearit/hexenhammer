@@ -70,120 +70,89 @@
 
  (render {:entity/class :unit
           :entity/cube :cube-1
+          :unit/facing :facing-1
           :entity/name "unit"
-          :unit/player 1
           :unit/id 1
-          :unit/facing :n})
+          :unit/player 1})
 
- => [:g {:translate :cube-1}
-     [:terrain {}]
-     [:g {:transform "scale(0.90)"}
-      [:hexagon {:class "unit player-1"}]
-      [:chevron :n]
-      [:text "unit" -1]
-      [:text "i" 2]]]
+ => [:transform :element-2 :cube-1]
 
  (provided
   (render-terrain {:entity/class :unit
                    :entity/cube :cube-1
                    :entity/name "unit"
-                   :unit/player 1
+                   :unit/facing :facing-1
                    :unit/id 1
-                   :unit/facing :n})
-  => [:terrain {}]
+                   :unit/player 1})
+  => :terrain-1
 
   (svg/hexagon) => [:hexagon {}]
 
-  (svg/chevron :n) => [:chevron :n]
+  (svg/chevron :facing-1) => [:chevron :facing-1]
 
   (svg/text "unit" -1) => [:text "unit" -1]
 
   (svg/text "i" 2) => [:text "i" 2]
 
+  (svg/scale [:g {}
+              [:hexagon {:class "unit player-1"}]
+              [:chevron :facing-1]
+              [:text "unit" -1]
+              [:text "i" 2]]
+             9/10)
+  => [:scale :element-1 9/10]
+
   (svg/translate [:g {}
-                  [:terrain {}]
-                  [:g {:transform "scale(0.90)"}
-                   [:hexagon {:class "unit player-1"}]
-                   [:chevron :n]
-                   [:text "unit" -1]
-                   [:text "i" 2]]]
+                  :terrain-1
+                  [:scale :element-1 9/10]]
                  :cube-1)
-  => [:g {:translate :cube-1}
-      [:terrain {}]
-      [:g {:transform "scale(0.90)"}
-       [:hexagon {:class "unit player-1"}]
-       [:chevron :n]
-       [:text "unit" -1]
-       [:text "i" 2]]])
+  => [:transform :element-2 :cube-1])
 
 
  (render {:entity/class :unit
           :entity/cube :cube-1
+          :unit/facing :facing-1
           :entity/name "unit"
-          :unit/player 1
           :unit/id 1
-          :unit/facing :n
+          :unit/player 1
           :entity/interaction :selectable})
 
- => [:g {:translate :cube-1
-         :selectable :cube-1}
-     [:terrain {}]
-     [:g {:transform "scale(0.90)"}
-      [:hexagon {:class "unit player-1"}]
-      [:chevron :n]
-      [:text "unit" -1]
-      [:text "i" 2]]]
+ => [:selectable :element-3 :cube-1]
 
  (provided
   (render-terrain {:entity/class :unit
                    :entity/cube :cube-1
+                   :unit/facing :facing-1
                    :entity/name "unit"
-                   :unit/player 1
                    :unit/id 1
-                   :unit/facing :n
+                   :unit/player 1
                    :entity/interaction :selectable})
-  => [:terrain {}]
+  => :terrain-1
 
   (svg/hexagon) => [:hexagon {}]
 
-  (svg/chevron :n) => [:chevron :n]
+  (svg/chevron :facing-1) => [:chevron :facing-1]
 
   (svg/text "unit" -1) => [:text "unit" -1]
 
   (svg/text "i" 2) => [:text "i" 2]
 
-  (svg/translate [:g {}
-                  [:terrain {}]
-                  [:g {:transform "scale(0.90)"}
-                   [:hexagon {:class "unit player-1"}]
-                   [:chevron :n]
-                   [:text "unit" -1]
-                   [:text "i" 2]]]
-                 :cube-1)
-  => [:g {:translate :cube-1}
-      [:terrain {}]
-      [:g {:transform "scale(0.90)"}
-       [:hexagon {:class "unit player-1"}]
-       [:chevron :n]
-       [:text "unit" -1]
-       [:text "i" 2]]]
+  (svg/scale [:g {}
+              [:hexagon {:class "unit player-1"}]
+              [:chevron :facing-1]
+              [:text "unit" -1]
+              [:text "i" 2]]
+             9/10)
+  => [:scale :element-1 9/10]
 
-  (svg/selectable [:g {:translate :cube-1}
-                   [:terrain {}]
-                   [:g {:transform "scale(0.90)"}
-                    [:hexagon {:class "unit player-1"}]
-                    [:chevron :n]
-                    [:text "unit" -1]
-                    [:text "i" 2]]]
-                  :cube-1)
-  => [:g {:translate :cube-1
-          :selectable :cube-1}
-      [:terrain {}]
-      [:g {:transform "scale(0.90)"}
-       [:hexagon {:class "unit player-1"}]
-       [:chevron :n]
-       [:text "unit" -1]
-       [:text "i" 2]]]))
+  (svg/translate [:g {}
+                  :terrain-1
+                  [:scale :element-1 9/10]]
+                 :cube-1)
+  => [:translate :element-2 :cube-1]
+
+  (svg/selectable [:translate :element-2 :cube-1] :cube-1)
+  => [:selectable :element-3 :cube-1]))
 
 
 (facts
