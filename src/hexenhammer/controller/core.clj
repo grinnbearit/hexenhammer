@@ -1,6 +1,6 @@
 (ns hexenhammer.controller.core
   (:require [hexenhammer.model.entity :as entity]
-            [hexenhammer.model.logic :as logic]))
+            [hexenhammer.controller.battlefield :as battlefield]))
 
 
 (defmulti select (fn [state cube] [(:game/phase state) (:game/subphase state)]))
@@ -63,16 +63,13 @@
 
 (defn to-movement
   [state]
-  (letfn [(highlight-engaged [entity]
-            (cond-> (assoc entity :entity/interaction :default)
-
-              (and (= (:unit/player entity) (:game/player state))
-                   (not (logic/battlefield-engaged? (:game/battlefield state) entity)))
-              (assoc :entity/presentation :highlighted
-                     :entity/interaction :selectable)))]
-
-    (-> (assoc state :game/phase :movement :game/subphase :select-hex)
-        (update :game/battlefield update-vals highlight-engaged))))
+  (let [active-player (:game/player state)
+        active-units (vals (get-in state [:game/units active-player :cubes]))]
+    (-> (assoc state
+               :game/phase :movement
+               :game/subphase :select-hex)
+        (update :game/battlefield battlefield/reset-default)
+        (update :game/battlefield battlefield/mark-movable active-units))))
 
 
 (defmethod select [:movement :select-hex]

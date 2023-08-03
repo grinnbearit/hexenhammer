@@ -59,14 +59,14 @@
 (facts
  "battlefield engaged?"
 
- (battlefield-engaged? :battlefield {:entity/cube :cube-1})
+ (battlefield-engaged? {:cube-1 :unit-1} :cube-1)
  => false
 
  (provided
   (cube/neighbours :cube-1) => [])
 
 
- (battlefield-engaged? {} {:entity/cube :cube-1})
+ (battlefield-engaged? {:cube-1 :unit-1} :cube-1)
  => false
 
  (provided
@@ -74,8 +74,9 @@
   => [:cube-2])
 
 
- (battlefield-engaged? {:cube-2 {:entity/class :terrain}}
-                       {:entity/cube :cube-1})
+ (battlefield-engaged? {:cube-1 :unit-1
+                        :cube-2 {:entity/class :terrain}}
+                       :cube-1)
  => false
 
  (provided
@@ -83,25 +84,27 @@
   => [:cube-2])
 
 
- (battlefield-engaged? {:cube-2 {:entity/class :unit}}
-                       {:entity/cube :cube-1})
+ (battlefield-engaged? {:cube-1 :unit-1
+                        :cube-2 {:entity/class :unit}}
+                       :cube-1)
  => false
 
  (provided
   (cube/neighbours :cube-1)
   => [:cube-2]
 
-  (engaged? {:entity/cube :cube-1} {:entity/class :unit})
+  (engaged? :unit-1 {:entity/class :unit})
   => false)
 
 
- (battlefield-engaged? {:cube-2 {:entity/class :unit}}
-                       {:entity/cube :cube-1})
+ (battlefield-engaged? {:cube-1 :unit-1
+                        :cube-2 {:entity/class :unit}}
+                       :cube-1)
  => true
 
  (provided
   (cube/neighbours :cube-1)
   => [:cube-2]
 
-  (engaged? {:entity/cube :cube-1} {:entity/class :unit})
+  (engaged? :unit-1 {:entity/class :unit})
   => true))

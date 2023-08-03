@@ -1,7 +1,7 @@
 (ns hexenhammer.controller.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.entity :as entity]
-            [hexenhammer.model.logic :as logic]
+            [hexenhammer.controller.battlefield :as battlefield]
             [hexenhammer.controller.core :refer :all]))
 
 
@@ -139,41 +139,23 @@
 (facts
  "to movement"
 
- (let [battlefield {:cube-1 {}
-                    :cube-2 {:unit/player 2}
-                    :cube-3 {:unit/player 1}}]
+ (to-movement {:game/player 1
+               :game/battlefield :battlefield-1
+               :game/units {1 {:cubes {1 :unit-cube-1
+                                       2 :unit-cube-2}}}})
+ => {:game/player 1
+     :game/units {1 {:cubes {1 :unit-cube-1
+                             2 :unit-cube-2}}}
+     :game/phase :movement
+     :game/subphase :select-hex
+     :game/battlefield :battlefield-3}
 
-   (to-movement {:game/player 1
-                 :game/battlefield battlefield})
-   => {:game/player 1
-       :game/phase :movement
-       :game/subphase :select-hex
-       :game/battlefield {:cube-1 {:entity/interaction :default}
-                          :cube-2 {:unit/player 2
-                                   :entity/interaction :default}
-                          :cube-3 {:unit/player 1
-                                   :entity/interaction :default}}}
+ (provided
+  (battlefield/reset-default :battlefield-1)
+  => :battlefield-2
 
-   (provided
-    (logic/battlefield-engaged? battlefield {:unit/player 1})
-    => true)
-
-
-   (to-movement {:game/player 1
-                 :game/battlefield battlefield})
-   => {:game/player 1
-       :game/phase :movement
-       :game/subphase :select-hex
-       :game/battlefield {:cube-1 {:entity/interaction :default}
-                          :cube-2 {:unit/player 2
-                                   :entity/interaction :default}
-                          :cube-3 {:unit/player 1
-                                   :entity/presentation :highlighted
-                                   :entity/interaction :selectable}}}
-
-   (provided
-    (logic/battlefield-engaged? battlefield {:unit/player 1})
-    => false)))
+  (battlefield/mark-movable :battlefield-2 [:unit-cube-1 :unit-cube-2])
+  => :battlefield-3))
 
 
 (facts

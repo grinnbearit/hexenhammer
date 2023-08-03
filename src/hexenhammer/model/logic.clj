@@ -14,12 +14,14 @@
 
 
 (defn battlefield-engaged?
-  "Returns true if the passed unit is currently engaged on the battlefield"
-  [battlefield unit]
-  (->> (for [cube (cube/neighbours (:entity/cube unit))
-             :when (contains? battlefield cube)
-             :let [entity (battlefield cube)]
-             :when (and (= (:entity/class entity) :unit)
-                        (engaged? unit entity))]
-         entity)
-       ((comp boolean seq))))
+  "Returns true if the passed cube is currently engaged on the battlefield
+  assumes the cube is on the battlefield and a unit"
+  [battlefield cube]
+  (let [unit (battlefield cube)]
+    (->> (for [neighbour (cube/neighbours cube)
+               :when (contains? battlefield neighbour)
+               :let [entity (battlefield neighbour)]
+               :when (and (= (:entity/class entity) :unit)
+                          (engaged? unit entity))]
+           entity)
+         ((comp boolean seq)))))
