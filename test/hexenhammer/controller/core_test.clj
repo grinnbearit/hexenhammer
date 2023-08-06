@@ -1,6 +1,7 @@
 (ns hexenhammer.controller.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.entity :as entity]
+            [hexenhammer.model.logic :as logic]
             [hexenhammer.controller.battlefield :as battlefield]
             [hexenhammer.controller.core :refer :all]))
 
@@ -151,10 +152,16 @@
      :game/battlefield :battlefield-3}
 
  (provided
+  (logic/battlefield-engaged? :battlefield-1 :unit-cube-1)
+  => false
+
+  (logic/battlefield-engaged? :battlefield-1 :unit-cube-2)
+  => true
+
   (battlefield/reset-default :battlefield-1)
   => :battlefield-2
 
-  (battlefield/mark-movable :battlefield-2 [:unit-cube-1 :unit-cube-2])
+  (battlefield/set-interactable :battlefield-2 [:unit-cube-1])
   => :battlefield-3))
 
 

@@ -14,7 +14,7 @@
 
 
 (facts
- "mark movable"
+ "set interactable"
 
  (let [unit-1 {:unit/id 1
                :entity/presentation :default
@@ -22,24 +22,12 @@
        unit-2 {:unit/id 2
                :entity/presentation :default
                :entity/interaction :default}
-       unit-3 {:unit/id 3
-               :entity/presentation :default
-               :entity/interaction :default}
 
        battlefield {:cube-1 unit-1
-                    :cube-2 unit-2
-                    :cube-3 unit-3}]
+                    :cube-2 unit-2}]
 
-   (mark-movable battlefield [:cube-2 :cube-3])
+   (set-interactable battlefield [:cube-2])
    => {:cube-1 unit-1
-       :cube-2 unit-2
-       :cube-3 {:unit/id 3
+       :cube-2 {:unit/id 2
                 :entity/presentation :highlighted
-                :entity/interaction :selectable}}
-
-   (provided
-    (logic/battlefield-engaged? battlefield :cube-2)
-    => true
-
-    (logic/battlefield-engaged? battlefield :cube-3)
-    => false)))
+                :entity/interaction :selectable}}))

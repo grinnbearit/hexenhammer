@@ -13,15 +13,12 @@
     (update-vals battlefield reset-entity)))
 
 
-(defn mark-movable
-  "Updates the status for all passed unit-cubes
-  assumes that all unit-cubes have the same active player"
-  [battlefield unit-cubes]
+(defn set-interactable
+  "marks all passed cubes as highlighted and selectable"
+  [battlefield cubes]
   (letfn [(reducer [battlefield-acc cube]
-            (if (not (logic/battlefield-engaged? battlefield-acc cube))
-              (update battlefield-acc cube assoc
-                      :entity/presentation :highlighted
-                      :entity/interaction :selectable)
-              battlefield-acc))]
+            (update battlefield-acc cube assoc
+                    :entity/presentation :highlighted
+                    :entity/interaction :selectable))]
 
-    (reduce reducer battlefield unit-cubes)))
+    (reduce reducer battlefield cubes)))
