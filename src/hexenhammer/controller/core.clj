@@ -1,7 +1,8 @@
 (ns hexenhammer.controller.core
-  (:require [hexenhammer.model.entity :as entity]
-            [hexenhammer.model.logic :as logic]
-            [hexenhammer.controller.battlefield :as battlefield]))
+  (:require [hexenhammer.model.entity :as me]
+            [hexenhammer.model.logic :as ml]
+            [hexenhammer.controller.entity :as ce]
+            [hexenhammer.controller.battlefield :as cb]))
 
 
 (defmulti select (fn [state cube] [(:game/phase state) (:game/subphase state)]))
@@ -45,7 +46,7 @@
   [state player facing]
   (let [cube (:game/selected state)
         id (inc (get-in state [:game/units player :counter]))
-        unit (entity/gen-unit cube player id facing :interaction :selectable)]
+        unit (me/gen-unit cube player id facing :interaction :selectable)]
     (-> (assoc-in state [:game/battlefield cube] unit)
         (assoc-in [:game/units player :cubes id] cube)
         (assoc-in [:game/units player :counter] id)
@@ -55,7 +56,7 @@
 (defn remove-unit
   [state]
   (let [cube (:game/selected state)
-        terrain (entity/gen-terrain cube :interaction :selectable)
+        terrain (me/gen-terrain cube :interaction :selectable)
         unit (get-in state [:game/battlefield cube])]
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
@@ -65,12 +66,12 @@
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (vals (get-in state [:game/units player :cubes]))
-        movable-cubes (remove #(logic/battlefield-engaged? battlefield %) player-cubes)]
+        movable-cubes (remove #(ml/battlefield-engaged? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)
-        (update :game/battlefield battlefield/reset-default)
-        (update :game/battlefield battlefield/set-interactable movable-cubes))))
+        (update :game/battlefield cb/reset-default)
+        (update :game/battlefield cb/set-interactable movable-cubes))))
 
 
 (defmethod select [:movement :select-hex]
@@ -82,7 +83,14 @@
 (defmethod select [:movement :reform]
   [state cube]
   (let [unit (get-in state [:game/battlefield cube])
-        mover (entity/gen-mover cube (:game/player state) (:unit/facing unit)
-                                :presentation :selected)]
+        mover (me/gen-mover cube (:game/player state) (:unit/facing unit)
+                            :presentation :selected)]
     (-> (assoc state :game/selected cube)
         (assoc :game/battlemap {cube mover}))))
+
+
+(defn skip-movement
+  [state]
+  (-> (update-in state [:game/battlefield (:game/selected state)] ce/reset-default)
+   (dissoc :game/selected :game/battlemap)
+   (assoc :game/subphase :select-hex)))

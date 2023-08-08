@@ -41,7 +41,8 @@
   (GET "/favicon.ico" [] "")
   (POST "/setup/add-unit" [] setup-add-unit-handler)
   (POST "/setup/remove-unit" [] (do (swap! hexenhammer-state controller/remove-unit) (redirect "/")))
-  (POST "/setup/to-movement" [] (do (swap! hexenhammer-state controller/to-movement) (redirect "/"))))
+  (POST "/setup/to-movement" [] (do (swap! hexenhammer-state controller/to-movement) (redirect "/")))
+  (POST "/movement/skip-movement" [] (do (swap! hexenhammer-state controller/skip-movement) (redirect "/"))))
 
 
 (def hexenhammer-app

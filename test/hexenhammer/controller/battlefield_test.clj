@@ -1,33 +1,33 @@
 (ns hexenhammer.controller.battlefield-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.model.logic :as logic]
+            [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :refer :all]))
 
 
 (facts
  "reset default"
 
- (reset-default {:cube-1 {:entity/presentation :selected
-                          :entity/interaction :selectable}})
- => {:cube-1 {:entity/presentation :default
-              :entity/interaction :default}})
+ (reset-default {:cube-1 :entity-1
+                 :cube-2 :entity-2})
+ => {:cube-1 :reset-entity-1
+     :cube-2 :reset-entity-2}
+
+ (provided
+  (ce/reset-default :entity-1) => :reset-entity-1
+  (ce/reset-default :entity-2) => :reset-entity-2))
 
 
 (facts
  "set interactable"
 
- (let [unit-1 {:unit/id 1
-               :entity/presentation :default
-               :entity/interaction :default}
-       unit-2 {:unit/id 2
-               :entity/presentation :default
-               :entity/interaction :default}
+ (set-interactable {:cube-1 :entity-1
+                    :cube-2 :entity-2
+                    :cube-3 :entity-3}
+                   [:cube-2 :cube-3])
+ => {:cube-1 :entity-1
+     :cube-2 :interactable-entity-2
+     :cube-3 :interactable-entity-3}
 
-       battlefield {:cube-1 unit-1
-                    :cube-2 unit-2}]
-
-   (set-interactable battlefield [:cube-2])
-   => {:cube-1 unit-1
-       :cube-2 {:unit/id 2
-                :entity/presentation :highlighted
-                :entity/interaction :selectable}}))
+ (provided
+  (ce/set-interactable :entity-2) => :interactable-entity-2
+  (ce/set-interactable :entity-3) => :interactable-entity-3))

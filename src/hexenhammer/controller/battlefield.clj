@@ -1,24 +1,15 @@
 (ns hexenhammer.controller.battlefield
-  (:require [hexenhammer.model.logic :as logic]))
+  (:require [hexenhammer.controller.entity :as ce]))
 
 
 (defn reset-default
   "Converts all entities on the battlefield to default presentation and interaction"
   [battlefield]
-  (letfn [(reset-entity [entity]
-            (assoc entity
-                   :entity/presentation :default
-                   :entity/interaction :default))]
-
-    (update-vals battlefield reset-entity)))
+  (update-vals battlefield ce/reset-default))
 
 
 (defn set-interactable
   "marks all passed cubes as highlighted and selectable"
   [battlefield cubes]
-  (letfn [(reducer [battlefield-acc cube]
-            (update battlefield-acc cube assoc
-                    :entity/presentation :highlighted
-                    :entity/interaction :selectable))]
-
-    (reduce reducer battlefield cubes)))
+  (->> (update-vals (select-keys battlefield cubes) ce/set-interactable)
+       (merge battlefield)))

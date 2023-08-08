@@ -1,8 +1,9 @@
 (ns hexenhammer.controller.core-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.model.entity :as entity]
-            [hexenhammer.model.logic :as logic]
-            [hexenhammer.controller.battlefield :as battlefield]
+            [hexenhammer.model.entity :as me]
+            [hexenhammer.model.logic :as ml]
+            [hexenhammer.controller.entity :as ce]
+            [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.core :refer :all]))
 
 
@@ -116,7 +117,7 @@
      :game/units {1 {:counter 1 :cubes {1 :cube-1}}}}
 
  (provided
-  (entity/gen-unit :cube-1 1 1 :facing-1 :interaction :selectable)
+  (me/gen-unit :cube-1 1 1 :facing-1 :interaction :selectable)
   => {:entity/class :unit}))
 
 
@@ -133,7 +134,7 @@
      :game/units {1 {:counter 1 :cubes {}}}}
 
  (provided
-  (entity/gen-terrain :cube-1 :interaction :selectable)
+  (me/gen-terrain :cube-1 :interaction :selectable)
   => {:entity/class :terrain}))
 
 
@@ -152,16 +153,16 @@
      :game/battlefield :battlefield-3}
 
  (provided
-  (logic/battlefield-engaged? :battlefield-1 :unit-cube-1)
+  (ml/battlefield-engaged? :battlefield-1 :unit-cube-1)
   => false
 
-  (logic/battlefield-engaged? :battlefield-1 :unit-cube-2)
+  (ml/battlefield-engaged? :battlefield-1 :unit-cube-2)
   => true
 
-  (battlefield/reset-default :battlefield-1)
+  (cb/reset-default :battlefield-1)
   => :battlefield-2
 
-  (battlefield/set-interactable :battlefield-2 [:unit-cube-1])
+  (cb/set-interactable :battlefield-2 [:unit-cube-1])
   => :battlefield-3))
 
 
@@ -182,8 +183,8 @@
      :game/battlemap {:cube-1 :mover-1}}
 
  (provided
-  (entity/gen-mover :cube-1 :player-1 :facing-1
-                    :presentation :selected)
+  (me/gen-mover :cube-1 :player-1 :facing-1
+                :presentation :selected)
   => :mover-1))
 
 
@@ -203,5 +204,18 @@
      :game/battlemap {:cube-1 :mover-1}}
 
  (provided
-  (entity/gen-mover :cube-1 :player-1 :facing-1 :presentation :selected)
+  (me/gen-mover :cube-1 :player-1 :facing-1 :presentation :selected)
   => :mover-1))
+
+
+(facts
+ "skip movement"
+
+ (skip-movement {:game/selected :cube-1
+                 :game/battlefield {:cube-1 :entity-1}
+                 :game/battlemap :battlemap})
+ => {:game/battlefield {:cube-1 :reset-entity-1}
+     :game/subphase :select-hex}
+
+ (provided
+  (ce/reset-default :entity-1) => :reset-entity-1))
