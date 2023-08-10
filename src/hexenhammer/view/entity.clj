@@ -53,15 +53,14 @@
        (-> [:g {}
             (-> (svg/hexagon)
                 (svg/add-classes ["unit" (str "player-" (:unit/player mover))]))
-            (for [facing [:n :ne :se :s :sw :nw]]
-              (cond-> (-> (svg/arrow facing)
-                          (svg/add-classes ["arrow"]))
-
-                (= facing (:unit/facing mover))
-                (svg/add-classes ["selected"])
-
-                (not= facing (:unit/facing mover))
-                (svg/movable (:entity/cube mover) facing)))]
+            (for [option (:mover/options mover)
+                  :when (not= option (:mover/marked mover))]
+              (-> (svg/arrow option)
+                  (svg/add-classes ["arrow"])
+                  (svg/movable (:entity/cube mover) option)))
+            (when-let [marked (:mover/marked mover)]
+              (-> (svg/arrow marked)
+                  (svg/add-classes ["arrow" "marked"])))]
 
            (svg/scale 9/10))]
 

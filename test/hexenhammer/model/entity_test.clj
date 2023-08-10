@@ -48,18 +48,22 @@
 (facts
  "gen mover"
 
- (gen-mover :cube-1 :player-1 :facing-1)
+ (gen-mover :cube-1 :player-1)
  => {:entity/class :mover
      :entity/cube :cube-1
      :unit/player :player-1
-     :unit/facing :facing-1
+     :mover/options #{}
+     :mover/marked nil
      :entity/presentation :default
      :entity/interaction :default}
 
- (gen-mover :cube-1 :player-1 :facing-1 :presentation :presentation-1 :interaction :interaction-1)
+ (gen-mover :cube-1 :player-1
+            :options #{:n} :marked :s
+            :presentation :presentation-1 :interaction :interaction-1)
  => {:entity/class :mover
      :entity/cube :cube-1
      :unit/player :player-1
-     :unit/facing :facing-1
+     :mover/options #{:n}
+     :mover/marked :s
      :entity/presentation :presentation-1
      :entity/interaction :interaction-1})

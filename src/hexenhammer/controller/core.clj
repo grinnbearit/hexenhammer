@@ -1,6 +1,7 @@
 (ns hexenhammer.controller.core
   (:require [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
+            [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]))
 
@@ -83,7 +84,10 @@
 (defmethod select [:movement :reform]
   [state cube]
   (let [unit (get-in state [:game/battlefield cube])
-        mover (me/gen-mover cube (:game/player state) (:unit/facing unit)
+        facings (mlm/show-reform (:game/battlefield state) cube)
+        mover (me/gen-mover cube (:game/player state)
+                            :options facings
+                            :marked (:unit/facing unit)
                             :presentation :selected)]
     (-> (assoc state :game/selected cube)
         (assoc :game/battlemap {cube mover})
@@ -106,14 +110,14 @@
     (-> (if (not= facing (:unit/facing unit))
           (assoc state :game/movement? true)
           (dissoc state :game/movement?))
-        (assoc-in [:game/battlemap cube :unit/facing] facing))))
+        (assoc-in [:game/battlemap cube :mover/marked] facing))))
 
 
 (defn finish-movement
   [state]
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
-        new-facing (get-in state [:game/battlemap cube :unit/facing])]
+        new-facing (get-in state [:game/battlemap cube :mover/marked])]
     (-> (assoc-in state [:game/battlefield cube]
                   (-> (ce/reset-default unit)
                       (assoc :unit/facing new-facing)))

@@ -15,7 +15,7 @@
      [:&.player-1 {:fill "#990000" :stroke "black"}]
      [:&.player-2 {:fill "#1155cc" :stroke "black"}]]
     [:&.arrow
-     [:&.selected {:stroke "yellow" :fill "yellow"}]]]
+     [:&.marked {:stroke "yellow" :fill "yellow"}]]]
    [:table :th :td {:border "1px solid"}]))
 
 

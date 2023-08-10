@@ -2,6 +2,7 @@
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
+            [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.core :refer :all]))
@@ -183,7 +184,11 @@
      :game/battlemap {:cube-1 :mover-1}}
 
  (provided
-  (me/gen-mover :cube-1 :player-1 :facing-1
+
+  (mlm/show-reform {:cube-1 {:unit/facing :facing-1}} :cube-1) => :facings-1
+  (me/gen-mover :cube-1 :player-1
+                :options :facings-1
+                :marked :facing-1
                 :presentation :selected)
   => :mover-1))
 
@@ -205,7 +210,12 @@
      :game/battlemap {:cube-1 :mover-1}}
 
  (provided
-  (me/gen-mover :cube-1 :player-1 :facing-1 :presentation :selected)
+
+  (mlm/show-reform {:cube-1 {:unit/facing :facing-1}} :cube-1) => :facings-1
+  (me/gen-mover :cube-1 :player-1
+                :options :facings-1
+                :marked :facing-1
+                :presentation :selected)
   => :mover-1))
 
 
@@ -233,20 +243,20 @@
  => {:game/phase :movement
      :game/subphase :reform
      :game/battlefield {:cube-1 {:unit/facing :n}}
-     :game/battlemap {:cube-1 {:unit/facing :s}}
+     :game/battlemap {:cube-1 {:mover/marked :s}}
      :game/movement? true}
 
  (move {:game/phase :movement
         :game/subphase :reform
         :game/battlefield {:cube-1 {:unit/facing :n}}
-        :game/battlemap {:cube-1 {:unit/facing :s}}
+        :game/battlemap {:cube-1 {:mover/marked :s}}
         :game/movement? true}
        :cube-1
        :n)
  => {:game/phase :movement
      :game/subphase :reform
      :game/battlefield {:cube-1 {:unit/facing :n}}
-     :game/battlemap {:cube-1 {:unit/facing :n}}})
+     :game/battlemap {:cube-1 {:mover/marked :n}}})
 
 
 (facts
@@ -254,7 +264,7 @@
 
  (finish-movement {:game/selected :cube-1
                    :game/battlefield {:cube-1 :unit-1}
-                   :game/battlemap {:cube-1 {:unit/facing :n}}
+                   :game/battlemap {:cube-1 {:mover/marked :n}}
                    :game/movement? true})
  => {:game/battlefield {:cube-1 {:unit/facing :n}}
      :game/subphase :select-hex}

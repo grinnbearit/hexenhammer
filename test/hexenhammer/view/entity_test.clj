@@ -159,43 +159,69 @@
  "render mover"
 
  (render {:entity/class :mover
+          :entity/cube :cube-1
           :unit/player 1
-          :unit/facing :n
-          :entity/cube :cube-1})
+          :mover/options #{}
+          :mover/marked nil})
+
  => [:translate :element-2 :cube-1]
 
  (provided
   (render-terrain {:entity/class :mover
+                   :entity/cube :cube-1
                    :unit/player 1
-                   :unit/facing :n
-                   :entity/cube :cube-1})
+                   :mover/options #{}
+                   :mover/marked nil})
+  => :terrain-1
+
+  (svg/hexagon) => [:hexagon {}]
+
+  (svg/scale [:g {}
+              [:hexagon {:class "unit player-1"}]
+              []
+              nil]
+             9/10)
+  => [:scale :element-1 9/10]
+
+  (svg/translate [:g {}
+                  :terrain-1
+                  [:scale :element-1 9/10]]
+                 :cube-1)
+  => [:translate :element-2 :cube-1])
+
+
+ (render {:entity/class :mover
+          :entity/cube :cube-1
+          :unit/player 1
+          :mover/options #{:n :s :nw}
+          :mover/marked :nw})
+
+ => [:translate :element-2 :cube-1]
+
+ (provided
+  (render-terrain {:entity/class :mover
+                   :entity/cube :cube-1
+                   :unit/player 1
+                   :mover/options #{:n :s :nw}
+                   :mover/marked :nw})
   => :terrain-1
 
   (svg/hexagon) => [:hexagon {}]
 
   (svg/arrow :n) => [:arrow {} :n]
-  (svg/arrow :ne) => [:arrow {} :ne]
-  (svg/arrow :se) => [:arrow {} :se]
   (svg/arrow :s) => [:arrow {} :s]
-  (svg/arrow :sw) => [:arrow {} :sw]
-  (svg/arrow :nw) => [:arrow {} :nw]
+  (svg/arrow :nw) => [:arrow {} :n]
 
-  (svg/movable [:arrow {:class "arrow"} :ne] :cube-1 :ne) => [:movable :ne]
-  (svg/movable [:arrow {:class "arrow"} :se] :cube-1 :se) => [:movable :se]
+  (svg/movable [:arrow {:class "arrow"} :n] :cube-1 :n) => [:movable :n]
   (svg/movable [:arrow {:class "arrow"} :s] :cube-1 :s) => [:movable :s]
-  (svg/movable [:arrow {:class "arrow"} :sw] :cube-1 :sw) => [:movable :sw]
-  (svg/movable [:arrow {:class "arrow"} :nw] :cube-1 :nw) => [:movable :nw]
+
 
   (svg/scale [:g {}
               [:hexagon {:class "unit player-1"}]
-              (list [:arrow {:class "arrow selected"} :n]
-                    [:movable :ne]
-                    [:movable :se]
-                    [:movable :s]
-                    [:movable :sw]
-                    [:movable :nw])]
+              (list [:movable :n]
+                    [:movable :s])
+              [:arrow {:class "arrow marked"} :n]]
              9/10)
-
   => [:scale :element-1 9/10]
 
   (svg/translate [:g {}

@@ -25,12 +25,14 @@
 
 
 (defn gen-mover
-  "Returns a mover entity all 6 facings with 1 selected"
-  [cube player facing & {:keys [presentation interaction]
-                         :or {presentation :default interaction :default}}]
+  "Returns a mover entity, options is a set of possible facings,
+  marked is the marked facing for this mover"
+  [cube player & {:keys [presentation interaction options marked]
+                  :or {presentation :default interaction :default options #{}}}]
   {:entity/class :mover
    :entity/cube cube
    :entity/presentation presentation
    :entity/interaction interaction
    :unit/player player
-   :unit/facing facing})
+   :mover/options options
+   :mover/marked marked})
