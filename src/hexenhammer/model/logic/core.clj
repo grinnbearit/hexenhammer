@@ -1,4 +1,4 @@
-(ns hexenhammer.model.logic
+(ns hexenhammer.model.logic.core
   (:require [hexenhammer.model.cube :as cube]))
 
 

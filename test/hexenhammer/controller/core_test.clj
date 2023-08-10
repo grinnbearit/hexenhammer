@@ -1,7 +1,7 @@
 (ns hexenhammer.controller.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.entity :as me]
-            [hexenhammer.model.logic :as ml]
+            [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.core :refer :all]))
@@ -153,10 +153,10 @@
      :game/battlefield :battlefield-3}
 
  (provided
-  (ml/battlefield-engaged? :battlefield-1 :unit-cube-1)
+  (mlc/battlefield-engaged? :battlefield-1 :unit-cube-1)
   => false
 
-  (ml/battlefield-engaged? :battlefield-1 :unit-cube-2)
+  (mlc/battlefield-engaged? :battlefield-1 :unit-cube-2)
   => true
 
   (cb/reset-default :battlefield-1)

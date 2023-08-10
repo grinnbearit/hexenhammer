@@ -1,6 +1,6 @@
 (ns hexenhammer.controller.core
   (:require [hexenhammer.model.entity :as me]
-            [hexenhammer.model.logic :as ml]
+            [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]))
 
@@ -66,7 +66,7 @@
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (vals (get-in state [:game/units player :cubes]))
-        movable-cubes (remove #(ml/battlefield-engaged? battlefield %) player-cubes)]
+        movable-cubes (remove #(mlc/battlefield-engaged? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)

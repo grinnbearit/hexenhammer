@@ -1,7 +1,7 @@
-(ns hexenhammer.model.logic-test
+(ns hexenhammer.model.logic.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as cube]
-            [hexenhammer.model.logic :refer :all]))
+            [hexenhammer.model.logic.core :refer :all]))
 
 
 (facts
