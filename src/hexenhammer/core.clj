@@ -1,10 +1,10 @@
 (ns hexenhammer.core
-  (:require [compojure.core :refer [defroutes GET POST]]
+  (:require [compojure.core :refer [defroutes routes GET POST]]
             [hexenhammer.model.core :as model]
             [hexenhammer.model.cube :as cube]
             [hexenhammer.view.html :as view]
             [hexenhammer.controller.core :as controller]
-            [ring.util.response :refer [redirect]]
+            [hexenhammer.server :refer [wrap-redirect-home]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.adapter.jetty :refer [run-jetty]]))
 
@@ -23,31 +23,34 @@
   (let [cube (cube/->Cube (Integer/parseInt q)
                           (Integer/parseInt r)
                           (Integer/parseInt s))]
-    (do (swap! hexenhammer-state controller/select cube)
-        (redirect "/"))))
+    (swap! hexenhammer-state controller/select cube)))
 
 
 (defn setup-add-unit-handler
   [{{:strs [player facing]} :params}]
   (let [player (Integer/parseInt player)
         facing (keyword facing)]
-    (do (swap! hexenhammer-state controller/add-unit player facing)
-        (redirect "/"))))
+    (swap! hexenhammer-state controller/add-unit player facing)))
 
 
-(defroutes hexenhammer-handler
-  (GET "/" [] render-handler)
+(defroutes home-handler
+  (GET "/" [] render-handler))
+
+
+(defroutes api-handler
   (GET "/select" [] select-handler)
   (GET "/favicon.ico" [] "")
   (POST "/setup/add-unit" [] setup-add-unit-handler)
-  (POST "/setup/remove-unit" [] (do (swap! hexenhammer-state controller/remove-unit) (redirect "/")))
-  (POST "/setup/to-movement" [] (do (swap! hexenhammer-state controller/to-movement) (redirect "/")))
-  (POST "/movement/skip-movement" [] (do (swap! hexenhammer-state controller/skip-movement) (redirect "/"))))
+  (POST "/setup/remove-unit" [] (swap! hexenhammer-state controller/remove-unit))
+  (POST "/setup/to-movement" [] (swap! hexenhammer-state controller/to-movement))
+  (POST "/movement/skip-movement" [] (swap! hexenhammer-state controller/skip-movement)))
 
 
 (def hexenhammer-app
-  (-> hexenhammer-handler
-      wrap-params))
+  (routes home-handler
+          (-> api-handler
+              wrap-params
+              wrap-redirect-home)))
 
 
 ;; (defonce server (run-jetty #'hexenhammer-app {:port 8080 :join? false}))
