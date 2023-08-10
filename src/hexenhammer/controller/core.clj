@@ -93,8 +93,8 @@
 (defn skip-movement
   [state]
   (-> (update-in state [:game/battlefield (:game/selected state)] ce/reset-default)
-   (dissoc :game/selected :game/battlemap)
-   (assoc :game/subphase :select-hex)))
+      (dissoc :game/selected :game/battlemap)
+      (assoc :game/subphase :select-hex)))
 
 
 (defmulti move (fn [state cube facing] [(:game/phase state) (:game/subphase state)]))
@@ -107,3 +107,15 @@
           (assoc state :game/movement? true)
           (dissoc state :game/movement?))
         (assoc-in [:game/battlemap cube :unit/facing] facing))))
+
+
+(defn finish-movement
+  [state]
+  (let [cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])
+        new-facing (get-in state [:game/battlemap cube :unit/facing])]
+    (-> (assoc-in state [:game/battlefield cube]
+                  (-> (ce/reset-default unit)
+                      (assoc :unit/facing new-facing)))
+        (dissoc :game/selected :game/battlemap :game/movement?)
+        (assoc :game/subphase :select-hex))))

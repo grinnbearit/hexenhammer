@@ -247,3 +247,18 @@
      :game/subphase :reform
      :game/battlefield {:cube-1 {:unit/facing :n}}
      :game/battlemap {:cube-1 {:unit/facing :n}}})
+
+
+(facts
+ "finish movement"
+
+ (finish-movement {:game/selected :cube-1
+                   :game/battlefield {:cube-1 :unit-1}
+                   :game/battlemap {:cube-1 {:unit/facing :n}}
+                   :game/movement? true})
+ => {:game/battlefield {:cube-1 {:unit/facing :n}}
+     :game/subphase :select-hex}
+
+ (provided
+  (ce/reset-default :unit-1)
+  => {}))

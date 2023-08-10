@@ -52,7 +52,8 @@
   (POST "/setup/add-unit" [] setup-add-unit-handler)
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state controller/remove-unit))
   (POST "/setup/to-movement" [] (swap! hexenhammer-state controller/to-movement))
-  (POST "/movement/skip-movement" [] (swap! hexenhammer-state controller/skip-movement)))
+  (POST "/movement/skip-movement" [] (swap! hexenhammer-state controller/skip-movement))
+  (POST "/movement/finish-movement" [] (swap! hexenhammer-state controller/finish-movement)))
 
 
 (def hexenhammer-app
