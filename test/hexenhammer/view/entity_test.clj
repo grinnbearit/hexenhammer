@@ -180,14 +180,20 @@
   (svg/arrow :sw) => [:arrow {} :sw]
   (svg/arrow :nw) => [:arrow {} :nw]
 
+  (svg/movable [:arrow {:class "arrow"} :ne] :cube-1 :ne) => [:movable :ne]
+  (svg/movable [:arrow {:class "arrow"} :se] :cube-1 :se) => [:movable :se]
+  (svg/movable [:arrow {:class "arrow"} :s] :cube-1 :s) => [:movable :s]
+  (svg/movable [:arrow {:class "arrow"} :sw] :cube-1 :sw) => [:movable :sw]
+  (svg/movable [:arrow {:class "arrow"} :nw] :cube-1 :nw) => [:movable :nw]
+
   (svg/scale [:g {}
               [:hexagon {:class "unit player-1"}]
               (list [:arrow {:class "arrow selected"} :n]
-                    [:arrow {:class "arrow"} :ne]
-                    [:arrow {:class "arrow"} :se]
-                    [:arrow {:class "arrow"} :s]
-                    [:arrow {:class "arrow"} :sw]
-                    [:arrow {:class "arrow"} :nw])]
+                    [:movable :ne]
+                    [:movable :se]
+                    [:movable :s]
+                    [:movable :sw]
+                    [:movable :nw])]
              9/10)
 
   => [:scale :element-1 9/10]

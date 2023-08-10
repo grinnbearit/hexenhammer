@@ -194,7 +194,8 @@
  (select {:game/phase :movement
           :game/subphase :reform
           :game/player :player-1
-          :game/battlefield {:cube-1 {:unit/facing :facing-1}}}
+          :game/battlefield {:cube-1 {:unit/facing :facing-1}}
+          :game/movement? true}
          :cube-1)
  => {:game/phase :movement
      :game/subphase :reform
@@ -219,3 +220,30 @@
 
  (provided
   (ce/reset-default :entity-1) => :reset-entity-1))
+
+
+(facts
+ "move movement reform"
+
+ (move {:game/phase :movement
+        :game/subphase :reform
+        :game/battlefield {:cube-1 {:unit/facing :n}}}
+       :cube-1
+       :s)
+ => {:game/phase :movement
+     :game/subphase :reform
+     :game/battlefield {:cube-1 {:unit/facing :n}}
+     :game/battlemap {:cube-1 {:unit/facing :s}}
+     :game/movement? true}
+
+ (move {:game/phase :movement
+        :game/subphase :reform
+        :game/battlefield {:cube-1 {:unit/facing :n}}
+        :game/battlemap {:cube-1 {:unit/facing :s}}
+        :game/movement? true}
+       :cube-1
+       :n)
+ => {:game/phase :movement
+     :game/subphase :reform
+     :game/battlefield {:cube-1 {:unit/facing :n}}
+     :game/battlemap {:cube-1 {:unit/facing :n}}})

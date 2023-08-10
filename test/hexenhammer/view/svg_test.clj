@@ -105,6 +105,13 @@
 
 
 (facts
+ "movable"
+
+ (movable :element-1 {:q 1 :r 1 :s 1} :n)
+ => [:a {:href "/move?q=1&r=1&s=1&facing=n"} :element-1])
+
+
+(facts
  "scale"
 
  (scale [:g {}] 9/10)

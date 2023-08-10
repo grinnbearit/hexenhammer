@@ -48,7 +48,7 @@
      [:h2 "Setup"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state)
+     (render-battlefield state) [:br] [:br]
      [:form {:action "/setup/to-movement" :method "post"}
       [:input {:type "submit" :value "To Movement"}]]]]))
 
@@ -118,6 +118,6 @@
      [:h2 "Movement - Reform"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state)
+     (render-battlefield state) [:br] [:br]
      [:form {:action "/movement/skip-movement" :method "post"}
       [:input {:type "submit" :value "Skip Movement"}]]]]))

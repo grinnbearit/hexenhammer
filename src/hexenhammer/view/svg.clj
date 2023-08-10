@@ -83,6 +83,12 @@
   (anchor element (str "/select?" (form-encode cube))))
 
 
+(defn movable
+  "given an element, a cube and a facing, wraps it in an anchro tag pointing to /move?[cube]&[facing]"
+  [element cube facing]
+  (anchor element (str "/move?" (form-encode (assoc cube :facing (name facing))))))
+
+
 (defn scale
   "Returns the element with a transform attribute that scales it by a factor `factor`"
   [element factor]

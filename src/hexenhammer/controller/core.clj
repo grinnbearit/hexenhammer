@@ -86,7 +86,8 @@
         mover (me/gen-mover cube (:game/player state) (:unit/facing unit)
                             :presentation :selected)]
     (-> (assoc state :game/selected cube)
-        (assoc :game/battlemap {cube mover}))))
+        (assoc :game/battlemap {cube mover})
+        (dissoc :game/movement?))))
 
 
 (defn skip-movement
@@ -94,3 +95,15 @@
   (-> (update-in state [:game/battlefield (:game/selected state)] ce/reset-default)
    (dissoc :game/selected :game/battlemap)
    (assoc :game/subphase :select-hex)))
+
+
+(defmulti move (fn [state cube facing] [(:game/phase state) (:game/subphase state)]))
+
+
+(defmethod move [:movement :reform]
+  [state cube facing]
+  (let [unit (get-in state [:game/battlefield cube])]
+    (-> (if (not= facing (:unit/facing unit))
+          (assoc state :game/movement? true)
+          (dissoc state :game/movement?))
+        (assoc-in [:game/battlemap cube :unit/facing] facing))))

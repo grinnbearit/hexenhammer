@@ -26,6 +26,14 @@
     (swap! hexenhammer-state controller/select cube)))
 
 
+(defn move-handler
+  [{{:strs [q r s facing]} :params}]
+  (let [cube (cube/->Cube (Integer/parseInt q)
+                          (Integer/parseInt r)
+                          (Integer/parseInt s))]
+    (swap! hexenhammer-state controller/move cube (keyword facing))))
+
+
 (defn setup-add-unit-handler
   [{{:strs [player facing]} :params}]
   (let [player (Integer/parseInt player)
@@ -39,6 +47,7 @@
 
 (defroutes api-handler
   (GET "/select" [] select-handler)
+  (GET "/move" [] move-handler)
   (GET "/favicon.ico" [] "")
   (POST "/setup/add-unit" [] setup-add-unit-handler)
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state controller/remove-unit))

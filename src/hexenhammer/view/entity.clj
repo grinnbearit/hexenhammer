@@ -58,7 +58,11 @@
                           (svg/add-classes ["arrow"]))
 
                 (= facing (:unit/facing mover))
-                (svg/add-classes ["selected"])))]
+                (svg/add-classes ["selected"])
+
+                (not= facing (:unit/facing mover))
+                (svg/movable (:entity/cube mover) facing)))]
+
            (svg/scale 9/10))]
 
       (svg/translate (:entity/cube mover))))
