@@ -1,6 +1,7 @@
 (ns hexenhammer.view.html
   (:require [garden.core :refer [css]]
             [hiccup.core :refer [html]]
+            [hexenhammer.view.colour :refer [PALETTE]]
             [hexenhammer.view.svg :as svg]
             [hexenhammer.view.entity :as entity]))
 
@@ -8,12 +9,18 @@
 (def STYLESHEET
   (css
    [:polygon
-    [:&.terrain {:fill "#6aa84f" :stroke "black"}
+    [:&.terrain {:fill (PALETTE "dark green 1") :stroke "black"}
      [:&.selected {:stroke "yellow"}]
      [:&.highlighted {:stroke "orange"}]]
     [:&.unit
-     [:&.player-1 {:fill "#990000" :stroke "black"}]
-     [:&.player-2 {:fill "#1155cc" :stroke "black"}]]
+     [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
+     [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]
+    [:&.mover
+     [:&.player-1 {:fill (PALETTE "light red berry 1") :stroke "black"}]
+     [:&.player-2 {:fill (PALETTE "light blue cornflower 1") :stroke "black"}]
+     [:&.selected
+      [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
+      [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]]
     [:&.arrow
      [:&.marked {:stroke "yellow" :fill "yellow"}]]]
    [:table :th :td {:border "1px solid"}]))

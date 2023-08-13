@@ -51,8 +51,12 @@
   (-> [:g {}
        (render-terrain mover)
        (-> [:g {}
-            (-> (svg/hexagon)
-                (svg/add-classes ["unit" (str "player-" (:unit/player mover))]))
+            (cond-> (-> (svg/hexagon)
+                        (svg/add-classes ["mover" (str "player-" (:unit/player mover))]))
+
+              (= :selected (:entity/presentation mover))
+              (svg/add-classes ["selected"]))
+
             (for [option (:mover/options mover)
                   :when (not= option (:mover/marked mover))]
               (-> (svg/arrow option)
