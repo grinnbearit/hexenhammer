@@ -173,24 +173,18 @@
  (select {:game/phase :movement
           :game/subphase :select-hex
           :game/player :player-1
-          :game/battlefield {:cube-1 {:unit/facing :facing-1}}}
+          :game/battlefield :battlefield}
          :cube-1)
 
  => {:game/phase :movement
      :game/subphase :reform
      :game/selected :cube-1
      :game/player :player-1
-     :game/battlefield {:cube-1 {:unit/facing :facing-1}}
+     :game/battlefield :battlefield
      :game/battlemap {:cube-1 :mover-1}}
 
  (provided
-
-  (mlm/show-reform {:cube-1 {:unit/facing :facing-1}} :cube-1) => :facings-1
-  (me/gen-mover :cube-1 :player-1
-                :options :facings-1
-                :marked :facing-1
-                :presentation :selected)
-  => :mover-1))
+  (mlm/show-reform :battlefield :cube-1) => :mover-1))
 
 
 (facts
@@ -199,24 +193,18 @@
  (select {:game/phase :movement
           :game/subphase :reform
           :game/player :player-1
-          :game/battlefield {:cube-1 {:unit/facing :facing-1}}
+          :game/battlefield :battlefield
           :game/movement? true}
          :cube-1)
  => {:game/phase :movement
      :game/subphase :reform
      :game/player :player-1
-     :game/battlefield {:cube-1 {:unit/facing :facing-1}}
+     :game/battlefield :battlefield
      :game/selected :cube-1
      :game/battlemap {:cube-1 :mover-1}}
 
  (provided
-
-  (mlm/show-reform {:cube-1 {:unit/facing :facing-1}} :cube-1) => :facings-1
-  (me/gen-mover :cube-1 :player-1
-                :options :facings-1
-                :marked :facing-1
-                :presentation :selected)
-  => :mover-1))
+  (mlm/show-reform :battlefield :cube-1) => :mover-1))
 
 
 (facts
@@ -272,3 +260,20 @@
  (provided
   (ce/reset-default :unit-1)
   => {}))
+
+
+(facts
+ "select movement move"
+
+ (select {:game/battlefield :battlefield
+          :game/phase :movement
+          :game/subphase :move}
+         :cube-1)
+ => {:game/battlefield :battlefield
+     :game/battlemap :mover-map-1
+     :game/phase :movement
+     :game/selected :cube-1
+     :game/subphase :move}
+
+ (provided
+  (mlm/show-moves :battlefield :cube-1) => :mover-map-1))

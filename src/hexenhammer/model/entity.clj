@@ -21,7 +21,8 @@
    :entity/interaction interaction
    :unit/player player
    :unit/id id
-   :unit/facing facing})
+   :unit/facing facing
+   :unit/M 8})
 
 
 (defn gen-mover

@@ -83,12 +83,7 @@
 
 (defmethod select [:movement :reform]
   [state cube]
-  (let [unit (get-in state [:game/battlefield cube])
-        facings (mlm/show-reform (:game/battlefield state) cube)
-        mover (me/gen-mover cube (:game/player state)
-                            :options facings
-                            :marked (:unit/facing unit)
-                            :presentation :selected)]
+  (let [mover (mlm/show-reform (:game/battlefield state) cube)]
     (-> (assoc state :game/selected cube)
         (assoc :game/battlemap {cube mover})
         (dissoc :game/movement?))))
@@ -123,3 +118,18 @@
                       (assoc :unit/facing new-facing)))
         (dissoc :game/selected :game/battlemap :game/movement?)
         (assoc :game/subphase :select-hex))))
+
+
+(defn movement-move
+  [state]
+  (-> (dissoc state :game/battlemap :game/movement?)
+      (assoc :game/subphase :move)
+      (select (:game/selected state))))
+
+
+(defmethod select [:movement :move]
+  [state cube]
+  (let [mover-map (mlm/show-moves (:game/battlefield state) cube)]
+    (-> (assoc state :game/selected cube)
+        (assoc :game/battlemap mover-map)
+        (dissoc :game/movement?))))

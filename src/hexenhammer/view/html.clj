@@ -123,4 +123,17 @@
       [:input {:type "submit" :value "Skip Movement"}]
       (when (:game/movement? state)
         [:input {:type "submit" :value "Finish Movement"
-                 :formaction "/movement/finish-movement"}])]]]))
+                 :formaction "/movement/finish-movement"}])]
+     [:a {:href "/movement/move"} "Move"]]]))
+
+
+(defmethod render [:movement :move]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 (str "Player - " (:game/player state))]
+     [:h2 "Movement - Move"]
+     [:style STYLESHEET]]
+    [:body
+     (render-battlefield state) [:br] [:br]]]))
