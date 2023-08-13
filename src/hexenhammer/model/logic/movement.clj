@@ -73,17 +73,6 @@
   "A untility wrapper for forward-steps, mocks out the moving unit and
   includes the starting pointer in every path"
   [battlefield pointer hexes]
-  (for [cube (:cube pointer)
-        shadow-terrain (me/gen-terrain cube)
-        shadow-battlefield (assoc battlefield cube shadow-terrain)
-        path (forward-steps shadow-battlefield #{} pointer hexes)]
-    (conj path pointer)))
-
-
-(defn forward-paths
-  "A untility wrapper for forward-steps, mocks out the moving unit and
-  includes the starting pointer in every path"
-  [battlefield pointer hexes]
   (let [cube (:cube pointer)
         shadow-terrain (me/gen-terrain cube)
         shadow-battlefield (assoc battlefield cube shadow-terrain)]
