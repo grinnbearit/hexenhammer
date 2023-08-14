@@ -96,16 +96,16 @@
       (assoc :game/subphase :select-hex)))
 
 
-(defmulti move (fn [state cube facing] [(:game/phase state) (:game/subphase state)]))
+(defmulti move (fn [state position] [(:game/phase state) (:game/subphase state)]))
 
 
 (defmethod move [:movement :reform]
-  [state cube facing]
-  (let [unit (get-in state [:game/battlefield cube])]
-    (-> (if (not= facing (:unit/facing unit))
+  [state pointer]
+  (let [unit (get-in state [:game/battlefield (:cube pointer)])]
+    (-> (if (not= (:facing pointer) (:unit/facing unit))
           (assoc state :game/movement? true)
           (dissoc state :game/movement?))
-        (assoc-in [:game/battlemap cube :mover/marked] facing))))
+        (assoc-in [:game/battlemap (:cube pointer) :mover/marked] (:facing pointer)))))
 
 
 (defn finish-movement

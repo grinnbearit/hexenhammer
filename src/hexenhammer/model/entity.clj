@@ -37,3 +37,12 @@
    :unit/player player
    :mover/options options
    :mover/marked marked})
+
+
+(defn gen-shadow
+  "Returns a shadow entity, a stripped down unit"
+  [cube player facing]
+  {:entity/class :unit
+   :entity/cube cube
+   :unit/player player
+   :unit/facing facing})

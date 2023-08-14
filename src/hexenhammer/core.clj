@@ -30,8 +30,10 @@
   [{{:strs [q r s facing]} :params}]
   (let [cube (cube/->Cube (Integer/parseInt q)
                           (Integer/parseInt r)
-                          (Integer/parseInt s))]
-    (swap! hexenhammer-state controller/move cube (keyword facing))))
+                          (Integer/parseInt s))
+        pointer (cube/->Pointer cube
+                                (keyword facing))]
+    (swap! hexenhammer-state controller/move pointer)))
 
 
 (defn setup-add-unit-handler

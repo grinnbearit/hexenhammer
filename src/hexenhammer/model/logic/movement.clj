@@ -5,7 +5,10 @@
             [clojure.set :as set]))
 
 
-(defrecord Pointer [cube facing])
+(defn pointer->shadow
+  "Takes a player and a pointer and returns a shadow unit with that cube and facing"
+  [player pointer]
+  (me/gen-shadow (:cube pointer) player (:facing pointer)))
 
 
 (defn reform-facings
@@ -15,9 +18,10 @@
   (let [unit (battlefield cube)]
     (set
      (for [facing #{:n :ne :se :s :sw :nw}
-           :let [shadow (assoc unit :unit/facing facing)
-                 new-battlefield (assoc battlefield cube shadow)]
-           :when (not (mlc/battlefield-engaged? new-battlefield cube))]
+           :let [pointer (mc/->Pointer cube facing)
+                 shadow (pointer->shadow (:unit/player unit) pointer)
+                 shadow-battlefield (assoc battlefield cube shadow)]
+           :when (not (mlc/battlefield-engaged? shadow-battlefield cube))]
        facing))))
 
 
@@ -39,11 +43,11 @@
                         :s [:se :sw] :sw [:s :nw] :nw [:sw :n]}
         [lp rp] (facing->pivots (:facing pointer))
         forward-cube (mc/step (:cube pointer) (:facing pointer))]
-    #{(->Pointer (:cube pointer) lp)
-      (->Pointer (:cube pointer) rp)
-      (->Pointer forward-cube (:facing pointer))
-      (->Pointer forward-cube lp)
-      (->Pointer forward-cube rp)}))
+    #{(mc/->Pointer (:cube pointer) lp)
+      (mc/->Pointer (:cube pointer) rp)
+      (mc/->Pointer forward-cube (:facing pointer))
+      (mc/->Pointer forward-cube lp)
+      (mc/->Pointer forward-cube rp)}))
 
 
 (defn valid-pointer?
@@ -70,14 +74,26 @@
 
 
 (defn forward-paths
-  "A untility wrapper for forward-steps, mocks out the moving unit and
-  includes the starting pointer in every path"
+  "A untility wrapper for forward-steps adds the starting pointer to every path"
   [battlefield pointer hexes]
-  (let [cube (:cube pointer)
-        shadow-terrain (me/gen-terrain cube)
-        shadow-battlefield (assoc battlefield cube shadow-terrain)]
-    (for [path (forward-steps shadow-battlefield #{} pointer hexes)]
-      (conj path pointer))))
+  (for [path (forward-steps battlefield #{} pointer hexes)]
+    (conj path pointer)))
+
+
+(defn paths->mover-map
+  "Given a player and a list of paths, returns a map of cube -> mover, removes invalid options"
+  [battlefield player paths]
+  (letfn [(reducer [mover-acc pointer]
+            (let [cube (:cube pointer)
+                  shadow (pointer->shadow player pointer)
+                  shadow-battlefield (assoc battlefield cube shadow)]
+              (if (not (mlc/battlefield-engaged? shadow-battlefield cube))
+                (update mover-acc cube (fnil conj #{}) (:facing pointer))
+                mover-acc)))]
+
+    (->> (for [[cube options] (reduce reducer {} (apply concat paths))]
+           [cube (me/gen-mover cube player :options options)])
+         (into {}))))
 
 
 (defn M->hexes
@@ -85,29 +101,22 @@
   (Math/round (float (/ M 3))))
 
 
-(defn collect-facings
-  "Given a collection of pointers, groups their facings by cube"
-  [pointers]
-  (letfn [(reducer [cube->facings pointer]
-            (update cube->facings (:cube pointer) (fnil conj #{}) (:facing pointer)))]
-
-    (reduce reducer {} pointers)))
+(defn remove-unit
+  "Returns a new battlefield with the unit at cube removed"
+  [battlefield cube]
+  (let [terrain (me/gen-terrain cube)]
+    (assoc battlefield cube terrain)))
 
 
 (defn show-moves
-  "Given a cube, returns a map of cube->mover that the unit
-  can reach, selects the original position"
+  "Given a battlefield and cube, returns a map of cube->mover that the unit can reach, selects the original position"
   [battlefield cube]
   (let [unit (battlefield cube)
-        start (->Pointer cube (:unit/facing unit))
+        new-battlefield (remove-unit battlefield cube)
+        start (mc/->Pointer cube (:unit/facing unit))
         hexes (M->hexes (:unit/M unit))
-        pointers (->> (forward-paths battlefield start hexes)
-                      (apply concat))]
-    (->> (for [[pointer-cube pointer-facings] (collect-facings pointers)]
-           [pointer-cube
-            (cond-> (me/gen-mover pointer-cube (:unit/player unit) :options pointer-facings)
-
-              (= cube pointer-cube)
-              (assoc :mover/marked (:unit/facing unit)
-                     :entity/presentation :selected))])
-         (into {}))))
+        paths (forward-paths new-battlefield start hexes)
+        mover-map (paths->mover-map new-battlefield (:unit/player unit) paths)]
+    (update mover-map cube assoc
+            :mover/marked (:unit/facing unit)
+            :entity/presentation :selected)))

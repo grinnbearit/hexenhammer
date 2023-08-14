@@ -31,6 +31,7 @@
      :unit/player :player-1
      :unit/id :id-1
      :unit/facing :facing-1
+     :unit/M 8
      :entity/presentation :default
      :entity/interaction :default}
 
@@ -41,6 +42,7 @@
      :unit/player :player-1
      :unit/facing :facing-1
      :unit/id :id-1
+     :unit/M 8
      :entity/presentation :presentation-1
      :entity/interaction :interaction-1})
 
@@ -67,3 +69,13 @@
      :mover/marked :s
      :entity/presentation :presentation-1
      :entity/interaction :interaction-1})
+
+
+(facts
+ "gen shadow"
+
+ (gen-shadow :cube-1 :player-1 :facing-1)
+ => {:entity/class :unit
+     :entity/cube :cube-1
+     :unit/player :player-1
+     :unit/facing :facing-1})

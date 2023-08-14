@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.core-test
   (:require [midje.sweet :refer :all]
+            [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.model.logic.movement :as mlm]
@@ -226,8 +227,7 @@
  (move {:game/phase :movement
         :game/subphase :reform
         :game/battlefield {:cube-1 {:unit/facing :n}}}
-       :cube-1
-       :s)
+       (mc/->Pointer :cube-1 :s))
  => {:game/phase :movement
      :game/subphase :reform
      :game/battlefield {:cube-1 {:unit/facing :n}}
@@ -239,8 +239,7 @@
         :game/battlefield {:cube-1 {:unit/facing :n}}
         :game/battlemap {:cube-1 {:mover/marked :s}}
         :game/movement? true}
-       :cube-1
-       :n)
+       (mc/->Pointer :cube-1 :n))
  => {:game/phase :movement
      :game/subphase :reform
      :game/battlefield {:cube-1 {:unit/facing :n}}
