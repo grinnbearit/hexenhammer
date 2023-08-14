@@ -120,3 +120,34 @@
     (update mover-map cube assoc
             :mover/marked (:unit/facing unit)
             :entity/presentation :selected)))
+
+
+(defn path->breadcrumbs
+  "Returns a subset of path containing only the last pointer for every cube in path
+  assumes the last pointer is the end step so excludes it"
+  [path]
+  (letfn [(reducer [acc pointer]
+            (if (= (:cube (peek acc))
+                   (:cube pointer))
+              (conj (pop acc) pointer)
+              (conj acc pointer)))]
+
+    (pop (reduce reducer [] path))))
+
+
+(defn path->breadcrumb-map
+  "Returns a map of pointer -> breadcrumbs where every pointer in the path
+  maps to it's breadcrumb path"
+  [path]
+  (->> (for [cutoff (range 1 (inc (count path)))
+             :let [sub-path (subvec path 0 cutoff)]]
+         [(peek sub-path) (path->breadcrumbs sub-path)])
+       (into {})))
+
+
+(defn paths->breadcrumb-map
+  "combines all breadcrumb maps for all paths into a single map,
+  assumes all paths have unique pointers except for the first one which is identical"
+  [paths]
+  (->> (map path->breadcrumbs paths)
+       (apply merge)))
