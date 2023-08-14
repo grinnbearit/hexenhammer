@@ -127,6 +127,13 @@
       (select (:game/selected state))))
 
 
+(defn movement-reform
+  [state]
+  (-> (dissoc state :game/battlemap :game/movement?)
+      (assoc :game/subphase :reform)
+      (select (:game/selected state))))
+
+
 (defmethod select [:movement :move]
   [state cube]
   (let [mover-map (mlm/show-moves (:game/battlefield state) cube)]

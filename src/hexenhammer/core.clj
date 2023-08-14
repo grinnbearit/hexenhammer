@@ -51,6 +51,7 @@
   (GET "/select" [] select-handler)
   (GET "/move" [] move-handler)
   (GET "/movement/move" [] (swap! hexenhammer-state controller/movement-move))
+  (GET "/movement/reform" [] (swap! hexenhammer-state controller/movement-reform))
   (GET "/favicon.ico" [] "")
   (POST "/setup/add-unit" [] setup-add-unit-handler)
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state controller/remove-unit))

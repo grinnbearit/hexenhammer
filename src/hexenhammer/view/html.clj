@@ -143,4 +143,8 @@
      [:h2 "Movement - Move"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state) [:br] [:br]]]))
+     (render-battlefield state) [:br] [:br]]
+    [:form {:action "/movement/skip-movement" :method "post"}
+     [:input {:type "submit" :value "Skip Movement"
+              :disabled true}]]
+    [:a {:href "/movement/reform"} "Reform"]]))

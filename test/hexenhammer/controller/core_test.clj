@@ -262,6 +262,30 @@
 
 
 (facts
+ "movement move"
+
+ (movement-move {:game/battlemap :battlemap
+                 :game/movement? :movement?
+                 :game/selected :cube-1})
+ => [:select :cube-1]
+
+ (provided
+  (select {:game/subphase :move :game/selected :cube-1} :cube-1) => [:select :cube-1]))
+
+
+(facts
+ "movement reform"
+
+ (movement-move {:game/battlemap :battlemap
+                 :game/movement? :movement?
+                 :game/selected :cube-1})
+ => [:select :cube-1]
+
+ (provided
+  (select {:game/subphase :move :game/selected :cube-1} :cube-1) => [:select :cube-1]))
+
+
+(facts
  "select movement move"
 
  (select {:game/battlefield :battlefield
