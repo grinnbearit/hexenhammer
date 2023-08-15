@@ -77,7 +77,7 @@
   "A untility wrapper for forward-steps adds the starting pointer to every path"
   [battlefield pointer hexes]
   (for [path (forward-steps battlefield #{} pointer hexes)]
-    (conj path pointer)))
+    (vec (conj path pointer))))
 
 
 (defn paths->mover-map
@@ -92,7 +92,48 @@
                 mover-acc)))]
 
     (->> (for [[cube options] (reduce reducer {} (apply concat paths))]
-           [cube (me/gen-mover cube player :options options)])
+           [cube (me/gen-mover cube player :options options :state :future)])
+         (into {}))))
+
+
+(defn compress-path
+  "Returns a subset of path containing only the last pointer for every cube in path
+  assumes the last pointer is the end step so excludes it"
+  [path]
+  (letfn [(reducer [acc pointer]
+            (if (= (:cube (peek acc))
+                   (:cube pointer))
+              (conj (pop acc) pointer)
+              (conj acc pointer)))]
+
+    (pop (reduce reducer [] path))))
+
+
+(defn path->compressed-map
+  "Returns a map of pointer -> compressed path where every pointer in the path
+  points to the relevant compressed path"
+  [path]
+  (->> (for [cutoff (range 1 (inc (count path)))
+             :let [sub-path (subvec path 0 cutoff)]]
+         [(peek sub-path) (compress-path sub-path)])
+       (into {})))
+
+
+(defn paths->breadcrumbs-map
+  "combines all compressed maps for all paths into a single breadcrumb map,"
+  [player mover-map paths]
+  (letfn [(pointer->breadcrumb [pointer]
+            (if-let [mover (mover-map (:cube pointer))]
+              (assoc mover
+                     :mover/highlighted (:facing pointer)
+                     :mover/state :past)
+              (me/gen-mover (:cube pointer) player
+                            :highlighted (:facing pointer)
+                            :state :past)))]
+
+    (->> (for [[pointer path] (->> (map path->compressed-map paths)
+                                   (apply merge))]
+           [pointer (map pointer->breadcrumb path)])
          (into {}))))
 
 
@@ -109,45 +150,19 @@
 
 
 (defn show-moves
-  "Given a battlefield and cube, returns a map of cube->mover that the unit can reach, selects the original position"
+  "Given a battlefield and cube, returns
+  :mover-map,  cube->mover that the unit can reach, selects the original position
+  :breadcrumb-map, pointer->cube->mover that the unit needs to pass through to reach the mover"
   [battlefield cube]
   (let [unit (battlefield cube)
         new-battlefield (remove-unit battlefield cube)
         start (mc/->Pointer cube (:unit/facing unit))
         hexes (M->hexes (:unit/M unit))
         paths (forward-paths new-battlefield start hexes)
-        mover-map (paths->mover-map new-battlefield (:unit/player unit) paths)]
-    (update mover-map cube assoc
-            :mover/selected (:unit/facing unit)
-            :entity/presentation :selected)))
-
-
-(defn path->breadcrumbs
-  "Returns a subset of path containing only the last pointer for every cube in path
-  assumes the last pointer is the end step so excludes it"
-  [path]
-  (letfn [(reducer [acc pointer]
-            (if (= (:cube (peek acc))
-                   (:cube pointer))
-              (conj (pop acc) pointer)
-              (conj acc pointer)))]
-
-    (pop (reduce reducer [] path))))
-
-
-(defn path->breadcrumb-map
-  "Returns a map of pointer -> breadcrumbs where every pointer in the path
-  maps to it's breadcrumb path"
-  [path]
-  (->> (for [cutoff (range 1 (inc (count path)))
-             :let [sub-path (subvec path 0 cutoff)]]
-         [(peek sub-path) (path->breadcrumbs sub-path)])
-       (into {})))
-
-
-(defn paths->breadcrumb-map
-  "combines all breadcrumb maps for all paths into a single map,
-  assumes all paths have unique pointers except for the first one which is identical"
-  [paths]
-  (->> (map path->breadcrumbs paths)
-       (apply merge)))
+        mover-map (paths->mover-map new-battlefield (:unit/player unit) paths)
+        breadcrumbs-map (paths->breadcrumbs-map (:unit/player unit) mover-map paths)]
+    {:moves (update mover-map cube assoc
+                    :mover/selected (:unit/facing unit)
+                    :mover/state :present
+                    :entity/presentation :selected)
+     :breadcrumbs breadcrumbs-map}))

@@ -136,7 +136,10 @@
 
 (defmethod select [:movement :move]
   [state cube]
-  (let [mover-map (mlm/show-moves (:game/battlefield state) cube)]
-    (-> (assoc state :game/selected cube)
-        (assoc :game/battlemap mover-map)
+  (let [{:keys [breadcrumbs moves]}  (mlm/show-moves (:game/battlefield state) cube)]
+    (-> (assoc state
+               :game/selected cube
+               :game/battlemap moves
+               :movement/moves moves
+               :movement/breadcrumbs breadcrumbs)
         (dissoc :movement/moved?))))

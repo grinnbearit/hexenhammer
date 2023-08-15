@@ -290,13 +290,17 @@
 
  (select {:game/battlefield :battlefield
           :game/phase :movement
-          :game/subphase :move}
+          :game/subphase :move
+          :movement/moved? true}
          :cube-1)
  => {:game/battlefield :battlefield
      :game/battlemap :mover-map-1
      :game/phase :movement
      :game/selected :cube-1
-     :game/subphase :move}
+     :game/subphase :move
+     :movement/breadcrumbs :breadcrumbs-map-1
+     :movement/moves :mover-map-1}
 
  (provided
-  (mlm/show-moves :battlefield :cube-1) => :mover-map-1))
+  (mlm/show-moves :battlefield :cube-1) => {:moves :mover-map-1
+                                            :breadcrumbs :breadcrumbs-map-1}))

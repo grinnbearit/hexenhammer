@@ -28,10 +28,11 @@
 (defn gen-mover
   "Returns a mover entity, options is a set of possible facings,
   selected and highlighted are single facings"
-  [cube player & {:keys [presentation interaction options selected highlighted]
-                  :or {presentation
-                       :default interaction
-                       :default options #{}}}]
+  [cube player & {:keys [presentation interaction options selected highlighted state]
+                  :or {presentation :default
+                       interaction :default
+                       options #{}
+                       state :present}}]
   {:entity/class :mover
    :entity/cube cube
    :entity/presentation presentation
@@ -39,7 +40,8 @@
    :unit/player player
    :mover/options options
    :mover/selected selected
-   :mover/highlighted highlighted})
+   :mover/highlighted highlighted
+   :mover/state state})
 
 
 (defn gen-shadow

@@ -57,6 +57,7 @@
      :mover/options #{}
      :mover/selected nil
      :mover/highlighted nil
+     :mover/state :present
      :entity/presentation :default
      :entity/interaction :default}
 
@@ -65,13 +66,15 @@
             :selected :s
             :highlighted :se
             :presentation :presentation-1
-            :interaction :interaction-1)
+            :interaction :interaction-1
+            :state :state-1)
  => {:entity/class :mover
      :entity/cube :cube-1
      :unit/player :player-1
      :mover/options #{:n :s :se}
      :mover/selected :s
      :mover/highlighted :se
+     :mover/state :state-1
      :entity/presentation :presentation-1
      :entity/interaction :interaction-1})
 

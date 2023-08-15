@@ -156,8 +156,66 @@
   (pointer->shadow 1 {:cube :cube-2 :facing :n}) => :shadow-4
   (mlc/battlefield-engaged? {:cube-2 :shadow-4} :cube-2) => false
 
-  (me/gen-mover :cube-1 1 :options #{:n :ne}) => :mover-1
-  (me/gen-mover :cube-2 1 :options #{:n}) => :mover-2))
+  (me/gen-mover :cube-1 1 :options #{:n :ne} :state :future) => :mover-1
+  (me/gen-mover :cube-2 1 :options #{:n} :state :future) => :mover-2))
+
+
+(facts
+ "compress path"
+
+ (compress-path [{:cube :cube-1 :facing :n}])
+ => []
+
+ (compress-path [{:cube :cube-1 :facing :n}
+                 {:cube :cube-1 :facing :ne}])
+ => []
+
+ (compress-path [{:cube :cube-1 :facing :n}
+                 {:cube :cube-1 :facing :ne}
+                 {:cube :cube-2 :facing :ne}])
+ => [{:cube :cube-1 :facing :ne}]
+
+ (compress-path [{:cube :cube-1 :facing :n}
+                 {:cube :cube-1 :facing :ne}
+                 {:cube :cube-2 :facing :ne}
+                 {:cube :cube-2 :facing :n}])
+ => [{:cube :cube-1 :facing :ne}])
+
+
+(facts
+ "path -> compressed map"
+
+ (path->compressed-map [:pointer-1 :pointer-2 :pointer-3])
+ => {:pointer-1 []
+     :pointer-2 []
+     :pointer-3 [:pointer-2]}
+
+ (provided
+  (compress-path [:pointer-1]) => []
+  (compress-path [:pointer-1 :pointer-2]) => []
+  (compress-path [:pointer-1 :pointer-2 :pointer-3]) => [:pointer-2]))
+
+
+(facts
+ "paths -> breadcrumbs-map"
+
+ (paths->breadcrumbs-map 1 {:cube-1 {}} [:path-1 :path-2])
+ => {:pointer-1 []
+     :pointer-2 [{:mover/highlighted :n
+                  :mover/state :past}]
+     :pointer-3 [:mover-2]}
+
+ (provided
+  (path->compressed-map :path-1)
+  => {:pointer-1 []
+      :pointer-2 [{:cube :cube-1 :facing :n}]}
+
+  (path->compressed-map :path-2)
+  => {:pointer-1 []
+      :pointer-3 [{:cube :cube-2 :facing :n}]}
+
+  (me/gen-mover :cube-2 1 :highlighted :n :state :past)
+  => :mover-2))
 
 
 (facts
@@ -187,10 +245,12 @@
                              :unit/player 1}}]
 
    (show-moves battlefield :cube-1)
-   => {:cube-1 {:entity/cube :cube-1
-                :mover/selected :n
-                :entity/presentation :selected}
-       :cube-2 {:entity/cube :cube-2}}
+   => {:moves {:cube-1 {:entity/cube :cube-1
+                        :mover/selected :n
+                        :mover/state :present
+                        :entity/presentation :selected}
+               :cube-2 {:entity/cube :cube-2}}
+       :breadcrumbs :breadcrumbs-map}
 
    (provided
     (remove-unit battlefield :cube-1) => :new-battlefield
@@ -202,56 +262,10 @@
 
     (paths->mover-map :new-battlefield 1 :paths)
     => {:cube-1 {:entity/cube :cube-1}
-        :cube-2 {:entity/cube :cube-2}})))
+        :cube-2 {:entity/cube :cube-2}}
 
-
-(facts
- "path -> breadcrumbs"
-
- (path->breadcrumbs [{:cube :cube-1 :facing :n}])
- => []
-
- (path->breadcrumbs [{:cube :cube-1 :facing :n}
-                     {:cube :cube-1 :facing :ne}])
- => []
-
- (path->breadcrumbs [{:cube :cube-1 :facing :n}
-                     {:cube :cube-1 :facing :ne}
-                     {:cube :cube-2 :facing :ne}])
- => [{:cube :cube-1 :facing :ne}]
-
- (path->breadcrumbs [{:cube :cube-1 :facing :n}
-                     {:cube :cube-1 :facing :ne}
-                     {:cube :cube-2 :facing :ne}
-                     {:cube :cube-2 :facing :n}])
- => [{:cube :cube-1 :facing :ne}])
-
-
-(facts
- "path -> breadcrumb-map"
-
- (path->breadcrumb-map [:pointer-1 :pointer-2 :pointer-3])
- => {:pointer-1 []
-     :pointer-2 []
-     :pointer-3 [:pointer-2]}
-
- (provided
-  (path->breadcrumbs [:pointer-1]) => []
-  (path->breadcrumbs [:pointer-1 :pointer-2]) => []
-  (path->breadcrumbs [:pointer-1 :pointer-2 :pointer-3]) => [:pointer-2]))
-
-
-(facts
- "paths -> breadcrumb-map"
-
- (paths->breadcrumb-map [:path-1 :path-2])
- => {:pointer-1 []
-     :pointer-2 [:pointer-1]
-     :pointer-3 [:pointer-1]}
-
- (provided
-  (path->breadcrumbs :path-1) => {:pointer-1 []
-                                  :pointer-2 [:pointer-1]}
-
-  (path->breadcrumbs :path-2) => {:pointer-1 []
-                                  :pointer-3 [:pointer-1]}))
+    (paths->breadcrumbs-map 1
+                            {:cube-1 {:entity/cube :cube-1}
+                             :cube-2 {:entity/cube :cube-2}}
+                            :paths)
+    => :breadcrumbs-map)))
