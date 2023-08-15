@@ -195,7 +195,7 @@
           :game/subphase :reform
           :game/player :player-1
           :game/battlefield :battlefield
-          :game/movement? true}
+          :movement/moved? true}
          :cube-1)
  => {:game/phase :movement
      :game/subphase :reform
@@ -232,13 +232,13 @@
      :game/subphase :reform
      :game/battlefield {:cube-1 {:unit/facing :n}}
      :game/battlemap {:cube-1 {:mover/marked :s}}
-     :game/movement? true}
+     :movement/moved? true}
 
  (move {:game/phase :movement
         :game/subphase :reform
         :game/battlefield {:cube-1 {:unit/facing :n}}
         :game/battlemap {:cube-1 {:mover/marked :s}}
-        :game/movement? true}
+        :movement/moved? true}
        (mc/->Pointer :cube-1 :n))
  => {:game/phase :movement
      :game/subphase :reform
@@ -252,7 +252,7 @@
  (finish-movement {:game/selected :cube-1
                    :game/battlefield {:cube-1 :unit-1}
                    :game/battlemap {:cube-1 {:mover/marked :n}}
-                   :game/movement? true})
+                   :movement/moved? true})
  => {:game/battlefield {:cube-1 {:unit/facing :n}}
      :game/subphase :select-hex}
 
@@ -265,7 +265,7 @@
  "movement move"
 
  (movement-move {:game/battlemap :battlemap
-                 :game/movement? :movement?
+                 :movement/moved? true
                  :game/selected :cube-1})
  => [:select :cube-1]
 
@@ -277,7 +277,7 @@
  "movement reform"
 
  (movement-move {:game/battlemap :battlemap
-                 :game/movement? :movement?
+                 :movement/moved? true
                  :game/selected :cube-1})
  => [:select :cube-1]
 

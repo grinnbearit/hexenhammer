@@ -86,7 +86,7 @@
   (let [mover (mlm/show-reform (:game/battlefield state) cube)]
     (-> (assoc state :game/selected cube)
         (assoc :game/battlemap {cube mover})
-        (dissoc :game/movement?))))
+        (dissoc :movement/moved?))))
 
 
 (defn skip-movement
@@ -103,8 +103,8 @@
   [state pointer]
   (let [unit (get-in state [:game/battlefield (:cube pointer)])]
     (-> (if (not= (:facing pointer) (:unit/facing unit))
-          (assoc state :game/movement? true)
-          (dissoc state :game/movement?))
+          (assoc state :movement/moved? true)
+          (dissoc state :movement/moved?))
         (assoc-in [:game/battlemap (:cube pointer) :mover/marked] (:facing pointer)))))
 
 
@@ -116,20 +116,20 @@
     (-> (assoc-in state [:game/battlefield cube]
                   (-> (ce/reset-default unit)
                       (assoc :unit/facing new-facing)))
-        (dissoc :game/selected :game/battlemap :game/movement?)
+        (dissoc :game/selected :game/battlemap :movement/moved?)
         (assoc :game/subphase :select-hex))))
 
 
 (defn movement-move
   [state]
-  (-> (dissoc state :game/battlemap :game/movement?)
+  (-> (dissoc state :game/battlemap :movement/moved?)
       (assoc :game/subphase :move)
       (select (:game/selected state))))
 
 
 (defn movement-reform
   [state]
-  (-> (dissoc state :game/battlemap :game/movement?)
+  (-> (dissoc state :game/battlemap :movement/moved?)
       (assoc :game/subphase :reform)
       (select (:game/selected state))))
 
@@ -139,4 +139,4 @@
   (let [mover-map (mlm/show-moves (:game/battlefield state) cube)]
     (-> (assoc state :game/selected cube)
         (assoc :game/battlemap mover-map)
-        (dissoc :game/movement?))))
+        (dissoc :movement/moved?))))
