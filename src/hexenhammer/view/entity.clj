@@ -58,11 +58,11 @@
               (svg/add-classes ["selected"]))
 
             (for [option (:mover/options mover)
-                  :when (not= option (:mover/marked mover))]
+                  :when (not= option (:mover/selected mover))]
               (-> (svg/arrow option)
                   (svg/add-classes ["arrow"])
                   (svg/movable (:entity/cube mover) option)))
-            (when-let [marked (:mover/marked mover)]
+            (when-let [marked (:mover/selected mover)]
               (-> (svg/arrow marked)
                   (svg/add-classes ["arrow" "marked"])))]
 

@@ -162,7 +162,7 @@
           :entity/cube :cube-1
           :unit/player 1
           :mover/options #{}
-          :mover/marked nil})
+          :mover/selected nil})
 
  => [:translate :element-2 :cube-1]
 
@@ -171,7 +171,7 @@
                    :entity/cube :cube-1
                    :unit/player 1
                    :mover/options #{}
-                   :mover/marked nil})
+                   :mover/selected nil})
   => :terrain-1
 
   (svg/hexagon) => [:hexagon {}]
@@ -194,7 +194,7 @@
           :entity/cube :cube-1
           :unit/player 1
           :mover/options #{:n :s :nw}
-          :mover/marked :nw})
+          :mover/selected :nw})
 
  => [:translate :element-2 :cube-1]
 
@@ -203,7 +203,7 @@
                    :entity/cube :cube-1
                    :unit/player 1
                    :mover/options #{:n :s :nw}
-                   :mover/marked :nw})
+                   :mover/selected :nw})
   => :terrain-1
 
   (svg/hexagon) => [:hexagon {}]

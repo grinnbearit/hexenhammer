@@ -53,7 +53,7 @@
    (provided
     (reform-facings battlefield :cube-1) => :facings-1
 
-    (me/gen-mover :cube-1 1 :marked :n :options :facings-1 :presentation :selected)
+    (me/gen-mover :cube-1 1 :selected :n :options :facings-1 :presentation :selected)
     => :mover-1)))
 
 
@@ -188,7 +188,7 @@
 
    (show-moves battlefield :cube-1)
    => {:cube-1 {:entity/cube :cube-1
-                :mover/marked :n
+                :mover/selected :n
                 :entity/presentation :selected}
        :cube-2 {:entity/cube :cube-2}}
 

@@ -31,7 +31,7 @@
   [battlefield cube]
   (let [unit (battlefield cube)]
     (me/gen-mover cube (:unit/player unit)
-                  :marked (:unit/facing unit)
+                  :selected (:unit/facing unit)
                   :options (reform-facings battlefield cube)
                   :presentation :selected)))
 
@@ -118,7 +118,7 @@
         paths (forward-paths new-battlefield start hexes)
         mover-map (paths->mover-map new-battlefield (:unit/player unit) paths)]
     (update mover-map cube assoc
-            :mover/marked (:unit/facing unit)
+            :mover/selected (:unit/facing unit)
             :entity/presentation :selected)))
 
 

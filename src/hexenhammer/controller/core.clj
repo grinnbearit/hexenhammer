@@ -105,14 +105,14 @@
     (-> (if (not= (:facing pointer) (:unit/facing unit))
           (assoc state :movement/moved? true)
           (dissoc state :movement/moved?))
-        (assoc-in [:game/battlemap (:cube pointer) :mover/marked] (:facing pointer)))))
+        (assoc-in [:game/battlemap (:cube pointer) :mover/selected] (:facing pointer)))))
 
 
 (defn finish-movement
   [state]
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
-        new-facing (get-in state [:game/battlemap cube :mover/marked])]
+        new-facing (get-in state [:game/battlemap cube :mover/selected])]
     (-> (assoc-in state [:game/battlefield cube]
                   (-> (ce/reset-default unit)
                       (assoc :unit/facing new-facing)))

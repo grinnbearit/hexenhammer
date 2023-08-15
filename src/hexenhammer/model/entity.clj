@@ -27,16 +27,19 @@
 
 (defn gen-mover
   "Returns a mover entity, options is a set of possible facings,
-  marked is the marked facing for this mover"
-  [cube player & {:keys [presentation interaction options marked]
-                  :or {presentation :default interaction :default options #{}}}]
+  selected and highlighted are single facings"
+  [cube player & {:keys [presentation interaction options selected highlighted]
+                  :or {presentation
+                       :default interaction
+                       :default options #{}}}]
   {:entity/class :mover
    :entity/cube cube
    :entity/presentation presentation
    :entity/interaction interaction
    :unit/player player
    :mover/options options
-   :mover/marked marked})
+   :mover/selected selected
+   :mover/highlighted highlighted})
 
 
 (defn gen-shadow
