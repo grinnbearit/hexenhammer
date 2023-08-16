@@ -57,7 +57,7 @@
      :mover/options #{}
      :mover/selected nil
      :mover/highlighted nil
-     :mover/state :present
+     :mover/state :future
      :entity/presentation :default
      :entity/interaction :default}
 

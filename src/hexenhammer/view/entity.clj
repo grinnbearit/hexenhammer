@@ -52,19 +52,25 @@
        (render-terrain mover)
        (-> [:g {}
             (cond-> (-> (svg/hexagon)
-                        (svg/add-classes ["mover" (str "player-" (:unit/player mover))]))
+                        (svg/add-classes ["mover"
+                                          (name (:mover/state mover))
+                                          (str "player-" (:unit/player mover))])))
 
-              (= :selected (:entity/presentation mover))
-              (svg/add-classes ["selected"]))
-
-            (for [option (:mover/options mover)
-                  :when (not= option (:mover/selected mover))]
+            (for [option (disj (:mover/options mover)
+                               (:mover/selected mover)
+                               (:mover/highlighted mover))]
               (-> (svg/arrow option)
                   (svg/add-classes ["arrow"])
                   (svg/movable (:entity/cube mover) option)))
-            (when-let [marked (:mover/selected mover)]
-              (-> (svg/arrow marked)
-                  (svg/add-classes ["arrow" "marked"])))]
+            (when-let [selected (:mover/selected mover)]
+              (-> (svg/arrow selected)
+                  (svg/add-classes ["arrow" "selected"])))
+            (when-let [highlighted (:mover/highlighted mover)]
+              (cond-> (-> (svg/arrow highlighted)
+                          (svg/add-classes ["arrow" "highlighted"]))
+
+                (contains? (:mover/options mover) highlighted)
+                (svg/movable (:entity/cube mover) highlighted)))]
 
            (svg/scale 9/10))]
 

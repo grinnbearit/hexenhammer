@@ -16,13 +16,18 @@
      [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
      [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]
     [:&.mover
-     [:&.player-1 {:fill (PALETTE "light red berry 1") :stroke "black"}]
-     [:&.player-2 {:fill (PALETTE "light blue cornflower 1") :stroke "black"}]
-     [:&.selected
+     [:&.future
+      [:&.player-1 {:fill (PALETTE "light red berry 1") :stroke "black"}]
+      [:&.player-2 {:fill (PALETTE "light cornflower blue 1") :stroke "black"}]]
+     [:&.present
       [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
-      [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]]
+      [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]
+     [:&.past
+      [:&.player-1 {:fill (PALETTE "light red berry 2") :stroke "black"}]
+      [:&.player-2 {:fill (PALETTE "light cornflower blue 2") :stroke "black"}]]]
     [:&.arrow
-     [:&.marked {:stroke "yellow" :fill "yellow"}]]]
+     [:&.selected {:stroke "yellow" :fill "yellow"}]
+     [:&.highlighted {:stroke "orange" :fill "orange"}]]]
    [:table :th :td {:border "1px solid"}]))
 
 

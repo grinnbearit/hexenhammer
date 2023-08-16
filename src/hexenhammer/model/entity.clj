@@ -32,7 +32,7 @@
                   :or {presentation :default
                        interaction :default
                        options #{}
-                       state :present}}]
+                       state :future}}]
   {:entity/class :mover
    :entity/cube cube
    :entity/presentation presentation

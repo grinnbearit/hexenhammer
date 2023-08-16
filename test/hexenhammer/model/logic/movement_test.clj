@@ -48,12 +48,12 @@
  (let [battlefield {:cube-1 {:unit/player 1 :unit/facing :n}}]
 
    (show-reform battlefield :cube-1)
-   => :mover-1
+   => {:cube-1 :mover-1}
 
    (provided
     (reform-facings battlefield :cube-1) => :facings-1
 
-    (me/gen-mover :cube-1 1 :selected :n :options :facings-1 :presentation :selected)
+    (me/gen-mover :cube-1 1 :options :facings-1)
     => :mover-1)))
 
 
@@ -133,9 +133,9 @@
 
 
 (facts
- "paths -> mover map"
+ "paths -> battlemap"
 
- (paths->mover-map {} 1 [[{:cube :cube-1 :facing :n}]
+ (paths->battlemap {} 1 [[{:cube :cube-1 :facing :n}]
                          [{:cube :cube-1 :facing :n}
                           {:cube :cube-1 :facing :ne}
                           {:cube :cube-2 :facing :ne}
@@ -156,8 +156,8 @@
   (pointer->shadow 1 {:cube :cube-2 :facing :n}) => :shadow-4
   (mlc/battlefield-engaged? {:cube-2 :shadow-4} :cube-2) => false
 
-  (me/gen-mover :cube-1 1 :options #{:n :ne} :state :future) => :mover-1
-  (me/gen-mover :cube-2 1 :options #{:n} :state :future) => :mover-2))
+  (me/gen-mover :cube-1 1 :options #{:n :ne}) => :mover-1
+  (me/gen-mover :cube-2 1 :options #{:n}) => :mover-2))
 
 
 (facts
@@ -197,13 +197,13 @@
 
 
 (facts
- "paths -> breadcrumbs-map"
+ "paths -> breadcrumbs"
 
- (paths->breadcrumbs-map 1 {:cube-1 {}} [:path-1 :path-2])
- => {:pointer-1 []
-     :pointer-2 [{:mover/highlighted :n
-                  :mover/state :past}]
-     :pointer-3 [:mover-2]}
+ (paths->breadcrumbs 1 {:cube-1 {}} [:path-1 :path-2])
+ => {:pointer-1 {}
+     :pointer-2 {:cube-1 {:mover/highlighted :n
+                          :mover/state :past}}
+     :pointer-3 {:cube-2 :mover-2}}
 
  (provided
   (path->compressed-map :path-1)
@@ -245,12 +245,8 @@
                              :unit/player 1}}]
 
    (show-moves battlefield :cube-1)
-   => {:moves {:cube-1 {:entity/cube :cube-1
-                        :mover/selected :n
-                        :mover/state :present
-                        :entity/presentation :selected}
-               :cube-2 {:entity/cube :cube-2}}
-       :breadcrumbs :breadcrumbs-map}
+   => {:battlemap :battlemap-1
+       :breadcrumbs :breadcrumbs-1}
 
    (provided
     (remove-unit battlefield :cube-1) => :new-battlefield
@@ -260,12 +256,8 @@
     (forward-paths :new-battlefield (mc/->Pointer :cube-1 :n) 2)
     => :paths
 
-    (paths->mover-map :new-battlefield 1 :paths)
-    => {:cube-1 {:entity/cube :cube-1}
-        :cube-2 {:entity/cube :cube-2}}
+    (paths->battlemap :new-battlefield 1 :paths)
+    => :battlemap-1
 
-    (paths->breadcrumbs-map 1
-                            {:cube-1 {:entity/cube :cube-1}
-                             :cube-2 {:entity/cube :cube-2}}
-                            :paths)
-    => :breadcrumbs-map)))
+    (paths->breadcrumbs 1 :battlemap-1 :paths)
+    => :breadcrumbs-1)))

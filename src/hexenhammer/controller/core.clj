@@ -1,9 +1,11 @@
 (ns hexenhammer.controller.core
-  (:require [hexenhammer.model.entity :as me]
+  (:require [hexenhammer.model.cube :as mc]
+            [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
-            [hexenhammer.controller.battlefield :as cb]))
+            [hexenhammer.controller.battlefield :as cb]
+            [hexenhammer.controller.movement :as cm]))
 
 
 (defmulti select (fn [state cube] [(:game/phase state) (:game/subphase state)]))
@@ -83,10 +85,13 @@
 
 (defmethod select [:movement :reform]
   [state cube]
-  (let [mover (mlm/show-reform (:game/battlefield state) cube)]
+  (let [unit (get-in state [:game/battlefield cube])
+        pointer (mc/->Pointer cube (:unit/facing unit))
+        battlemap (mlm/show-reform (:game/battlefield state) cube)]
     (-> (assoc state :game/selected cube)
-        (assoc :game/battlemap {cube mover})
-        (dissoc :movement/moved?))))
+        (assoc :game/battlemap battlemap)
+        (dissoc :movement/moved?)
+        (update :game/battlemap cm/set-mover-selected pointer))))
 
 
 (defn skip-movement
@@ -105,7 +110,19 @@
     (-> (if (not= (:facing pointer) (:unit/facing unit))
           (assoc state :movement/moved? true)
           (dissoc state :movement/moved?))
-        (assoc-in [:game/battlemap (:cube pointer) :mover/selected] (:facing pointer)))))
+        (update :game/battlemap cm/set-mover-selected pointer))))
+
+
+(defmethod move [:movement :move]
+  [state pointer]
+  (let [unit (get-in state [:game/battlefield (:cube pointer)])]
+    (-> (if (not (and (= (:cube pointer) (:entity/cube unit))
+                      (= (:facing pointer) (:unit/facing unit))))
+          (assoc state :movement/moved? true)
+          (dissoc state :movement/moved?))
+        (assoc :game/battlemap (merge (:movement/battlemap state)
+                                      (get-in state [:movement/breadcrumbs pointer])))
+        (update :game/battlemap cm/set-mover-selected pointer))))
 
 
 (defn finish-movement
@@ -120,26 +137,27 @@
         (assoc :game/subphase :select-hex))))
 
 
-(defn movement-move
+(defn movement-reform
   [state]
-  (-> (dissoc state :game/battlemap :movement/moved?)
-      (assoc :game/subphase :move)
+  (-> (cm/reset-state state)
+      (assoc :game/subphase :reform)
       (select (:game/selected state))))
 
 
-(defn movement-reform
+(defn movement-move
   [state]
-  (-> (dissoc state :game/battlemap :movement/moved?)
-      (assoc :game/subphase :reform)
+  (-> (cm/reset-state state)
+      (assoc :game/subphase :move)
       (select (:game/selected state))))
 
 
 (defmethod select [:movement :move]
   [state cube]
-  (let [{:keys [breadcrumbs moves]}  (mlm/show-moves (:game/battlefield state) cube)]
-    (-> (assoc state
-               :game/selected cube
-               :game/battlemap moves
-               :movement/moves moves
+  (let [{:keys [battlemap breadcrumbs]}  (mlm/show-moves (:game/battlefield state) cube)
+        pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
+    (-> (cm/reset-state state)
+        (assoc :game/selected cube
+               :game/battlemap battlemap
+               :movement/battlemap battlemap
                :movement/breadcrumbs breadcrumbs)
-        (dissoc :movement/moved?))))
+        (update :game/battlemap cm/set-mover-selected pointer))))

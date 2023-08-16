@@ -26,14 +26,10 @@
 
 
 (defn show-reform
-  "Given a cube, returns a mover with the set of allowed facings
-  selecting the unit's facing"
+  "Given a cube, returns a battlemap with the set of allowed facings"
   [battlefield cube]
   (let [unit (battlefield cube)]
-    (me/gen-mover cube (:unit/player unit)
-                  :selected (:unit/facing unit)
-                  :options (reform-facings battlefield cube)
-                  :presentation :selected)))
+    {cube (me/gen-mover cube (:unit/player unit) :options (reform-facings battlefield cube))}))
 
 
 (defn forward-step
@@ -74,14 +70,16 @@
 
 
 (defn forward-paths
-  "A untility wrapper for forward-steps adds the starting pointer to every path"
+  "A untility wrapper for forward-steps adds the starting pointer to every path,
+  ensures the returned path is a vector"
   [battlefield pointer hexes]
   (for [path (forward-steps battlefield #{} pointer hexes)]
     (vec (conj path pointer))))
 
 
-(defn paths->mover-map
-  "Given a player and a list of paths, returns a map of cube -> mover, removes invalid options"
+(defn paths->battlemap
+  "Given a player and a list of paths returns a new battlemap with the movers representing those paths
+  removes invalid pointers from paths"
   [battlefield player paths]
   (letfn [(reducer [mover-acc pointer]
             (let [cube (:cube pointer)
@@ -92,12 +90,12 @@
                 mover-acc)))]
 
     (->> (for [[cube options] (reduce reducer {} (apply concat paths))]
-           [cube (me/gen-mover cube player :options options :state :future)])
+           [cube (me/gen-mover cube player :options options)])
          (into {}))))
 
 
 (defn compress-path
-  "Returns a subset of path containing only the last pointer for every cube in path
+  "Returns a subset of path containing only the last pointer for every cube in the path
   assumes the last pointer is the end step so excludes it"
   [path]
   (letfn [(reducer [acc pointer]
@@ -119,21 +117,24 @@
        (into {})))
 
 
-(defn paths->breadcrumbs-map
-  "combines all compressed maps for all paths into a single breadcrumb map,"
+(defn paths->breadcrumbs
+  "combines all compressed maps for all paths into a single breadcrumbs object
+  pointer -> battlemap"
   [player mover-map paths]
   (letfn [(pointer->breadcrumb [pointer]
-            (if-let [mover (mover-map (:cube pointer))]
-              (assoc mover
-                     :mover/highlighted (:facing pointer)
-                     :mover/state :past)
-              (me/gen-mover (:cube pointer) player
-                            :highlighted (:facing pointer)
-                            :state :past)))]
+            [(:cube pointer)
+             (if-let [mover (mover-map (:cube pointer))]
+               (assoc mover
+                      :mover/highlighted (:facing pointer)
+                      :mover/state :past)
+               (me/gen-mover (:cube pointer) player
+                             :highlighted (:facing pointer)
+                             :state :past))])]
 
     (->> (for [[pointer path] (->> (map path->compressed-map paths)
                                    (apply merge))]
-           [pointer (map pointer->breadcrumb path)])
+           [pointer (->> (map pointer->breadcrumb path)
+                         (into {}))])
          (into {}))))
 
 
@@ -151,18 +152,15 @@
 
 (defn show-moves
   "Given a battlefield and cube, returns
-  :mover-map,  cube->mover that the unit can reach, selects the original position
-  :breadcrumb-map, pointer->cube->mover that the unit needs to pass through to reach the mover"
+  :mover-map,  cube->mover that the unit can reach
+  :breadcrumb-map, pointer->cube->mover that the unit needs to pass through to reach the pointer"
   [battlefield cube]
   (let [unit (battlefield cube)
         new-battlefield (remove-unit battlefield cube)
         start (mc/->Pointer cube (:unit/facing unit))
         hexes (M->hexes (:unit/M unit))
         paths (forward-paths new-battlefield start hexes)
-        mover-map (paths->mover-map new-battlefield (:unit/player unit) paths)
-        breadcrumbs-map (paths->breadcrumbs-map (:unit/player unit) mover-map paths)]
-    {:moves (update mover-map cube assoc
-                    :mover/selected (:unit/facing unit)
-                    :mover/state :present
-                    :entity/presentation :selected)
-     :breadcrumbs breadcrumbs-map}))
+        battlemap (paths->battlemap new-battlefield (:unit/player unit) paths)
+        breadcrumbs (paths->breadcrumbs (:unit/player unit) battlemap paths)]
+    {:battlemap battlemap
+     :breadcrumbs breadcrumbs}))
