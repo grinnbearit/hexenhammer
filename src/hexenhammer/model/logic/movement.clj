@@ -150,10 +150,10 @@
     (assoc battlefield cube terrain)))
 
 
-(defn show-moves
+(defn show-forward
   "Given a battlefield and cube, returns
-  :mover-map,  cube->mover that the unit can reach
-  :breadcrumb-map, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  :battlemap,  cube->mover that the unit can reach when moving forward
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
   [battlefield cube]
   (let [unit (battlefield cube)
         new-battlefield (remove-unit battlefield cube)

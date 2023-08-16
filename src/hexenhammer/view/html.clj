@@ -136,16 +136,16 @@
       (when (:movement/moved? state)
         [:input {:type "submit" :value "Finish Movement"
                  :formaction "/movement/finish-movement"}])]
-     [:a {:href "/movement/move"} "Move"]]]))
+     [:a {:href "/movement/forward"} "Forward"]]]))
 
 
-(defmethod render [:movement :move]
+(defmethod render [:movement :forward]
   [state]
   (html
    [:html
     [:head
      [:h1 (str "Player - " (:game/player state))]
-     [:h2 "Movement - Move"]
+     [:h2 "Movement - Forward"]
      [:style STYLESHEET]]
     [:body
      (render-battlefield state) [:br] [:br]]

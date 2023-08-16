@@ -238,13 +238,13 @@
 
 
 (facts
- "show moves"
+ "show forward"
 
  (let [battlefield {:cube-1 {:unit/facing :n
                              :unit/M 5
                              :unit/player 1}}]
 
-   (show-moves battlefield :cube-1)
+   (show-forward battlefield :cube-1)
    => {:battlemap :battlemap-1
        :breadcrumbs :breadcrumbs-1}
 

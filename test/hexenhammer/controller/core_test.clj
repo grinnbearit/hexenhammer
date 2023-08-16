@@ -272,14 +272,14 @@
        breadcrumbs {pointer {:cube-1 :mover-3}}]
 
    (move {:game/phase :movement
-          :game/subphase :move
+          :game/subphase :forward
           :game/battlefield battlefield
           :movement/battlemap battlemap
           :movement/breadcrumbs breadcrumbs
           :movement/moved? true}
          pointer)
    => {:game/phase :movement
-       :game/subphase :move
+       :game/subphase :forward
        :game/battlefield battlefield
        :game/battlemap :battlemap-2
        :movement/battlemap battlemap
@@ -300,13 +300,13 @@
        breadcrumbs {pointer {:cube-1 :mover-3}}]
 
    (move {:game/phase :movement
-          :game/subphase :move
+          :game/subphase :forward
           :game/battlefield battlefield
           :movement/battlemap battlemap
           :movement/breadcrumbs breadcrumbs}
          pointer)
    => {:game/phase :movement
-       :game/subphase :move
+       :game/subphase :forward
        :game/battlefield battlefield
        :game/battlemap :battlemap-2
        :movement/battlemap battlemap
@@ -355,7 +355,7 @@
 (facts
  "movement move"
 
- (movement-move {:mock :state-1 :game/selected :cube-1})
+ (movement-forward {:mock :state-1 :game/selected :cube-1})
  => [:select :cube-1]
 
  (provided
@@ -364,7 +364,7 @@
 
   (select {:mock :state-2
            :game/selected :cube-1
-           :game/subphase :move}
+           :game/subphase :forward}
           :cube-1)
   => [:select :cube-1]))
 
@@ -375,7 +375,7 @@
  (let [battlefield {:cube-1 {:unit/facing :n}}
 
        state {:game/phase :movement
-              :game/subphase :move
+              :game/subphase :forward
               :mock :state-1
               :game/battlefield battlefield
               :movement/moved? true}]
@@ -384,7 +384,7 @@
 
    => {:mock :state-2
        :game/phase :movement
-       :game/subphase :move
+       :game/subphase :forward
        :game/selected :cube-1
        :game/battlefield battlefield
        :game/battlemap :battlemap-2
@@ -392,7 +392,7 @@
        :movement/breadcrumbs :breadcrumbs-1}
 
    (provided
-    (mlm/show-moves battlefield :cube-1)
+    (mlm/show-forward battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1}
 

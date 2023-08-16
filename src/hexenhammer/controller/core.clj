@@ -113,7 +113,7 @@
         (update :game/battlemap cm/set-mover-selected pointer))))
 
 
-(defmethod move [:movement :move]
+(defmethod move [:movement :forward]
   [state pointer]
   (let [unit (get-in state [:game/battlefield (:cube pointer)])]
     (-> (if (not (and (= (:cube pointer) (:entity/cube unit))
@@ -144,16 +144,16 @@
       (select (:game/selected state))))
 
 
-(defn movement-move
+(defn movement-forward
   [state]
   (-> (cm/reset-state state)
-      (assoc :game/subphase :move)
+      (assoc :game/subphase :forward)
       (select (:game/selected state))))
 
 
-(defmethod select [:movement :move]
+(defmethod select [:movement :forward]
   [state cube]
-  (let [{:keys [battlemap breadcrumbs]}  (mlm/show-moves (:game/battlefield state) cube)
+  (let [{:keys [battlemap breadcrumbs]}  (mlm/show-forward (:game/battlefield state) cube)
         pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
     (-> (cm/reset-state state)
         (assoc :game/selected cube
