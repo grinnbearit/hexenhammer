@@ -11,13 +11,3 @@
  => {:cube-1 {:mover/selected :facing-1
               :mover/state :present
               :entity/presentation :selected}})
-
-
-(facts
- "reset state"
-
- (reset-state {:game/battlefield :battlefield-1
-               :movement/moved? true
-               :game/battlemap :battlemap
-               :movement/breadcrumbs :breadcrumbs})
- => {:game/battlefield :battlefield-1})

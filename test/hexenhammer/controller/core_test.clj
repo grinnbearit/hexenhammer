@@ -172,7 +172,8 @@
 (facts
  "select movement select-hex"
 
- (let [battlefield {:cube-1 {:unit/facing :n}}]
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)]
 
    (select {:game/phase :movement
             :game/subphase :select-hex
@@ -183,17 +184,19 @@
        :game/subphase :reform
        :game/battlefield battlefield
        :game/selected :cube-1
-       :game/battlemap :battlemap-2}
+       :game/battlemap :battlemap-2
+       :movement/selected pointer}
 
    (provided
     (mlm/show-reform battlefield :cube-1) => :battlemap-1
-    (cm/set-mover-selected :battlemap-1 (mc/->Pointer :cube-1 :n)) => :battlemap-2)))
+    (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2)))
 
 
 (facts
  "select movement reform"
 
- (let [battlefield {:cube-1 {:unit/facing :n}}]
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)]
 
    (select {:game/phase :movement
             :game/subphase :reform
@@ -204,11 +207,12 @@
        :game/subphase :reform
        :game/battlefield battlefield
        :game/selected :cube-1
-       :game/battlemap :battlemap-2}
+       :game/battlemap :battlemap-2
+       :movement/selected pointer}
 
    (provided
     (mlm/show-reform battlefield :cube-1) => :battlemap-1
-    (cm/set-mover-selected :battlemap-1 (mc/->Pointer :cube-1 :n)) => :battlemap-2)))
+    (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2)))
 
 
 (facts
@@ -238,7 +242,8 @@
        :game/subphase :reform
        :game/battlefield {:cube-1 {:unit/facing :n}}
        :game/battlemap :battlemap-2
-       :movement/moved? true}
+       :movement/moved? true
+       :movement/selected pointer}
 
    (provided
     (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2))
@@ -255,14 +260,15 @@
    => {:game/phase :movement
        :game/subphase :reform
        :game/battlefield {:cube-1 {:unit/facing :n}}
-       :game/battlemap :battlemap-2}
+       :game/battlemap :battlemap-2
+       :movement/selected pointer}
 
    (provided
     (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2)))
 
 
 (facts
- "move movement move"
+ "move movement forward"
 
  (let [pointer (mc/->Pointer :cube-1 :n)
        battlefield {:cube-1 {:entity/cube :cube-1
@@ -283,7 +289,8 @@
        :game/battlefield battlefield
        :game/battlemap :battlemap-2
        :movement/battlemap battlemap
-       :movement/breadcrumbs breadcrumbs}
+       :movement/breadcrumbs breadcrumbs
+       :movement/selected pointer}
 
    (provided
     (cm/set-mover-selected {:cube-1 :mover-3
@@ -294,7 +301,7 @@
 
  (let [pointer (mc/->Pointer :cube-1 :n)
        battlefield {:cube-1 {:entity/cube :cube-1
-                            :unit/facing :s}}
+                             :unit/facing :s}}
        battlemap {:cube-1 :mover-1
                   :cube-2 :mover-2}
        breadcrumbs {pointer {:cube-1 :mover-3}}]
@@ -311,7 +318,8 @@
        :game/battlemap :battlemap-2
        :movement/battlemap battlemap
        :movement/breadcrumbs breadcrumbs
-       :movement/moved? true}
+       :movement/moved? true
+       :movement/selected pointer}
 
    (provided
     (cm/set-mover-selected {:cube-1 :mover-3
@@ -323,50 +331,60 @@
 (facts
  "finish movement"
 
- (finish-movement {:game/selected :cube-1
-                   :game/battlefield {:cube-1 :unit-1}
-                   :game/battlemap {:cube-1 {:mover/selected :n}}
-                   :movement/moved? true})
- => {:game/battlefield {:cube-1 {:unit/facing :n}}
-     :game/subphase :select-hex}
+ (let [pointer (mc/->Pointer :cube-2 :n)
+       unit {:unit/player 1
+             :unit/id 2
+             :entity/presentation :selected}]
 
- (provided
-  (ce/reset-default :unit-1)
-  => {}))
+   (finish-movement {:game/selected :cube-1
+                     :game/battlefield {:cube-1 unit}
+                     :movement/selected pointer
+                     :movement/moved? true})
+   => {:game/selected :cube-1
+       :game/battlefield {:cube-1 :terrain
+                          :cube-2 {:unit/player 1
+                                   :unit/id 2
+                                   :entity/cube :cube-2
+                                   :unit/facing :n
+                                   :entity/presentation :default}}
+       :game/units {1 {:cubes {2 :cube-2}}}
+       :movement/selected pointer
+       :movement/moved? true
+       :game/subphase :select-hex}
+
+   (provided
+    (me/gen-terrain :cube-1) => :terrain
+    (ce/reset-default unit) => (assoc unit :entity/presentation :default))))
 
 
 (facts
  "movement reform"
 
- (movement-reform {:mock :state-1 :game/selected :cube-1})
- => [:select :cube-1]
+ (movement-reform {:game/phase :movement
+                   :game/selected :cube-1})
+ => [:select :reform]
 
  (provided
-  (cm/reset-state {:mock :state-1 :game/selected :cube-1})
-  => {:mock :state-2 :game/selected :cube-1}
-
-  (select {:mock :state-2
-           :game/selected :cube-1
-           :game/subphase :reform}
+  (select {:game/phase :movement
+           :game/subphase :reform
+           :game/selected :cube-1}
           :cube-1)
-  => [:select :cube-1]))
+  => [:select :reform]))
 
 
 (facts
- "movement move"
+ "movement forward"
 
- (movement-forward {:mock :state-1 :game/selected :cube-1})
- => [:select :cube-1]
+ (movement-forward {:game/phase :movement
+                    :game/selected :cube-1})
+ => [:select :forward]
 
  (provided
-  (cm/reset-state {:mock :state-1 :game/selected :cube-1})
-  => {:mock :state-2 :game/selected :cube-1}
-
-  (select {:mock :state-2
-           :game/selected :cube-1
-           :game/subphase :forward}
+  (select {:game/phase :movement
+           :game/subphase :forward
+           :game/selected :cube-1}
           :cube-1)
-  => [:select :cube-1]))
+  => [:select :forward]))
 
 
 (facts
@@ -376,28 +394,26 @@
 
        state {:game/phase :movement
               :game/subphase :forward
-              :mock :state-1
               :game/battlefield battlefield
-              :movement/moved? true}]
+              :movement/moved? true}
+
+       pointer (mc/->Pointer :cube-1 :n)]
 
    (select state :cube-1)
 
-   => {:mock :state-2
-       :game/phase :movement
+   => {:game/phase :movement
        :game/subphase :forward
-       :game/selected :cube-1
        :game/battlefield battlefield
+       :game/selected :cube-1
        :game/battlemap :battlemap-2
        :movement/battlemap :battlemap-1
-       :movement/breadcrumbs :breadcrumbs-1}
+       :movement/breadcrumbs :breadcrumbs-1
+       :movement/selected pointer}
 
    (provided
     (mlm/show-forward battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1}
 
-    (cm/reset-state state) => (-> (assoc state :mock :state-2)
-                                  (dissoc :movement/moved?))
-
-    (cm/set-mover-selected :battlemap-1 (mc/->Pointer :cube-1 :n))
+    (cm/set-mover-selected :battlemap-1 pointer)
     => :battlemap-2)))
