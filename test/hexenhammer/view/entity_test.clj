@@ -239,7 +239,7 @@
   => [:translate :element-2 :cube-1])
 
 
-  (render {:entity/class :mover
+ (render {:entity/class :mover
           :entity/cube :cube-1
           :unit/player 1
           :mover/options #{}
@@ -275,4 +275,46 @@
                   :terrain-1
                   [:scale :element-1 9/10]]
                  :cube-1)
-  => [:translate :element-2 :cube-1]))
+  => [:translate :element-2 :cube-1])
+
+
+ (render {:entity/class :mover
+          :entity/cube :cube-1
+          :unit/player 1
+          :mover/options #{}
+          :mover/state :future
+          :mover/selected nil
+          :mover/highlighted nil
+          :entity/interaction :selectable})
+
+ => [:translate :element-3 :cube-1]
+
+ (provided
+  (render-terrain {:entity/class :mover
+                   :entity/cube :cube-1
+                   :unit/player 1
+                   :mover/options #{}
+                   :mover/state :future
+                   :mover/selected nil
+                   :mover/highlighted nil
+                   :entity/interaction :selectable})
+  => :terrain-1
+
+  (svg/hexagon) => [:hexagon {}]
+
+  (svg/selectable [:hexagon {:class "mover future player-1"}] :cube-1)
+  => [:selectable :entity-1 :cube-1]
+
+  (svg/scale [:g {}
+              [:selectable :entity-1 :cube-1]
+              []
+              nil
+              nil]
+             9/10)
+  => [:scale :element-2 9/10]
+
+  (svg/translate [:g {}
+                  :terrain-1
+                  [:scale :element-2 9/10]]
+                 :cube-1)
+  => [:translate :element-3 :cube-1]))

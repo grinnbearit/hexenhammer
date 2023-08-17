@@ -10,4 +10,5 @@
  (set-mover-selected {} (mc/->Pointer :cube-1 :facing-1))
  => {:cube-1 {:mover/selected :facing-1
               :mover/state :present
-              :entity/presentation :selected}})
+              :entity/presentation :selected
+              :entity/interaction :selectable}})

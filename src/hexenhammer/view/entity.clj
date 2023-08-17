@@ -54,7 +54,10 @@
             (cond-> (-> (svg/hexagon)
                         (svg/add-classes ["mover"
                                           (name (:mover/state mover))
-                                          (str "player-" (:unit/player mover))])))
+                                          (str "player-" (:unit/player mover))]))
+
+              (= :selectable (:entity/interaction mover))
+              (svg/selectable (:entity/cube mover)))
 
             (for [option (disj (:mover/options mover)
                                (:mover/selected mover)
