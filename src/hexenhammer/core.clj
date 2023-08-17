@@ -37,10 +37,12 @@
 
 
 (defn setup-add-unit-handler
-  [{{:strs [player facing]} :params}]
+  [{{:strs [player facing M]} :params}]
   (let [player (Integer/parseInt player)
-        facing (keyword facing)]
-    (swap! hexenhammer-state controller/add-unit player facing)))
+        facing (keyword facing)
+        M (Integer/parseInt M)]
+    (swap! hexenhammer-state controller/add-unit player facing
+           :M M)))
 
 
 (defroutes home-handler

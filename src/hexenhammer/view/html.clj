@@ -91,7 +91,12 @@
           (for [[facing-code facing-name]
                 [["n" "North"] ["ne" "North-East"] ["se" "South-East"]
                  ["s" "South"] ["sw" "South-West"] ["nw" "North-West"]]]
-            [:option {:value facing-code} facing-name])]]]]
+            [:option {:value facing-code} facing-name])]]]
+       [:tr
+        [:td
+         [:label {:for "M"} "M(ove)"]]
+        [:td
+         [:input {:type "number" :id "M" :name "M" :min 1 :max 10 :step 1 :value 4}]]]]
       [:input {:type "submit" :value "Add Unit"}]]]]))
 
 

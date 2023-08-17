@@ -115,7 +115,8 @@
             :game/battlefield {:cube-1 :terrain-1}
             :game/units {1 {:counter 0 :cubes {}}}}
            1
-           :facing-1)
+           :facing-1
+           :M 3)
  => {:game/phase :setup
      :game/subphase :select-hex
      :game/battlefield {:cube-1 {:entity/class :unit
@@ -123,7 +124,7 @@
      :game/units {1 {:counter 1 :cubes {1 :cube-1}}}}
 
  (provided
-  (me/gen-unit :cube-1 1 1 :facing-1 :interaction :selectable)
+  (me/gen-unit :cube-1 1 1 :facing-1 :interaction :selectable :M 3)
   => {:entity/class :unit}))
 
 

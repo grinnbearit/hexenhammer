@@ -48,10 +48,11 @@
 
 
 (defn add-unit
-  [state player facing]
+  [state player facing & {:keys [M]}]
   (let [cube (:game/selected state)
         id (inc (get-in state [:game/units player :counter]))
-        unit (me/gen-unit cube player id facing :interaction :selectable)]
+        unit (me/gen-unit cube player id facing :interaction :selectable
+                          :M M)]
     (-> (assoc-in state [:game/battlefield cube] unit)
         (assoc-in [:game/units player :cubes id] cube)
         (assoc-in [:game/units player :counter] id)
