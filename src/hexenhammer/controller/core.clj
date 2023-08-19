@@ -101,10 +101,8 @@
           battlemap (mlm/show-reform (:game/battlefield state) cube)]
       (-> (assoc state
                  :game/selected cube
-                 :movement/selected pointer
                  :game/battlemap battlemap)
-          (dissoc :movement/moved?)
-          (update :game/battlemap cm/set-mover-selected pointer)))))
+          (move pointer)))))
 
 
 (defn skip-movement
@@ -114,7 +112,7 @@
       (assoc :game/subphase :select-hex)))
 
 
-(defmulti move (fn [state position] [(:game/phase state) (:game/subphase state)]))
+(defmulti move (fn [state pointer] [(:game/phase state) (:game/subphase state)]))
 
 
 (defmethod move [:movement :reform]
@@ -176,10 +174,9 @@
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]}  (mlm/show-forward (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
-      (-> (dissoc state :movement/moved?)
-          (assoc :game/selected cube
+      (-> (assoc state
+                 :game/selected cube
                  :game/battlemap battlemap
                  :movement/battlemap battlemap
-                 :movement/breadcrumbs breadcrumbs
-                 :movement/selected pointer)
-          (update :game/battlemap cm/set-mover-selected pointer)))))
+                 :movement/breadcrumbs breadcrumbs)
+          (move pointer)))))
