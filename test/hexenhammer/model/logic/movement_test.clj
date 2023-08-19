@@ -126,6 +126,37 @@
 
 
 (facts
+ "reposition paths"
+
+ (let [pointer (mc/->Pointer :cube-1 :n)
+       pointer-ne (mc/->Pointer :cube-1-ne :n)
+       pointer-se (mc/->Pointer :cube-1-se :n)
+       pointer-s (mc/->Pointer :cube-1-s :n)
+       pointer-sw (mc/->Pointer :cube-1-sw :n)
+       pointer-nw (mc/->Pointer :cube-1-nw :n)]
+
+   (reposition-paths :battlefield pointer 1)
+   => (just #{[pointer pointer-ne]
+              [pointer pointer-se]
+              [pointer pointer-s]
+              [pointer pointer-sw]
+              [pointer pointer-nw]})
+
+   (provided
+    (mc/step :cube-1 :ne) => :cube-1-ne
+    (mc/step :cube-1 :se) => :cube-1-se
+    (mc/step :cube-1 :s) => :cube-1-s
+    (mc/step :cube-1 :sw) => :cube-1-sw
+    (mc/step :cube-1 :nw) => :cube-1-nw
+
+    (valid-pointer? :battlefield pointer-ne) => true
+    (valid-pointer? :battlefield pointer-se) => true
+    (valid-pointer? :battlefield pointer-s) => true
+    (valid-pointer? :battlefield pointer-sw) => true
+    (valid-pointer? :battlefield pointer-nw) => true)))
+
+
+(facts
  "paths -> battlemap"
 
  (paths->battlemap {} 1 [[{:cube :cube-1 :facing :n}]
@@ -231,26 +262,64 @@
 
 
 (facts
- "show forward"
+ "show moves"
 
  (let [battlefield {:cube-1 {:unit/facing :n
                              :unit/M 5
-                             :unit/player 1}}]
+                             :unit/player 1}}
 
-   (show-forward battlefield :cube-1)
+       path-fn (fn [& args] (identity args))]
+
+   (show-moves battlefield :cube-1 :hexes path-fn)
    => {:battlemap :battlemap-1
        :breadcrumbs :breadcrumbs-1}
 
    (provided
     (remove-unit battlefield :cube-1) => :new-battlefield
 
-    (M->hexes 5) => 2
-
-    (forward-paths :new-battlefield (mc/->Pointer :cube-1 :n) 2)
-    => :paths
-
-    (paths->battlemap :new-battlefield 1 :paths)
+    (paths->battlemap :new-battlefield 1
+                      [:new-battlefield (mc/->Pointer :cube-1 :n) :hexes])
     => :battlemap-1
 
-    (paths->breadcrumbs 1 :battlemap-1 :paths)
+    (paths->breadcrumbs 1 :battlemap-1
+                        [:new-battlefield (mc/->Pointer :cube-1 :n) :hexes])
     => :breadcrumbs-1)))
+
+
+(facts
+ "show forward"
+
+ (let [battlefield {:cube-1 {:unit/M 8}}]
+
+   (show-forward battlefield :cube-1)
+   => :show-moves
+
+   (provided
+    (show-moves battlefield :cube-1 3 forward-paths)
+    => :show-moves)))
+
+
+(facts
+ "show reposition"
+
+ (let [battlefield {:cube-1 {:unit/M 8}}]
+
+   (show-reposition battlefield :cube-1)
+   => :show-moves
+
+   (provided
+    (show-moves battlefield :cube-1 1 reposition-paths)
+    => :show-moves)))
+
+
+(facts
+ "show march"
+
+ (let [battlefield {:cube-1 {:unit/M 8}}]
+
+   (show-march battlefield :cube-1)
+   => :show-moves
+
+   (provided
+    (show-moves battlefield :cube-1 5 forward-paths)
+    => :show-moves)))

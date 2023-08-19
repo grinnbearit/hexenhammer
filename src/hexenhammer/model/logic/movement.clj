@@ -87,6 +87,20 @@
                      (into seen steps)))))))
 
 
+(defn reposition-paths
+  "returns all valid repositioning paths given the starting pointer and a number of hexes
+  ensures the returned paths are vectors"
+  [battlefield pointer hexes]
+  (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing pointer))]
+    (->> (iterate #(mc/step % facing) (:cube pointer))
+         (drop 1)
+         (map #(mc/->Pointer % (:facing pointer)))
+         (take-while #(valid-pointer? battlefield %))
+         (take hexes)
+         (cons pointer)
+         (vec))))
+
+
 (defn paths->battlemap
   "Given a player and a list of paths returns a new battlemap with the movers representing those paths
   removes invalid pointers from paths"
@@ -160,17 +174,46 @@
     (assoc battlefield cube terrain)))
 
 
+(defn show-moves
+  "Given a battlefield, cube, hexes and a path-fn returns
+  :battlemap,  cube->mover that the unit can reach when moving
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  [battlefield cube hexes path-fn]
+  (let [unit (battlefield cube)
+        new-battlefield (remove-unit battlefield cube)
+        start (mc/->Pointer cube (:unit/facing unit))
+        paths (path-fn new-battlefield start hexes)
+        battlemap (paths->battlemap new-battlefield (:unit/player unit) paths)
+        breadcrumbs (paths->breadcrumbs (:unit/player unit) battlemap paths)]
+    {:battlemap battlemap
+     :breadcrumbs breadcrumbs}))
+
+
 (defn show-forward
   "Given a battlefield and cube, returns
   :battlemap,  cube->mover that the unit can reach when moving forward
   :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
   [battlefield cube]
-  (let [unit (battlefield cube)
-        new-battlefield (remove-unit battlefield cube)
-        start (mc/->Pointer cube (:unit/facing unit))
-        hexes (M->hexes (:unit/M unit))
-        paths (forward-paths new-battlefield start hexes)
-        battlemap (paths->battlemap new-battlefield (:unit/player unit) paths)
-        breadcrumbs (paths->breadcrumbs (:unit/player unit) battlemap paths)]
-    {:battlemap battlemap
-     :breadcrumbs breadcrumbs}))
+  (let [M (get-in battlefield [cube :unit/M])
+        hexes (M->hexes M)]
+    (show-moves battlefield cube hexes forward-paths)))
+
+
+(defn show-reposition
+  "Given a battlefield and cube, returns
+  :battlemap,  cube->mover that the unit can reach when repositioning
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  [battlefield cube]
+  (let [M (get-in battlefield [cube :unit/M])
+        hexes (M->hexes (/ M 2))]
+    (show-moves battlefield cube hexes reposition-paths)))
+
+
+(defn show-march
+  "Given a battlefield and cube, returns
+  :battlemap,  cube->mover that the unit can reach when marching
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  [battlefield cube]
+  (let [M (get-in battlefield [cube :unit/M])
+        hexes (M->hexes (* M 2))]
+    (show-moves battlefield cube hexes forward-paths)))

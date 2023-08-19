@@ -164,3 +164,13 @@
 (defmethod render [:movement :forward]
   [state]
   (html (render-movement state :forward)))
+
+
+(defmethod render [:movement :reposition]
+  [state]
+  (html (render-movement state :reposition)))
+
+
+(defmethod render [:movement :march]
+  [state]
+  (html (render-movement state :march)))
