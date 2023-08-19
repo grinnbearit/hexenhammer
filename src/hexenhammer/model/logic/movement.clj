@@ -33,17 +33,18 @@
 
 
 (defn forward-step
-  "Given a pointer, returns a set of pointers reachable in a single forward step"
+  "Given a pointer, returns a set of pointers reachable in a single forward step
+  The order of pointers in the list determines the priority"
   [pointer]
   (let [facing->pivots {:n [:nw :ne] :ne [:n :se] :se [:ne :s]
                         :s [:se :sw] :sw [:s :nw] :nw [:sw :n]}
         [lp rp] (facing->pivots (:facing pointer))
         forward-cube (mc/step (:cube pointer) (:facing pointer))]
-    #{(mc/->Pointer (:cube pointer) lp)
-      (mc/->Pointer (:cube pointer) rp)
-      (mc/->Pointer forward-cube (:facing pointer))
-      (mc/->Pointer forward-cube lp)
-      (mc/->Pointer forward-cube rp)}))
+    [(mc/->Pointer (:cube pointer) lp)
+     (mc/->Pointer (:cube pointer) rp)
+     (mc/->Pointer forward-cube (:facing pointer))
+     (mc/->Pointer forward-cube lp)
+     (mc/->Pointer forward-cube rp)]))
 
 
 (defn valid-pointer?
@@ -54,27 +55,36 @@
          (= :terrain (get-in battlefield [cube :entity/class])))))
 
 
-(defn forward-steps
-  "Returns all sequences of steps reachable in hexes from the passed pointer
-  seen is a set containing all pointers that shouldn't be included in paths"
-  [battlefield seen pointer hexes]
-  (if (zero? hexes)
-    [()]
-    (let [steps (forward-step pointer)]
-      (for [next-pointer steps
-            :when (and (not (seen next-pointer))
-                       (valid-pointer? battlefield next-pointer))
-            next-path (forward-steps battlefield (set/union seen steps)
-                                     next-pointer (dec hexes))]
-        (conj next-path next-pointer)))))
-
-
 (defn forward-paths
-  "A untility wrapper for forward-steps adds the starting pointer to every path,
-  ensures the returned path is a vector"
-  [battlefield pointer hexes]
-  (for [path (forward-steps battlefield #{} pointer hexes)]
-    (vec (conj path pointer))))
+  "Returns all sequences of steps reachable in hexes from the passed pointer,
+  does not include duplicate paths to the same pointer
+  prioritises by shortest path and the order in `forward-steps`"
+  [battlefield start hexes]
+  (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
+         paths []
+         seen #{start}]
+
+    (cond (empty? queue)
+          paths
+
+          (= (inc hexes) (count (peek queue)))
+          (recur (pop queue)
+                 (conj paths (peek queue))
+                 seen)
+
+          :else
+          (let [path (peek queue)
+                pointer (peek path)
+                steps (->> (forward-step pointer)
+                           (filter #(valid-pointer? battlefield %))
+                           (remove seen))]
+
+            (if (empty? steps)
+              (recur (pop queue) (conj paths path) seen)
+              (recur (->> (map #(conj path %) steps)
+                          (into (pop queue)))
+                     paths
+                     (into seen steps)))))))
 
 
 (defn paths->battlemap

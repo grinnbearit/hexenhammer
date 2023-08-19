@@ -61,11 +61,11 @@
  "forward step"
 
  (forward-step (mc/->Pointer :cube-1 :n))
- => #{(mc/->Pointer :cube-1 :nw)
-      (mc/->Pointer :cube-1 :ne)
-      (mc/->Pointer :cube-2 :n)
-      (mc/->Pointer :cube-2 :nw)
-      (mc/->Pointer :cube-2 :ne)}
+ => [(mc/->Pointer :cube-1 :nw)
+     (mc/->Pointer :cube-1 :ne)
+     (mc/->Pointer :cube-2 :n)
+     (mc/->Pointer :cube-2 :nw)
+     (mc/->Pointer :cube-2 :ne)]
 
  (provided
   (mc/step :cube-1 :n)
@@ -86,50 +86,43 @@
 
 
 (facts
- "forward steps"
-
- (forward-steps :battlefield #{} :pointer-1 0)
- => [()]
-
-
- (forward-steps :battlefield #{} :pointer-1 1)
- => [[:pointer-4]
-     [:pointer-2]]
-
- (provided
-  (forward-step :pointer-1) => #{:pointer-2 :pointer-3 :pointer-4}
-  (valid-pointer? :battlefield :pointer-2) => true
-  (valid-pointer? :battlefield :pointer-3) => false
-  (valid-pointer? :battlefield :pointer-4) => true)
-
-
- (forward-steps :battlefield #{} :pointer-1 2)
- => [[:pointer-3 :pointer-5]
-     [:pointer-2 :pointer-4]]
-
- (provided
-  (forward-step :pointer-1) => #{:pointer-2 :pointer-3}
-  (valid-pointer? :battlefield :pointer-2) => true
-  (valid-pointer? :battlefield :pointer-3) => true
-
-  (forward-step :pointer-2) => #{:pointer-3 :pointer-4}
-  (valid-pointer? :battlefield :pointer-4) => true
-
-  (forward-step :pointer-3) => #{:pointer-5}
-  (valid-pointer? :battlefield :pointer-5) => true))
-
-
-(facts
  "forward paths"
 
- (let [pointer {:cube :cube-1}]
-   (forward-paths :battlefield pointer 2)
-   => [(list pointer :pointer-2)
-       (list pointer :pointer-3)]
+ (forward-paths :battlefield :pointer-1 0)
+ => [[:pointer-1]]
 
-   (provided
-    (forward-steps :battlefield #{} pointer 2) => [(list :pointer-2)
-                                                   (list :pointer-3)])))
+
+ (forward-paths :battlefield :pointer-1 1)
+ => [[:pointer-1]]
+
+ (provided
+  (forward-step :pointer-1) => [])
+
+
+ (forward-paths :battlefield :pointer-1 1)
+ => [[:pointer-1]]
+
+ (provided
+  (forward-step :pointer-1) => [:pointer-2]
+  (valid-pointer? :battlefield :pointer-2) => false)
+
+
+ (forward-paths :battlefield :pointer-1 1)
+ => [[:pointer-1 :pointer-2]]
+
+ (provided
+  (forward-step :pointer-1) => [:pointer-2]
+  (valid-pointer? :battlefield :pointer-2) => true)
+
+
+ (forward-paths :battlefield :pointer-1 2)
+ => [[:pointer-1 :pointer-2]]
+
+ (provided
+  (forward-step :pointer-1) => [:pointer-2]
+  (valid-pointer? :battlefield :pointer-2) => true
+  (forward-step :pointer-2) => [:pointer-1]
+  (valid-pointer? :battlefield :pointer-1) => true))
 
 
 (facts
