@@ -3,7 +3,8 @@
             [hiccup.core :refer [html]]
             [hexenhammer.view.colour :refer [PALETTE]]
             [hexenhammer.view.svg :as svg]
-            [hexenhammer.view.entity :as entity]))
+            [hexenhammer.view.entity :as entity]
+            [clojure.string :as str]))
 
 
 (def STYLESHEET
@@ -131,14 +132,13 @@
      (render-battlefield state)]]))
 
 
-(defmethod render [:movement :reform]
-  [state]
-  (html
-   [:html
-    [:head
-     [:h1 (str "Player - " (:game/player state))]
-     [:h2 "Movement - Reform"]
-     [:style STYLESHEET]]
+(defn render-movement
+  [state movement]
+  [:html
+   [:head
+    [:h1 (str "Player - " (:game/player state))]
+    [:h2 (str "Movement - " (str/capitalize (name movement)))]
+    [:style STYLESHEET]
     [:body
      (render-battlefield state) [:br] [:br]
      [:form {:action "/movement/skip-movement" :method "post"}
@@ -146,22 +146,21 @@
       (when (:movement/moved? state)
         [:input {:type "submit" :value "Finish Movement"
                  :formaction "/movement/finish-movement"}])]
-     [:a {:href "/movement/forward"} "Forward"]]]))
+     [:table
+      [:tr
+       (for [option [:reform :forward :reposition :march]]
+         [:td
+          (if (= movement option)
+            (str/capitalize (name movement))
+            [:a {:href (str "/movement/" (name option))}
+             (str/capitalize (name option))])])]]]]])
+
+
+(defmethod render [:movement :reform]
+  [state]
+  (html (render-movement state :reform)))
 
 
 (defmethod render [:movement :forward]
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 (str "Player - " (:game/player state))]
-     [:h2 "Movement - Forward"]
-     [:style STYLESHEET]]
-    [:body
-     (render-battlefield state) [:br] [:br]]
-    [:form {:action "/movement/skip-movement" :method "post"}
-     [:input {:type "submit" :value "Skip Movement"}]
-     (when (:movement/moved? state)
-       [:input {:type "submit" :value "Finish Movement"
-                :formaction "/movement/finish-movement"}])]
-    [:a {:href "/movement/reform"} "Reform"]]))
+  (html (render-movement state :forward)))
