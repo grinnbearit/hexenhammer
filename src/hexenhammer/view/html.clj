@@ -94,9 +94,14 @@
             [:option {:value facing-code} facing-name])]]]
        [:tr
         [:td
-         [:label {:for "M"} "M(ove)"]]
+         "Profile"]
         [:td
-         [:input {:type "number" :id "M" :name "M" :min 1 :max 10 :step 1 :value 4}]]]]
+         [:table
+          [:thead
+           [:th [:label {:for "M"} "M"]]]
+          [:tbody
+           [:tr
+            [:td [:input {:type "number" :id "M" :name "M" :min 1 :max 10 :step 1 :value 4}]]]]]]]]
       [:input {:type "submit" :value "Add Unit"}]]]]))
 
 
