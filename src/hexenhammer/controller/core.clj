@@ -154,16 +154,9 @@
         (assoc :game/subphase :select-hex))))
 
 
-(defn movement-reform
-  [state]
-  (-> (assoc state :game/subphase :reform)
-      (dissoc :movement/selected)
-      (select (:game/selected state))))
-
-
-(defn movement-forward
-  [state]
-  (-> (assoc state :game/subphase :forward)
+(defn movement-transition
+  [state movement]
+  (-> (assoc state :game/subphase movement)
       (dissoc :movement/selected)
       (select (:game/selected state))))
 

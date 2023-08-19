@@ -52,8 +52,7 @@
 (defroutes api-handler
   (GET "/select" [] select-handler)
   (GET "/move" [] move-handler)
-  (GET "/movement/forward" [] (swap! hexenhammer-state controller/movement-forward))
-  (GET "/movement/reform" [] (swap! hexenhammer-state controller/movement-reform))
+  (GET "/movement/:movement" [movement] (swap! hexenhammer-state controller/movement-transition (keyword movement)))
   (GET "/favicon.ico" [] "")
   (POST "/setup/add-unit" [] setup-add-unit-handler)
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state controller/remove-unit))

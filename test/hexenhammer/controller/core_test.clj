@@ -388,31 +388,18 @@
 
 
 (facts
- "movement reform"
+ "movement transition"
 
- (movement-reform {:movement/selected :pointer-1
-                   :game/selected :cube-1})
- => [:select :reform]
-
- (provided
-  (select {:game/subphase :reform
-           :game/selected :cube-1}
-          :cube-1)
-  => [:select :reform]))
-
-
-(facts
- "movement forward"
-
- (movement-forward {:movement/selected :pointer-1
-                    :game/selected :cube-1})
- => [:select :forward]
+ (movement-transition {:movement/selected :pointer-1
+                       :game/selected :cube-1}
+                      :movement-1)
+ => [:select :movement-1]
 
  (provided
-  (select {:game/subphase :forward
+  (select {:game/subphase :movement-1
            :game/selected :cube-1}
           :cube-1)
-  => [:select :forward]))
+  => [:select :movement-1]))
 
 
 (facts
