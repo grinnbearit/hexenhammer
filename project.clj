@@ -7,6 +7,7 @@
                  [hiccup "2.0.0-RC1"]
                  [garden "1.3.10"]
                  [ring "1.10.0"]
-                 [compojure "1.7.0"]]
+                 [compojure "1.7.0"]
+                 [org.clojure/math.combinatorics "0.2.0"]]
   :profiles {:dev {:dependencies [[midje/midje "1.10.9"]]}}
   :repl-options {:init-ns hexenhammer.core})
