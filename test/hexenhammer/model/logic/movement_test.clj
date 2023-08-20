@@ -330,3 +330,66 @@
    (provided
     (show-moves battlefield :cube-1 5 forward-paths)
     => :show-moves)))
+
+
+(facts
+ "list threats"
+
+ (list-threats {:cube-1 :unit-1} :cube-1)
+ => []
+
+ (provided
+  (mc/neighbours-within :cube-1 3)
+  => [])
+
+
+ (list-threats {:cube-1 :unit-1} :cube-1)
+ => []
+
+ (provided
+  (mc/neighbours-within :cube-1 3)
+  => [:cube-2])
+
+
+ (list-threats {:cube-1 :unit-1
+                :cube-2 :terrain-1} :cube-1)
+ => []
+
+ (provided
+  (mc/neighbours-within :cube-1 3)
+  => [:cube-2]
+
+  (mle/unit? :terrain-1)
+  => false)
+
+
+ (list-threats {:cube-1 :unit-1
+                :cube-2 :unit-2}
+               :cube-1)
+ => []
+
+ (provided
+  (mc/neighbours-within :cube-1 3)
+  => [:cube-2]
+
+  (mle/unit? :unit-2)
+  => true
+
+  (mlc/enemies? :unit-1 :unit-2)
+  => false)
+
+
+ (list-threats {:cube-1 :unit-1
+                :cube-2 :unit-2}
+               :cube-1)
+ => [:cube-2]
+
+ (provided
+  (mc/neighbours-within :cube-1 3)
+  => [:cube-2]
+
+  (mle/unit? :unit-2)
+  => true
+
+  (mlc/enemies? :unit-1 :unit-2)
+  => true))

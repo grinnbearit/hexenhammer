@@ -218,3 +218,17 @@
   (let [M (get-in battlefield [cube :unit/M])
         hexes (M->hexes (* M 2))]
     (show-moves battlefield cube hexes forward-paths)))
+
+
+(defn list-threats
+  "Returns a list of cubes that 'threaten' this unit on the battlefield
+  i.e. enemy units within 3 hexes
+  assumes the passed cube is on the battlefield and a unit"
+  [battlefield cube]
+  (let [unit (battlefield cube)]
+    (for [neighbour (mc/neighbours-within cube 3)
+          :when (contains? battlefield neighbour)
+          :let [entity (battlefield neighbour)]
+          :when (and (mle/unit? entity)
+                     (mlc/enemies? unit entity))]
+      neighbour)))
