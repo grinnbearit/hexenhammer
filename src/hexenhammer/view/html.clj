@@ -12,6 +12,7 @@
    [:polygon
     [:&.terrain {:fill (PALETTE "dark green 1") :stroke "black"}
      [:&.selected {:stroke "yellow"}]
+     [:&.marked {:stroke "white"}]
      [:&.highlighted {:stroke "orange"}]]
     [:&.unit
      [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
@@ -35,7 +36,7 @@
 (defn entity->z
   "Returns the z index value for the passed entity depending on the presentation status"
   [entity]
-  (let [presentation->rank {:default 0 :highlighted 1 :selected 2}]
+  (let [presentation->rank {:default 0 :highlighted 1 :marked 2 :selected 3}]
     (-> (:entity/presentation entity)
         (presentation->rank))))
 

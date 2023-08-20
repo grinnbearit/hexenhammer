@@ -10,7 +10,8 @@
 
  (entity->z {:entity/presentation :default}) => 0
  (entity->z {:entity/presentation :highlighted}) => 1
- (entity->z {:entity/presentation :selected}) => 2)
+ (entity->z {:entity/presentation :marked}) => 2
+ (entity->z {:entity/presentation :selected}) => 3)
 
 
 (facts

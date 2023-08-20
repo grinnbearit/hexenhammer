@@ -232,3 +232,11 @@
           :when (and (mle/unit? entity)
                      (mlc/enemies? unit entity))]
       neighbour)))
+
+
+(defn show-threats
+  "Returns a battlemap of cubes that 'threaten' this unit on the battlefield"
+  [battlefield cube]
+  (->> (for [threat (list-threats battlefield cube)]
+         [threat (assoc (battlefield threat) :entity/presentation :marked)])
+       (into {})))

@@ -393,3 +393,125 @@
            :game/battlemap :battlemap}
           pointer)
     => :move)))
+
+
+(facts
+ "select movement forward"
+
+ (let [state {:game/phase :movement
+              :game/subphase :forward
+              :movement/selected {:cube :cube-1}}]
+
+   (select state :cube-1)
+   => :unselect
+
+   (provided
+    (unselect state) => :unselect))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)
+       state {:game/phase :movement
+              :game/subphase :forward
+              :game/battlefield battlefield}]
+
+   (select state :cube-1)
+   => :move
+
+   (provided
+    (mlm/show-forward battlefield :cube-1)
+    => {:battlemap :battlemap-1
+        :breadcrumbs :breadcrumbs-1}
+
+    (move {:game/phase :movement
+           :game/subphase :forward
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap :battlemap-1
+           :movement/battlemap :battlemap-1
+           :movement/breadcrumbs :breadcrumbs-1}
+          pointer)
+    => :move)))
+
+
+(facts
+ "select movement reposition"
+
+ (let [state {:game/phase :movement
+              :game/subphase :reposition
+              :movement/selected {:cube :cube-1}}]
+
+   (select state :cube-1)
+   => :unselect
+
+   (provided
+    (unselect state) => :unselect))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)
+       state {:game/phase :movement
+              :game/subphase :reposition
+              :game/battlefield battlefield}]
+
+   (select state :cube-1)
+   => :move
+
+   (provided
+    (mlm/show-reposition battlefield :cube-1)
+    => {:battlemap :battlemap-1
+        :breadcrumbs :breadcrumbs-1}
+
+    (move {:game/phase :movement
+           :game/subphase :reposition
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap :battlemap-1
+           :movement/battlemap :battlemap-1
+           :movement/breadcrumbs :breadcrumbs-1}
+          pointer)
+    => :move)))
+
+
+(facts
+ "select movement march"
+
+ (let [state {:game/phase :movement
+              :game/subphase :march
+              :movement/selected {:cube :cube-1}}]
+
+   (select state :cube-1)
+   => :unselect
+
+   (provided
+    (unselect state) => :unselect))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)
+       state {:game/phase :movement
+              :game/subphase :march
+              :game/battlefield battlefield}]
+
+   (select state :cube-1)
+   => :move
+
+   (provided
+    (mlm/show-march battlefield :cube-1)
+    => {:battlemap {:cube-2 :battlemap-entry}
+        :breadcrumbs :breadcrumbs-1}
+
+    (mlm/show-threats battlefield :cube-1)
+    => {:cube-3 :threat-entry}
+
+    (move {:game/phase :movement
+           :game/subphase :march
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap {:cube-2 :battlemap-entry
+                            :cube-3 :threat-entry}
+           :movement/battlemap {:cube-2 :battlemap-entry
+                                :cube-3 :threat-entry}
+           :movement/breadcrumbs :breadcrumbs-1}
+          pointer)
+    => :move)))

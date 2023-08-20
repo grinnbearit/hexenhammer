@@ -15,16 +15,8 @@
 
 
  (render-terrain {:entity/class :terrain
-                  :entity/presentation :selected})
- => [:hexagon {:class "terrain selected"}]
-
- (provided
-  (svg/hexagon) => [:hexagon {}])
-
-
- (render-terrain {:entity/class :terrain
-                  :entity/presentation :highlighted})
- => [:hexagon {:class "terrain highlighted"}]
+                  :entity/presentation :presentation})
+ => [:hexagon {:class "terrain presentation"}]
 
  (provided
   (svg/hexagon) => [:hexagon {}]))

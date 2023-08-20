@@ -393,3 +393,16 @@
 
   (mlc/enemies? :unit-1 :unit-2)
   => true))
+
+
+(facts
+ "show threats"
+
+ (let [battlefield {:cube-2 {} :cube-3 {}}]
+
+   (show-threats battlefield :cube-1)
+   => {:cube-2 {:entity/presentation :marked}}
+
+   (provided
+    (list-threats battlefield :cube-1)
+    => [:cube-2])))
