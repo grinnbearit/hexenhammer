@@ -1,6 +1,7 @@
 (ns hexenhammer.model.logic.movement-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.logic.core :as mlc]
+            [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.movement :refer :all]))
@@ -78,11 +79,17 @@
  (valid-pointer? {} (mc/->Pointer :cube-1 :facing-1))
  => false
 
- (valid-pointer? {:cube-1 {}} (mc/->Pointer :cube-1 :facing-1))
+ (valid-pointer? {:cube-1 :unit-1} (mc/->Pointer :cube-1 :facing-1))
  => false
 
- (valid-pointer? {:cube-1 {:entity/class :terrain}} (mc/->Pointer :cube-1 :facing-1))
- => true)
+ (provided
+  (mle/terrain? :unit-1) => false)
+
+ (valid-pointer? {:cube-1 :terrain-1} (mc/->Pointer :cube-1 :facing-1))
+ => true
+
+ (provided
+  (mle/terrain? :terrain-1) => true))
 
 
 (facts

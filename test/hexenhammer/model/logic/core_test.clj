@@ -1,14 +1,30 @@
 (ns hexenhammer.model.logic.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as cube]
+            [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.logic.core :refer :all]))
+
+
+(facts
+ "enemies?"
+
+ (enemies? {:unit/player 1}
+           {:unit/player 1})
+ => false
+
+ (enemies? {:unit/player 1}
+           {:unit/player 2})
+ => true)
 
 
 (facts
  "units engaged?"
 
- (engaged? {:unit/player 1} {:unit/player 2})
+ (engaged? :unit-1 :unit-2)
  => false
+
+ (provided
+  (enemies? :unit-1 :unit-2) => false)
 
 
  (engaged? {:unit/player 1
@@ -70,41 +86,41 @@
  => false
 
  (provided
-  (cube/neighbours :cube-1)
-  => [:cube-2])
+  (cube/neighbours :cube-1) => [:cube-2])
 
 
  (battlefield-engaged? {:cube-1 :unit-1
-                        :cube-2 {:entity/class :terrain}}
+                        :cube-2 :terrain-1}
                        :cube-1)
  => false
 
  (provided
-  (cube/neighbours :cube-1)
-  => [:cube-2])
+  (cube/neighbours :cube-1) => [:cube-2]
+
+  (mle/unit? :terrain-1) => false)
 
 
  (battlefield-engaged? {:cube-1 :unit-1
-                        :cube-2 {:entity/class :unit}}
+                        :cube-2 :unit-2}
                        :cube-1)
  => false
 
  (provided
-  (cube/neighbours :cube-1)
-  => [:cube-2]
+  (cube/neighbours :cube-1) => [:cube-2]
 
-  (engaged? :unit-1 {:entity/class :unit})
-  => false)
+  (mle/unit? :unit-2) => true
+
+  (engaged? :unit-1 :unit-2) => false)
 
 
  (battlefield-engaged? {:cube-1 :unit-1
-                        :cube-2 {:entity/class :unit}}
+                        :cube-2 :unit-2}
                        :cube-1)
  => true
 
  (provided
-  (cube/neighbours :cube-1)
-  => [:cube-2]
+  (cube/neighbours :cube-1) => [:cube-2]
 
-  (engaged? :unit-1 {:entity/class :unit})
-  => true))
+  (mle/unit? :unit-2) => true
+
+  (engaged? :unit-1 :unit-2) => true))

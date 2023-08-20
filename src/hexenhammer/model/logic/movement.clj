@@ -1,5 +1,6 @@
 (ns hexenhammer.model.logic.movement
   (:require [hexenhammer.model.logic.core :as mlc]
+            [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.cube :as mc]
             [clojure.set :as set]))
@@ -52,7 +53,7 @@
   [battlefield pointer]
   (let [cube (:cube pointer)]
     (and (contains? battlefield cube)
-         (= :terrain (get-in battlefield [cube :entity/class])))))
+         (mle/terrain? (battlefield cube)))))
 
 
 (defn forward-paths
