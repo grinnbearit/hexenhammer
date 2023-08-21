@@ -13,9 +13,9 @@
 
 (defn gen-unit
   "Returns a generic unit entity"
-  [cube player id facing & {:keys [presentation interaction M]
+  [cube player id facing & {:keys [presentation interaction M Ld]
                             :or {presentation :default interaction :default
-                                 M 4}}]
+                                 M 4 Ld 7}}]
   {:entity/class :unit
    :entity/name "unit"
    :entity/cube cube
@@ -24,7 +24,8 @@
    :unit/player player
    :unit/id id
    :unit/facing facing
-   :unit/M M})
+   :unit/M M
+   :unit/Ld Ld})
 
 
 (defn gen-mover

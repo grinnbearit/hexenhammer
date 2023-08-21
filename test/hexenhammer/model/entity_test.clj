@@ -32,11 +32,12 @@
      :unit/id :id-1
      :unit/facing :facing-1
      :unit/M 4
+     :unit/Ld 7
      :entity/presentation :default
      :entity/interaction :default}
 
  (gen-unit :cube-1 :player-1 :id-1 :facing-1 :presentation :presentation-1 :interaction :interaction-1
-           :M 3)
+           :M 3 :Ld 8)
  => {:entity/class :unit
      :entity/name "unit"
      :entity/cube :cube-1
@@ -44,6 +45,7 @@
      :unit/facing :facing-1
      :unit/id :id-1
      :unit/M 3
+     :unit/Ld 8
      :entity/presentation :presentation-1
      :entity/interaction :interaction-1})
 
