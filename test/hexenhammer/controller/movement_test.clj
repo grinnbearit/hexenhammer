@@ -21,41 +21,41 @@
                              :unit/facing :n}}
        pointer (mc/->Pointer :cube-1 :n)]
 
-   (show-moves {:movement/moved? true
-                :movement/battlemap {:battlemap :battlemap-1}
-                :movement/breadcrumbs {pointer {:breadcrumbs :breadcrumbs}}
+   (show-moves {:game/movement {:moved? true
+                                :battlemap {:cube-2 :battlemap-entry}
+                                :breadcrumbs {pointer {:cube-3 :breadcrumbs-entry}}}
                 :game/battlefield battlefield}
                pointer)
    => {:game/battlemap :battlemap-2
-       :movement/selected pointer
-       :movement/battlemap {:battlemap :battlemap-1}
-       :movement/breadcrumbs {pointer {:breadcrumbs :breadcrumbs}}
+       :game/movement {:battlemap {:cube-2 :battlemap-entry}
+                       :breadcrumbs {pointer {:cube-3 :breadcrumbs-entry}}
+                       :pointer pointer}
        :game/battlefield battlefield}
 
    (provided
-    (set-mover-selected {:battlemap :battlemap-1
-                         :breadcrumbs :breadcrumbs}
+    (set-mover-selected {:cube-2 :battlemap-entry
+                         :cube-3 :breadcrumbs-entry}
                         pointer)
     => :battlemap-2))
 
 
  (let [battlefield {:cube-1 {:entity/cube :cube-1
-                             :unit/facing :n}}
-       pointer (mc/->Pointer :cube-1 :s)]
+                             :unit/facing :s}}
+       pointer (mc/->Pointer :cube-1 :n)]
 
-   (show-moves {:movement/battlemap {:battlemap :battlemap-1}
-                :movement/breadcrumbs {pointer {:breadcrumbs :breadcrumbs}}
+   (show-moves {:game/movement {:battlemap {:cube-2 :battlemap-entry}
+                                :breadcrumbs {pointer {:cube-3 :breadcrumbs-entry}}}
                 :game/battlefield battlefield}
                pointer)
-   => {:movement/moved? true
-       :game/battlemap :battlemap-2
-       :movement/selected pointer
-       :movement/battlemap {:battlemap :battlemap-1}
-       :movement/breadcrumbs {pointer {:breadcrumbs :breadcrumbs}}
+   => {:game/battlemap :battlemap-2
+       :game/movement {:moved? true
+                       :battlemap {:cube-2 :battlemap-entry}
+                       :breadcrumbs {pointer {:cube-3 :breadcrumbs-entry}}
+                       :pointer pointer}
        :game/battlefield battlefield}
 
    (provided
-    (set-mover-selected {:battlemap :battlemap-1
-                         :breadcrumbs :breadcrumbs}
+    (set-mover-selected {:cube-2 :battlemap-entry
+                         :cube-3 :breadcrumbs-entry}
                         pointer)
     => :battlemap-2)))

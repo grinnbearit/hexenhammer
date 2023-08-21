@@ -146,7 +146,7 @@
      (render-battlefield state) [:br] [:br]
      [:form {:action "/movement/skip-movement" :method "post"}
       [:input {:type "submit" :value "Skip Movement"}]
-      (when (:movement/moved? state)
+      (when (get-in state [:game/movement :moved?])
         [:input {:type "submit" :value "Finish Movement"
                  :formaction "/movement/finish-movement"}])]
      [:table

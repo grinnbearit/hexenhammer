@@ -89,13 +89,17 @@
 (defmethod unselect :movement
   [state]
   (-> (assoc state :game/subphase :select-hex)
-      (dissoc :game/selected :movement/selected :game/battlemap)))
+      (dissoc :game/selected
+              :game/battlemap
+              :game/movement)))
 
 
 (defn skip-movement
   [state]
   (-> (update-in state [:game/battlefield (:game/selected state)] ce/reset-default)
-      (dissoc :game/battlemap :game/selected)
+      (dissoc :game/selected
+              :game/battlemap
+              :game/movement)
       (assoc :game/subphase :select-hex)))
 
 
@@ -105,11 +109,11 @@
 (defmethod move [:movement :reform]
   [state pointer]
   (let [unit (get-in state [:game/battlefield (:cube pointer)])]
-    (-> (if (not= (:facing pointer) (:unit/facing unit))
-          (assoc state :movement/moved? true)
-          (dissoc state :movement/moved?))
+    (-> (if (= (:facing pointer) (:unit/facing unit))
+          (dissoc state :game/movement)
+          (assoc state :game/movement {:moved? true}))
         (update :game/battlemap cm/set-mover-selected pointer)
-        (assoc :movement/selected pointer))))
+        (assoc-in [:game/movement :pointer] pointer))))
 
 
 (defmethod move [:movement :forward]
@@ -131,7 +135,7 @@
   [state]
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
-        pointer (:movement/selected state)
+        pointer (get-in state [:game/movement :pointer])
         terrain (me/gen-terrain cube)
         updated-unit (-> (ce/reset-default unit)
                          (assoc :entity/cube (:cube pointer)
@@ -139,20 +143,22 @@
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
         (assoc-in [:game/units (:unit/player unit) :cubes (:unit/id unit)] (:cube pointer))
-        (dissoc :game/battlemap)
+        (dissoc :game/selected
+                :game/battlemap
+                :game/movement)
         (assoc :game/subphase :select-hex))))
 
 
 (defn movement-transition
   [state movement]
   (-> (assoc state :game/subphase movement)
-      (dissoc :movement/selected)
+      (dissoc :game/movement)
       (select (:game/selected state))))
 
 
 (defmethod select [:movement :reform]
   [state cube]
-  (if (= cube (get-in state [:movement/selected :cube]))
+  (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
     (let [unit (get-in state [:game/battlefield cube])
           pointer (mc/->Pointer cube (:unit/facing unit))
@@ -165,43 +171,44 @@
 
 (defmethod select [:movement :forward]
   [state cube]
-  (if (= cube (get-in state [:movement/selected :cube]))
+  (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]}  (mlm/show-forward (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
-                 :game/battlemap battlemap
-                 :movement/battlemap battlemap
-                 :movement/breadcrumbs breadcrumbs)
+                 :game/battlemap battlemap)
+          (update :game/movement assoc
+                  :battlemap battlemap
+                  :breadcrumbs breadcrumbs)
           (move pointer)))))
 
 
 (defmethod select [:movement :reposition]
   [state cube]
-  (if (= cube (get-in state [:movement/selected :cube]))
+  (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]}  (mlm/show-reposition (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
-                 :game/battlemap battlemap
-                 :movement/battlemap battlemap
-                 :movement/breadcrumbs breadcrumbs)
+                 :game/battlemap battlemap)
+          (update :game/movement assoc
+                  :battlemap battlemap
+                  :breadcrumbs breadcrumbs)
           (move pointer)))))
 
 
 (defmethod select [:movement :march]
   [state cube]
-  (if (= cube (get-in state [:movement/selected :cube]))
+  (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]}  (mlm/show-march (:game/battlefield state) cube)
-          pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))
-          threats (mlm/show-threats (:game/battlefield state) cube)
-          threat-map (merge battlemap threats)]
+          pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
-                 :game/battlemap threat-map
-                 :movement/battlemap threat-map
-                 :movement/breadcrumbs breadcrumbs)
+                 :game/battlemap battlemap)
+          (update :game/movement assoc
+                  :battlemap battlemap
+                  :breadcrumbs breadcrumbs)
           (move pointer)))))
