@@ -1,53 +1,10 @@
 (ns hexenhammer.view.html
-  (:require [garden.core :refer [css]]
-            [hiccup.core :refer [html]]
-            [hexenhammer.view.colour :refer [PALETTE]]
+  (:require [hiccup.core :refer [html]]
+            [hexenhammer.view.css :refer [STYLESHEET]]
+            [hexenhammer.model.probability :as mp]
+            [hexenhammer.view.widget :as vw]
             [hexenhammer.view.svg :as svg]
-            [hexenhammer.view.entity :as entity]
             [clojure.string :as str]))
-
-
-(def STYLESHEET
-  (css
-   [:polygon
-    [:&.terrain {:fill (PALETTE "dark green 1") :stroke "black"}
-     [:&.selected {:stroke "yellow"}]
-     [:&.marked {:stroke "white"}]
-     [:&.highlighted {:stroke "orange"}]]
-    [:&.unit
-     [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
-     [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]
-    [:&.mover
-     [:&.future
-      [:&.player-1 {:fill (PALETTE "light red berry 1") :stroke "black"}]
-      [:&.player-2 {:fill (PALETTE "light cornflower blue 1") :stroke "black"}]]
-     [:&.present
-      [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
-      [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]
-     [:&.past
-      [:&.player-1 {:fill (PALETTE "light red berry 2") :stroke "black"}]
-      [:&.player-2 {:fill (PALETTE "light cornflower blue 2") :stroke "black"}]]]
-    [:&.arrow
-     [:&.selected {:stroke "yellow" :fill "yellow"}]
-     [:&.highlighted {:stroke "orange" :fill "orange"}]]]
-   [:table :th :td {:border "1px solid"}]))
-
-
-(defn entity->z
-  "Returns the z index value for the passed entity depending on the presentation status"
-  [entity]
-  (let [presentation->rank {:default 0 :highlighted 1 :marked 2 :selected 3}]
-    (-> (:entity/presentation entity)
-        (presentation->rank))))
-
-
-(defn render-battlefield
-  [{:keys [game/rows game/columns game/battlefield game/battlemap]}]
-  [:svg (svg/size->dim rows columns)
-   (for [entity (->> (merge battlefield battlemap)
-                     (vals)
-                     (sort-by entity->z))]
-     (entity/render entity))])
 
 
 (defmulti render (juxt :game/phase :game/subphase))
@@ -62,7 +19,7 @@
      [:h2 "Setup"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state) [:br] [:br]
+     (vw/render-battlefield state) [:br] [:br]
      [:form {:action "/setup/to-movement" :method "post"}
       [:input {:type "submit" :value "To Movement"}]]]]))
 
@@ -76,7 +33,7 @@
      [:h2 "Setup - Add Unit"]
      [:style STYLESHEET]]
     [:body
-     (render-battlefield state) [:br] [:br]
+     (vw/render-battlefield state) [:br] [:br]
      [:form {:action "/setup/add-unit" :method "post"}
       [:table
        [:tr
@@ -111,69 +68,100 @@
 
 (defmethod render [:setup :remove-unit]
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 "Hexenhammer"]
-     [:h2 "Setup - Remove Unit"]
-     [:style STYLESHEET]]
-    [:body
-     (render-battlefield state) [:br] [:br]
-     [:form {:action "/setup/remove-unit" :method "post"}
-      [:input {:type "submit" :value "Remove Unit"}]]]]))
+  (let [cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Setup - Remove Unit"]
+       [:style STYLESHEET]]
+      [:body
+       (vw/render-battlefield state)
+       (vw/render-profile unit) [:br]
+       [:form {:action "/setup/remove-unit" :method "post"}
+        [:input {:type "submit" :value "Remove Unit"}]]]])))
 
 
 (defmethod render [:movement :select-hex]
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 (str "Player - " (:game/player state))]
-     [:h2 "Movement"]
-     [:style STYLESHEET]]
-    [:body
-     (render-battlefield state)]]))
+  (let [player (:game/player state)]
 
-
-(defn render-movement
-  [state movement]
-  [:html
-   [:head
-    [:h1 (str "Player - " (:game/player state))]
-    [:h2 (str "Movement - " (str/capitalize (name movement)))]
-    [:style STYLESHEET]
-    [:body
-     (render-battlefield state) [:br] [:br]
-     [:form {:action "/movement/skip-movement" :method "post"}
-      [:input {:type "submit" :value "Skip Movement"}]
-      (when (get-in state [:game/movement :moved?])
-        [:input {:type "submit" :value "Finish Movement"
-                 :formaction "/movement/finish-movement"}])]
-     [:table
-      [:tr
-       (for [option [:reform :forward :reposition :march]]
-         [:td
-          (if (= movement option)
-            (str/capitalize (name movement))
-            [:a {:href (str "/movement/" (name option))}
-             (str/capitalize (name option))])])]]]]])
+    (html
+     [:html
+      [:head
+       [:h1 (str "Player - " (:game/player state))]
+       [:h2 "Movement"]
+       [:style STYLESHEET]]
+      [:body
+       (vw/render-battlefield state)]])))
 
 
 (defmethod render [:movement :reform]
   [state]
-  (html (render-movement state :reform)))
+  (html (vw/render-movement state :reform)))
 
 
 (defmethod render [:movement :forward]
   [state]
-  (html (render-movement state :forward)))
+  (html (vw/render-movement state :forward)))
 
 
 (defmethod render [:movement :reposition]
   [state]
-  (html (render-movement state :reposition)))
+  (html (vw/render-movement state :reposition)))
 
 
 (defmethod render [:movement :march]
   [state]
-  (html (render-movement state :march)))
+  (let [player (:game/player state)
+        cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])
+        status (get-in state [:game/movement :march])
+        moved? (get-in state [:game/movement :moved?])
+        Ld (get-in state [:game/battlefield cube :unit/Ld])
+        prob-Ld (Math/round (float (* 100 (mp/march Ld))))
+        roll (get-in unit [:unit/movement :roll])]
+
+    (html
+     [:html
+      [:head
+       [:h1 (str "Player - " player)]
+       [:h2 "Movement - March"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state)
+        (vw/render-profile unit) [:br]
+        [:form {:action "/movement/skip-movement" :method "post"}
+         [:input {:type "submit" :value "Skip Movement"}]
+
+         (when moved?
+           (cond-> [:input {:type "submit" :value "Finish Movement"
+                            :formaction "/movement/finish-movement"}]
+
+             (#{:failed :required} status)
+             (assoc-in [1 :disabled] true)))]
+
+        [:table
+         [:tr
+          (for [option [:reform :forward :reposition]]
+            [:td [:a {:href (str "/movement/" (name option))}
+                  (str/capitalize (name option))]])
+          [:td "March"]]]
+
+        (case status
+
+          :required
+          (list
+           [:br]
+           [:form {:action "/movement/test-leadership" :method "post"}
+            [:input {:type "submit"
+                     :value (format "Test Leadership (~%d%%)" prob-Ld)}]])
+
+          :passed
+          (svg/dice roll 1)
+
+          :failed
+          (svg/dice roll 7)
+
+          nil)]]])))

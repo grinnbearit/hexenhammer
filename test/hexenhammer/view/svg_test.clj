@@ -193,3 +193,12 @@
 
  (text "0" -1 :font-size 12)
  => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y -9} "0"])
+
+
+(facts
+ "dice"
+
+ (dice [1 2 3] 2)
+ [[:text {:class "dice failed"} "⚀"]
+  [:text {:class "dice passed"} "⚁"]
+  [:text {:class "dice passed"} "⚂"]])

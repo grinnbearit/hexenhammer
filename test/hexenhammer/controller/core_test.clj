@@ -7,6 +7,7 @@
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.dice :as cd]
             [hexenhammer.controller.core :refer :all]))
 
 
@@ -213,14 +214,15 @@
  "skip movement"
 
  (skip-movement {:game/selected :cube-1
-                 :game/battlefield {:cube-1 :entity-1}
-                 :game/battlemap :battlemap
-                 :game/movement :movement})
- => {:game/battlefield {:cube-1 :reset-entity-1}
-     :game/subphase :select-hex}
+                 :game/battlefield {:cube-1 :unit-1}})
+ => :unselect
 
  (provided
-  (ce/reset-default :entity-1) => :reset-entity-1))
+  (ce/reset-default :unit-1) => :reset-unit-1
+
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 :reset-unit-1}})
+  => :unselect))
 
 
 (facts
@@ -315,18 +317,23 @@
    (finish-movement {:game/selected :cube-1
                      :game/battlefield {:cube-1 unit}
                      :game/movement {:pointer pointer}})
-   => {:game/battlefield {:cube-1 :terrain
-                          :cube-2 {:unit/player 1
-                                   :unit/id 2
-                                   :entity/cube :cube-2
-                                   :unit/facing :n
-                                   :entity/presentation :default}}
-       :game/units {1 {:cubes {2 :cube-2}}}
-       :game/subphase :select-hex}
+   => :unselect
 
    (provided
     (me/gen-terrain :cube-1) => :terrain
-    (ce/reset-default unit) => (assoc unit :entity/presentation :default))))
+
+    (ce/reset-default unit) => (assoc unit :entity/presentation :default)
+
+    (unselect {:game/selected :cube-1
+               :game/battlefield {:cube-1 :terrain
+                                  :cube-2 {:unit/player 1
+                                           :unit/id 2
+                                           :entity/cube :cube-2
+                                           :unit/facing :n
+                                           :entity/presentation :default}}
+               :game/movement {:pointer pointer}
+               :game/units {1 {:cubes {2 :cube-2}}}})
+    => :unselect)))
 
 
 (facts
@@ -483,15 +490,170 @@
 
    (provided
     (mlm/show-march battlefield :cube-1)
-    => {:battlemap :battlemap-1
+    => {:battlemap {:cube-1 :battlemap-entry}
         :breadcrumbs :breadcrumbs-1}
+
+    (mlm/show-threats battlefield :cube-1)
+    => {}
 
     (move {:game/phase :movement
            :game/subphase :march
            :game/battlefield battlefield
            :game/selected :cube-1
-           :game/battlemap :battlemap-1
-           :game/movement {:battlemap :battlemap-1
-                           :breadcrumbs :breadcrumbs-1}}
+           :game/battlemap {:cube-1 :battlemap-entry}
+           :game/movement {:battlemap {:cube-1 :battlemap-entry}
+                           :breadcrumbs :breadcrumbs-1
+                           :march :unnecessary}}
+          pointer)
+    => :move))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)
+       state {:game/phase :movement
+              :game/subphase :march
+              :game/battlefield battlefield}]
+
+   (select state :cube-1)
+   => :move
+
+   (provided
+    (mlm/show-march battlefield :cube-1)
+    => {:battlemap {:cube-1 :battlemap-entry}
+        :breadcrumbs :breadcrumbs-1}
+
+    (mlm/show-threats battlefield :cube-1)
+    => {:cube-2 :threat-entry}
+
+    (move {:game/phase :movement
+           :game/subphase :march
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap {:cube-1 :battlemap-entry
+                            :cube-2 :threat-entry}
+           :game/movement {:battlemap {:cube-1 :battlemap-entry
+                                       :cube-2 :threat-entry}
+                           :breadcrumbs :breadcrumbs-1
+                           :march :required}}
+          pointer)
+    => :move))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n
+                             :unit/movement {:marched? true :passed? true}}}
+       pointer (mc/->Pointer :cube-1 :n)
+       state {:game/phase :movement
+              :game/subphase :march
+              :game/battlefield battlefield}]
+
+   (select state :cube-1)
+   => :move
+
+   (provided
+    (mlm/show-march battlefield :cube-1)
+    => {:battlemap {:cube-1 :battlemap-entry}
+        :breadcrumbs :breadcrumbs-1}
+
+    (mlm/show-threats battlefield :cube-1)
+    => {:cube-2 :threat-entry}
+
+    (move {:game/phase :movement
+           :game/subphase :march
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap {:cube-1 :battlemap-entry
+                            :cube-2 :threat-entry}
+           :game/movement {:battlemap {:cube-1 :battlemap-entry
+                                       :cube-2 :threat-entry}
+                           :breadcrumbs :breadcrumbs-1
+                           :march :passed}}
+          pointer)
+    => :move))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n
+                             :unit/movement {:marched? true
+                                             :passed? false}}}
+       pointer (mc/->Pointer :cube-1 :n)
+       state {:game/phase :movement
+              :game/subphase :march
+              :game/battlefield battlefield}]
+
+   (select state :cube-1)
+   => :move
+
+   (provided
+    (mlm/show-march battlefield :cube-1)
+    => {:battlemap {:cube-1 :battlemap-entry}
+        :breadcrumbs :breadcrumbs-1}
+
+    (mlm/show-threats battlefield :cube-1)
+    => {:cube-2 :threat-entry}
+
+    (move {:game/phase :movement
+           :game/subphase :march
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap {:cube-1 :battlemap-entry
+                            :cube-2 :threat-entry}
+           :game/movement {:battlemap {:cube-1 :battlemap-entry
+                                       :cube-2 :threat-entry}
+                           :breadcrumbs :breadcrumbs-1
+                           :march :failed}}
           pointer)
     => :move)))
+
+
+(facts
+ "test march!"
+
+ (test-march! {:game/selected :cube-1
+               :game/movement {:pointer :pointer-1}
+               :game/battlefield {:cube-1 {:unit/Ld 7}}})
+ => :move
+
+ (provided
+  (cd/roll! 2) => [2 3]
+
+  (unselect {:game/selected :cube-1
+             :game/movement {:pointer :pointer-1}
+             :game/battlefield {:cube-1 {:unit/Ld 7
+                                         :unit/movement {:marched? true
+                                                         :roll [2 3]
+                                                         :passed? true}}}})
+  => :unselect
+
+  (select :unselect :cube-1)
+  => :select
+
+  (movement-transition :select :march)
+  => :movement-transition
+
+  (move :movement-transition :pointer-1)
+  => :move)
+
+
+ (test-march! {:game/selected :cube-1
+               :game/movement {:pointer :pointer-1}
+               :game/battlefield {:cube-1 {:unit/Ld 7}}})
+ => :move
+
+ (provided
+  (cd/roll! 2) => [5 3]
+
+  (unselect {:game/selected :cube-1
+             :game/movement {:pointer :pointer-1}
+             :game/battlefield {:cube-1 {:unit/Ld 7
+                                         :unit/movement {:marched? true
+                                                         :roll [5 3]
+                                                         :passed? false}}}})
+  => :unselect
+
+  (select :unselect :cube-1)
+  => :select
+
+  (movement-transition :select :march)
+  => :movement-transition
+
+  (move :movement-transition :pointer-1)
+  => :move))

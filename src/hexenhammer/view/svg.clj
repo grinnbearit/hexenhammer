@@ -148,3 +148,19 @@
     [:text {:x x-offset :y y-offset
             :font-family "monospace" :font-size (str font-size) :fill "white"}
      text]))
+
+
+(defn dice
+  "Given a list of die in a roll, returns each die as a text glyph
+  wraps successes (at or above `threshold` in the 'passed' class
+  wraps failures (below `threshold` in the 'failed' class"
+  [roll threshold]
+  (let [die->glyph {1 "⚀" 2 "⚁" 3 "⚂" 4 "⚃" 5 "⚄" 6 "⚅"}]
+    (for [n roll]
+      (cond-> [:text {:class "dice"} (die->glyph n)]
+
+        (<= threshold n)
+        (add-classes ["passed"])
+
+        (< n threshold)
+        (add-classes ["failed"])))))

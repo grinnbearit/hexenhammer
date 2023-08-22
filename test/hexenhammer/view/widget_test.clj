@@ -1,8 +1,8 @@
-(ns hexenhammer.view.html-test
+(ns hexenhammer.view.widget-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.view.svg :as svg]
             [hexenhammer.view.entity :as entity]
-            [hexenhammer.view.html :refer :all]))
+            [hexenhammer.view.widget :refer :all]))
 
 
 (facts

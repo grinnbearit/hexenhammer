@@ -5,7 +5,8 @@
             [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
-            [hexenhammer.controller.movement :as cm]))
+            [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.dice :as cd]))
 
 
 (defmulti select (fn [state cube] [(:game/phase state) (:game/subphase state)]))
@@ -97,10 +98,7 @@
 (defn skip-movement
   [state]
   (-> (update-in state [:game/battlefield (:game/selected state)] ce/reset-default)
-      (dissoc :game/selected
-              :game/battlemap
-              :game/movement)
-      (assoc :game/subphase :select-hex)))
+      (unselect)))
 
 
 (defmulti move (fn [state pointer] [(:game/phase state) (:game/subphase state)]))
@@ -143,10 +141,7 @@
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
         (assoc-in [:game/units (:unit/player unit) :cubes (:unit/id unit)] (:cube pointer))
-        (dissoc :game/selected
-                :game/battlemap
-                :game/movement)
-        (assoc :game/subphase :select-hex))))
+        (unselect))))
 
 
 (defn movement-transition
@@ -204,11 +199,38 @@
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]}  (mlm/show-march (:game/battlefield state) cube)
-          pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
-      (-> (assoc state
-                 :game/selected cube
-                 :game/battlemap battlemap)
+          pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))
+          threats (mlm/show-threats (:game/battlefield state) cube)
+          threat-map (merge battlemap threats)
+          unit (get-in state [:game/battlefield cube])]
+
+      (-> (assoc-in state [:game/movement :march]
+                    (if (seq threats)
+                      (if (get-in unit [:unit/movement :marched?])
+                        (if (get-in unit [:unit/movement :passed?]) :passed :failed)
+                        :required)
+                      :unnecessary))
+
+          (assoc :game/selected cube
+                 :game/battlemap threat-map)
           (update :game/movement assoc
-                  :battlemap battlemap
+                  :battlemap threat-map
                   :breadcrumbs breadcrumbs)
+
           (move pointer)))))
+
+
+(defn test-march!
+  [state]
+  (let [cube (:game/selected state)
+        pointer (get-in state [:game/movement :pointer])
+        unit (get-in state [:game/battlefield cube])
+        roll (cd/roll! 2)]
+    (-> (assoc-in state [:game/battlefield cube :unit/movement]
+                  {:marched? true
+                   :roll roll
+                   :passed? (<= (apply + roll) (:unit/Ld unit))})
+        (unselect)
+        (select cube)
+        (movement-transition :march)
+        (move pointer))))
