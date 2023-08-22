@@ -1,6 +1,6 @@
 (ns hexenhammer.model.cube
   (:require [clojure.math.combinatorics :refer [permutations]]))
-;; inspired by https://www.redblobgames.com/grids/hexagons/
+;; inspired and sometimes directly copied from https://www.redblobgames.com/grids/hexagons/
 
 
 (defrecord Cube [q r s])
@@ -37,22 +37,12 @@
   (map (partial step cube) [:n :ne :se :s :sw :nw]))
 
 
-(defn neighbours-at
-  "Returns all cubes at a distance of `distance` from cube"
-  [cube distance]
-  (let [q distance]
-    (->> (for [r (map - (range q))
-               :let [s (- (+ q r))]]
-           [[q r s]
-            (map - [q r s])])
-         (apply concat)
-         (mapcat permutations)
-         (distinct)
-         (map (partial apply ->Cube))
-         (map (partial add cube)))))
-
-
 (defn neighbours-within
   "Returns all cubes within `distance` of cube"
   [cube distance]
-  (mapcat (partial neighbours-at cube) (range 1 (inc distance))))
+  (for [q (range (- distance) (inc distance))
+        r (range (max (- distance) (- (+ q distance)))
+                 (inc (min distance (- distance q))))
+        :let [s (- (+ q r))]
+        :when (not (and (zero? q) (zero? r) (zero? s)))]
+    (add cube (->Cube q r s))))
