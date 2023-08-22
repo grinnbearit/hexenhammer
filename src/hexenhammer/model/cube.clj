@@ -24,7 +24,7 @@
 
 
 (defn forward-arc
-  "Given a cube and a facing, teturns the 3 cubes making up the forward arc"
+  "Given a cube and a facing, returns the 3 cubes making up the forward arc"
   [cube facing]
   (let [facing->arc {:n [:nw :n :ne] :ne [:n :ne :se] :se [:ne :se :s]
                      :s [:se :s :sw] :sw [:s :sw :nw] :nw [:sw :nw :n]}]
@@ -46,3 +46,29 @@
         :let [s (- (+ q r))]
         :when (not (and (zero? q) (zero? r) (zero? s)))]
     (add cube (->Cube q r s))))
+
+
+(defn rotate
+  "Rotates a cube around the origin in 60° increments"
+  ([cube]
+   (let [{:keys [q r s]} cube]
+     (->Cube (- r) (- s) (- q))))
+  ([cube n]
+   (->> (iterate rotate cube)
+        (drop n)
+        (first))))
+
+
+(defn forward-cone
+  "Given a cube, a facing and a distance returns all the cubes in the forward cone
+  up to `distance` hexes away"
+  [cube facing distance]
+  (let [facing->turns (zipmap [:n :ne :se :s :sw :nw] (range 7))]
+    (for [d (range 1 (inc distance))
+          q (range (- d) (inc d))
+          :let [r (if (neg? q) (- (+ d q)) (- d))
+                s (- (+ q r))]]
+
+      (->> (facing->turns facing)
+           (rotate (->Cube q r s))
+           (add cube)))))
