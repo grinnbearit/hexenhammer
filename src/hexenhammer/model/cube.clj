@@ -72,3 +72,50 @@
       (->> (facing->turns facing)
            (rotate (->Cube q r s))
            (add cube)))))
+
+
+(defn distance
+  "Given two cubes, returns the number of hops on a hex grid to get from
+  one to the other"
+  [cx cy]
+  (/ (+ (abs (- (:q cx) (:q cy)))
+        (abs (- (:r cx) (:r cy)))
+        (abs (- (:s cx) (:s cy))))
+     2))
+
+
+(defn round
+  "Rounds a fractional cube to the closest valid whole cube"
+  [cube]
+  (let [q (Math/round (float (:q cube)))
+        r (Math/round (float (:r cube)))
+        s (Math/round (float (:s cube)))
+        q-delta (abs (- q (:q cube)))
+        r-delta (abs (- r (:r cube)))
+        s-delta (abs (- s (:s cube)))]
+
+    (cond (and (> q-delta r-delta)
+               (> q-delta s-delta))
+          (->Cube (- (+ r s)) r s)
+
+          (> r-delta s-delta)
+          (->Cube q (- (+ q s)) s)
+
+          :else
+          (->Cube q r (- (+ q r))))))
+
+
+(defn cubes-between
+  "Given two cubes, returns all cubes intersected by a line drawn
+  connecting the centres of each"
+  [cx cy]
+  (let [cuts (inc (distance cx cy))
+        delta (->Cube (/ (- (:q cy) (:q cx)) cuts)
+                      (/ (- (:r cy) (:r cx)) cuts)
+                      (/ (- (:s cy) (:s cx)) cuts))]
+
+    (->> (iterate #(add delta %) cx)
+         (drop 1)
+         (take (dec cuts))
+         (map round)
+         (distinct))))

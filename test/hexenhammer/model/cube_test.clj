@@ -105,3 +105,34 @@
  => [(->Cube 0 -1 1)
      (->Cube 1 -2 1)
      (->Cube 2 -2 0)])
+
+
+(facts
+ "distance"
+
+ (distance (->Cube 0 0 0) (->Cube 0 0 0)) => 0
+ (distance (->Cube 0 0 0) (->Cube 1 -1 0)) => 1
+ (distance (->Cube 0 0 0) (->Cube 0 2 -2)) => 2)
+
+
+(facts
+ "round"
+
+ (round (->Cube 0 0 0)) => (->Cube 0 0 0)
+
+ (round (->Cube 1/2 -1/4 -1/4)) => (->Cube 0 0 0)
+
+ (round (->Cube -1/4 1/2 -1/4)) => (->Cube 0 0 0)
+
+ (round (->Cube -1/4 -1/4 1/2)) => (->Cube 0 0 0))
+
+
+(facts
+ "cubes between"
+
+ (cubes-between (->Cube 0 1 -1) (->Cube 0 -1 1)) => [(->Cube 0 0 0)]
+
+ (cubes-between (->Cube 1 1 -2) (->Cube -1 -1 2))
+ => [(->Cube 1 0 -1)
+     (->Cube 0 0 0)
+     (->Cube -1 0 1)])
