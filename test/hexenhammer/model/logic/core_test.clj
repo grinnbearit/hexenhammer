@@ -124,3 +124,76 @@
   (mle/unit? :unit-2) => true
 
   (engaged? :unit-1 :unit-2) => true))
+
+
+(facts
+ "battlefield visible?"
+
+ (battlefield-visible? :battlefield :cube-1 :cube-2)
+ => true
+
+ (provided
+  (cube/cubes-between :cube-1 :cube-2) => [])
+
+
+ (battlefield-visible? :battlefield :cube-1 :cube-2)
+ => false
+
+ (provided
+  (cube/cubes-between :cube-1 :cube-2) => [:cube-1])
+
+
+ (battlefield-visible? {:cube-3 :unit-1} :cube-1 :cube-2)
+ => false
+
+ (provided
+  (cube/cubes-between :cube-1 :cube-2) => [:cube-3]
+  (mle/terrain? :unit-1) => false)
+
+
+ (battlefield-visible? {:cube-3 :terrain-1} :cube-1 :cube-2)
+ => true
+
+ (provided
+  (cube/cubes-between :cube-1 :cube-2) => [:cube-3]
+  (mle/terrain? :terrain-1) => true))
+
+
+(facts
+ "field of view"
+
+ (field-of-view {:cube-1 {:unit/facing :n}} :cube-1)
+ => []
+
+ (provided
+  (cube/forward-slice :cube-1 :n 1) => [])
+
+
+ (field-of-view {:cube-1 {:unit/facing :n}} :cube-1)
+ => []
+
+ (provided
+  (cube/forward-slice :cube-1 :n 1) => [:cube-2])
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}
+                    :cube-2 :entity-1}]
+
+   (field-of-view battlefield :cube-1)
+   => []
+
+   (provided
+    (cube/forward-slice :cube-1 :n 1) => [:cube-2]
+    (battlefield-visible? battlefield :cube-1 :cube-2) => false))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}
+                    :cube-2 :entity-1}]
+
+   (field-of-view battlefield :cube-1)
+   => [:cube-2]
+
+   (provided
+    (cube/forward-slice :cube-1 :n 1) => [:cube-2]
+    (battlefield-visible? battlefield :cube-1 :cube-2) => true
+    (cube/forward-slice :cube-1 :n 2) => [])))

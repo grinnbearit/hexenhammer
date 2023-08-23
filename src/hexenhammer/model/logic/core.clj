@@ -32,3 +32,27 @@
                           (engaged? unit entity))]
            entity)
          ((comp boolean seq)))))
+
+
+(defn battlefield-visible?
+  "Returns true if every cube between cx and cy is terrain"
+  [battlefield cx cy]
+  (->> (cube/cubes-between cx cy)
+       (map battlefield)
+       (remove mle/terrain?)
+       (empty?)))
+
+
+(defn field-of-view
+  "Returns the list of cubes in the unit's forward cone, visible to it"
+  [battlefield cube]
+  (let [unit (battlefield cube)]
+    (letfn [(reducer [acc d]
+              (let [slice (->> (cube/forward-slice cube (:unit/facing unit) d)
+                               (filter #(and (contains? battlefield %)
+                                             (battlefield-visible? battlefield cube %))))]
+                (if (empty? slice)
+                  (reduced acc)
+                  (concat acc slice))))]
+
+      (reduce reducer [] (drop 1 (range))))))
