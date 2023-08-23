@@ -59,14 +59,13 @@
         (first))))
 
 
-(defn forward-cone
-  "Given a cube, a facing and a distance returns all the cubes in the forward cone
-  up to `distance` hexes away"
+(defn forward-slice
+  "Given a cube, a facing and a distance returns all the cubes in the forward arc at
+  `distance` hexes away"
   [cube facing distance]
   (let [facing->turns (zipmap [:n :ne :se :s :sw :nw] (range 7))]
-    (for [d (range 1 (inc distance))
-          q (range (- d) (inc d))
-          :let [r (if (neg? q) (- (+ d q)) (- d))
+    (for [q (range (- distance) (inc distance))
+          :let [r (if (neg? q) (- (+ distance q)) (- distance))
                 s (- (+ q r))]]
 
       (->> (facing->turns facing)

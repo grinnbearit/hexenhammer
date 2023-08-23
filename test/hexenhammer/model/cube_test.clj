@@ -72,36 +72,33 @@
 
 
 (facts
- "forward cone"
+ "forward slice"
 
- (forward-cone (->Cube 0 0 0) :n 0)
- => []
+ (forward-slice (->Cube 0 0 0) :n 0)
+ => [(->Cube 0 0 0)]
 
 
- (forward-cone (->Cube 0 0 0) :n 1)
+ (forward-slice (->Cube 0 0 0) :n 1)
  => [(->Cube -1 0 1)
      (->Cube 0 -1 1)
      (->Cube 1 -1 0)]
 
 
- (forward-cone (->Cube 0 0 0) :n 2)
- => [(->Cube -1 0 1)
-     (->Cube 0 -1 1)
-     (->Cube 1 -1 0)
-     (->Cube -2 0 2)
+ (forward-slice (->Cube 0 0 0) :n 2)
+ => [(->Cube -2 0 2)
      (->Cube -1 -1 2)
      (->Cube 0 -2 2)
      (->Cube 1 -2 1)
      (->Cube 2 -2 0)]
 
 
- (forward-cone (->Cube 0 0 0) :ne 1)
+ (forward-slice (->Cube 0 0 0) :ne 1)
  => [(->Cube 0 -1 1)
      (->Cube 1 -1 0)
      (->Cube 1 0 -1)]
 
 
- (forward-cone (->Cube 1 -1 0) :n 1)
+ (forward-slice (->Cube 1 -1 0) :n 1)
  => [(->Cube 0 -1 1)
      (->Cube 1 -2 1)
      (->Cube 2 -2 0)])
