@@ -43,7 +43,7 @@
         M (Integer/parseInt M)
         Ld (Integer/parseInt Ld)]
     (swap! hexenhammer-state controller/add-unit player facing
-           :M M :Ld Ld)))
+           {:M M :Ld Ld})))
 
 
 (defroutes home-handler

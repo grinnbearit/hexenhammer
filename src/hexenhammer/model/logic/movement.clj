@@ -171,7 +171,7 @@
 (defn remove-unit
   "Returns a new battlefield with the unit at cube removed"
   [battlefield cube]
-  (let [terrain (me/gen-terrain cube)]
+  (let [terrain (me/gen-open-ground cube)]
     (assoc battlefield cube terrain)))
 
 

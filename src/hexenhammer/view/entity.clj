@@ -11,36 +11,53 @@
   (cond-> (-> (svg/hexagon)
               (svg/add-classes ["terrain"]))
 
-    (:entity/presentation terrain)
-    (svg/add-classes [(name (:entity/presentation terrain))])))
+    (= :selectable (:entity/state terrain))
+    (svg/add-classes ["selectable"])
+
+    (= :selected (:entity/state terrain))
+    (svg/add-classes ["selected"])))
+
+
+(defn render-floor
+  "Given an object on terrain, renders the terrain it is placed on
+  with its :entity/state"
+  [object]
+  (-> (merge (:object/terrain object)
+             (select-keys object [:entity/state]))
+      (render-terrain)))
+
+
+(defn if-selectable
+  "Depending on the state, adds a selectable wrapper"
+  [element entity]
+  (cond-> element
+
+    (#{:selectable :silent-selectable :selected} (:entity/state entity))
+    (svg/selectable (:entity/cube entity))))
 
 
 (defmethod render :terrain
   [terrain]
-  (cond-> (-> (render-terrain terrain)
-              (svg/translate (:entity/cube terrain)))
-
-    (= :selectable (:entity/interaction terrain))
-    (svg/selectable (:entity/cube terrain))))
+  (-> (render-terrain terrain)
+      (svg/translate (:entity/cube terrain))
+      (if-selectable terrain)))
 
 
 (defmethod render :unit
   [unit]
   (let [int->roman ["0" "i" "ii" "iii" "iv" "v" "vi" "vii" "viii" "ix" "x"]]
-    (cond-> (-> [:g {}
-                 (render-terrain unit)
-                 (-> [:g {}
-                      (-> (svg/hexagon)
-                          (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
-                      (svg/chevron (:unit/facing unit))
-                      (svg/text (:entity/name unit) -1)
-                      (svg/text (int->roman (:unit/id unit)) 2)]
-                     (svg/scale 9/10))]
+    (-> [:g {}
+         (render-floor unit)
+         (-> [:g {}
+              (-> (svg/hexagon)
+                  (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
+              (svg/chevron (:unit/facing unit))
+              (svg/text (:entity/name unit) -1)
+              (svg/text (int->roman (:unit/id unit)) 2)]
+             (svg/scale 9/10))]
 
-                (svg/translate (:entity/cube unit)))
-
-      (= :selectable (:entity/interaction unit))
-      (svg/selectable (:entity/cube unit)))))
+        (svg/translate (:entity/cube unit))
+        (if-selectable unit))))
 
 
 (defmethod render :mover

@@ -7,9 +7,9 @@
   (css
    [:polygon
     [:&.terrain {:fill (PALETTE "dark green 1") :stroke "black"}
+     [:&.selectable {:stroke "orange"}]
      [:&.selected {:stroke "yellow"}]
-     [:&.marked {:stroke "white"}]
-     [:&.highlighted {:stroke "orange"}]]
+     [:&.marked {:stroke "white"}]]
     [:&.unit
      [:&.player-1 {:fill (PALETTE "dark red berry 2") :stroke "black"}]
      [:&.player-2 {:fill (PALETTE "dark cornflower blue 2") :stroke "black"}]]

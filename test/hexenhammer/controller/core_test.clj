@@ -3,6 +3,7 @@
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
+            [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
@@ -16,29 +17,23 @@
 
  (select {:game/phase :setup
           :game/subphase :select-hex
-          :game/battlefield {:cube-1 {:entity/class :terrain
-                                      :entity/presentation :default
-                                      :entity/interaction :interaction-1}}}
+          :game/battlefield {:cube-1 {:entity/class :terrain}}}
          :cube-1)
  => {:game/phase :setup
      :game/subphase :add-unit
      :game/selected :cube-1
      :game/battlefield {:cube-1 {:entity/class :terrain
-                                 :entity/presentation :selected
-                                 :entity/interaction :interaction-1}}}
+                                 :entity/state :selected}}}
 
  (select {:game/phase :setup
           :game/subphase :select-hex
-          :game/battlefield {:cube-1 {:entity/class :unit
-                                      :entity/presentation :default
-                                      :entity/interaction :interaction-1}}}
+          :game/battlefield {:cube-1 {:entity/class :unit}}}
          :cube-1)
  => {:game/phase :setup
      :game/subphase :remove-unit
      :game/selected :cube-1
      :game/battlefield {:cube-1 {:entity/class :unit
-                                 :entity/presentation :selected
-                                 :entity/interaction :interaction-1}}})
+                                 :entity/state :selected}}})
 
 
 (facts
@@ -46,10 +41,10 @@
 
  (unselect {:game/phase :setup
             :game/selected :cube-1
-            :game/battlefield {:cube-1 {:entity/presentation :selected}}})
+            :game/battlefield {:cube-1 {:entity/state :selected}}})
  => {:game/phase :setup
      :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/presentation :default}}})
+     :game/battlefield {:cube-1 {:entity/state :silent-selectable}}})
 
 
 (facts
@@ -58,26 +53,25 @@
  (select {:game/phase :setup
           :game/subphase :add-unit
           :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/presentation :selected}}}
+          :game/battlefield {:cube-1 {:entity/state :selected}}}
          :cube-1)
  => {:game/phase :setup
      :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/presentation :default}}}
+     :game/battlefield {:cube-1 {:entity/state :silent-selectable}}}
 
 
  (select {:game/phase :setup
           :game/subphase :add-unit
           :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/presentation :selected}
-                             :cube-2 {:entity/class :terrain
-                                      :entity/presentation :default}}}
+          :game/battlefield {:cube-1 {:entity/state :selected}
+                             :cube-2 {:entity/class :terrain}}}
          :cube-2)
  => {:game/phase :setup
      :game/subphase :add-unit
      :game/selected :cube-2
-     :game/battlefield {:cube-1 {:entity/presentation :default}
+     :game/battlefield {:cube-1 {:entity/state :silent-selectable}
                         :cube-2 {:entity/class :terrain
-                                 :entity/presentation :selected}}})
+                                 :entity/state :selected}}})
 
 
 (facts
@@ -86,67 +80,71 @@
  (select {:game/phase :setup
           :game/subphase :remove-unit
           :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/presentation :selected}}}
+          :game/battlefield {:cube-1 {:entity/state :selected}}}
          :cube-1)
  => {:game/phase :setup
      :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/presentation :default}}}
+     :game/battlefield {:cube-1 {:entity/state :silent-selectable}}}
 
 
  (select {:game/phase :setup
           :game/subphase :remove-unit
           :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/presentation :selected}
-                             :cube-2 {:entity/class :terrain
-                                      :entity/presentation :default}}}
+          :game/battlefield {:cube-1 {:entity/state :selected}
+                             :cube-2 {:entity/class :terrain}}}
          :cube-2)
  => {:game/phase :setup
      :game/subphase :add-unit
      :game/selected :cube-2
-     :game/battlefield {:cube-1 {:entity/presentation :default}
+     :game/battlefield {:cube-1 {:entity/state :silent-selectable}
                         :cube-2 {:entity/class :terrain
-                                 :entity/presentation :selected}}})
+                                 :entity/state :selected}}})
 
 
 (facts
  "add unit"
 
- (add-unit {:game/phase :setup
-            :game/selected :cube-1
+ (add-unit {:game/selected :cube-1
             :game/battlefield {:cube-1 :terrain-1}
             :game/units {1 {:counter 0 :cubes {}}}}
            1
            :facing-1
-           :M 3
-           :Ld 7)
- => {:game/phase :setup
-     :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/class :unit
-                                 :entity/presentation :default}}
-     :game/units {1 {:counter 1 :cubes {1 :cube-1}}}}
+           {:M 3 :Ld 7})
+ => :unselect
 
  (provided
-  (me/gen-unit :cube-1 1 1 :facing-1 :interaction :selectable :M 3 :Ld 7)
-  => {:entity/class :unit}))
+  (me/gen-unit :cube-1 1 1 :facing-1 :M 3 :Ld 7)
+  => {:entity/class :unit}
+
+  (mle/onto-terrain {:entity/class :unit
+                     :entity/state :selectable}
+                    :terrain-1)
+  => :onto-terrain
+
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 :onto-terrain}
+             :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
+  => :unselect))
 
 
 (facts
  "remove unit"
 
- (remove-unit {:game/phase :setup
-               :game/selected :cube-1
+ (remove-unit {:game/selected :cube-1
                :game/battlefield {:cube-1 {:unit/player 1
-                                           :unit/id 1}}
+                                           :unit/id 1
+                                           :object/terrain {:entity/class :terrain}}}
                :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
- => {:game/phase :setup
-     :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/class :terrain
-                                 :entity/presentation :default}}
-     :game/units {1 {:counter 1 :cubes {}}}}
+ => :unselect
+
+
 
  (provided
-  (me/gen-terrain :cube-1 :interaction :selectable)
-  => {:entity/class :terrain}))
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 {:entity/class :terrain
+                                         :entity/state :selectable}}
+             :game/units {1 {:counter 1 :cubes {}}}})
+  => :unselect))
 
 
 (facts

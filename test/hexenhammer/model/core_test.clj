@@ -38,10 +38,10 @@
      :game/columns 4
      :game/units {1 {:counter 0 :cubes {}}
                   2 {:counter 0 :cubes {}}}
-     :game/battlefield {:cube-1 :entity-1
-                        :cube-2 :entity-2}}
+     :game/battlefield {:cube-1 {:entity/state :silent-selectable}
+                        :cube-2 {:entity/state :silent-selectable}}}
 
  (provided
   (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]
-  (entity/gen-terrain :cube-1 :interaction :selectable) => :entity-1
-  (entity/gen-terrain :cube-2 :interaction :selectable) => :entity-2))
+  (entity/gen-open-ground :cube-1) => {}
+  (entity/gen-open-ground :cube-2) => {}))

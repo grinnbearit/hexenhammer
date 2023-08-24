@@ -27,5 +27,6 @@
    :game/units {1 {:counter 0 :cubes {}}
                 2 {:counter 0 :cubes {}}}
    :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
-                            [cube (entity/gen-terrain cube :interaction :selectable)])
+                            [cube (assoc (entity/gen-open-ground cube)
+                                         :entity/state :silent-selectable)])
                           (into {}))})

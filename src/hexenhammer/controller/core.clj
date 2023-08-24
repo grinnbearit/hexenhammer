@@ -2,6 +2,7 @@
   (:require [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
+            [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
@@ -19,7 +20,7 @@
 
     (-> (assoc state :game/subphase to-subphase)
         (assoc :game/selected cube)
-        (assoc-in [:game/battlefield cube :entity/presentation] :selected))))
+        (assoc-in [:game/battlefield cube :entity/state] :selected))))
 
 
 (defmulti unselect (fn [state] (:game/phase state)))
@@ -28,7 +29,7 @@
 (defmethod unselect :setup
   [state]
   (-> (assoc state :game/subphase :select-hex)
-      (assoc-in [:game/battlefield (:game/selected state) :entity/presentation] :default)
+      (assoc-in [:game/battlefield (:game/selected state) :entity/state] :silent-selectable)
       (dissoc :game/selected)))
 
 
@@ -49,11 +50,13 @@
 
 
 (defn add-unit
-  [state player facing & {:keys [M Ld]}]
+  [state player facing {:keys [M Ld]}]
   (let [cube (:game/selected state)
+        terrain (get-in state [:game/battlefield cube])
         id (inc (get-in state [:game/units player :counter]))
-        unit (me/gen-unit cube player id facing :interaction :selectable
-                          :M M :Ld Ld)]
+        unit (-> (me/gen-unit cube player id facing :M M :Ld Ld)
+                 (assoc :entity/state :selectable)
+                 (mle/onto-terrain terrain))]
     (-> (assoc-in state [:game/battlefield cube] unit)
         (assoc-in [:game/units player :cubes id] cube)
         (assoc-in [:game/units player :counter] id)
@@ -63,8 +66,9 @@
 (defn remove-unit
   [state]
   (let [cube (:game/selected state)
-        terrain (me/gen-terrain cube :interaction :selectable)
-        unit (get-in state [:game/battlefield cube])]
+        unit (get-in state [:game/battlefield cube])
+        terrain (-> (:object/terrain unit)
+                    (assoc :entity/state :selectable))]
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
         (unselect))))
@@ -134,7 +138,7 @@
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
         pointer (get-in state [:game/movement :pointer])
-        terrain (me/gen-terrain cube)
+        terrain (me/gen-open-ground cube)
         updated-unit (-> (ce/reset-default unit)
                          (assoc :entity/cube (:cube pointer)
                                 :unit/facing (:facing pointer)))]

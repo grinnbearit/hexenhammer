@@ -15,136 +15,109 @@
 
 
  (render-terrain {:entity/class :terrain
-                  :entity/presentation :presentation})
- => [:hexagon {:class "terrain presentation"}]
+                  :entity/state :selectable})
+ => [:hexagon {:class "terrain selectable"}]
+
+ (provided
+  (svg/hexagon) => [:hexagon {}])
+
+
+ (render-terrain {:entity/class :terrain
+                  :entity/state :selected})
+ => [:hexagon {:class "terrain selected"}]
 
  (provided
   (svg/hexagon) => [:hexagon {}]))
 
 
 (facts
+ "render terrain under object"
+
+ (render-floor {:object/terrain {:entity/class :terrain}
+                :entity/state :selected})
+ => :render-terrain
+
+ (provided
+  (render-terrain {:entity/class :terrain
+                   :entity/state :selected})
+  => :render-terrain))
+
+
+(facts
+ "add cond selectable"
+
+ (let [entity {:entity/name "entity"}]
+
+   (if-selectable :element entity) => :element)
+
+
+ (for [entity-state [:selectable :silent-selectable :selected]]
+
+   (let [entity {:entity/name "entity"
+                 :entity/state entity-state
+                 :entity/cube :cube-1}]
+
+     (if-selectable :element entity) => :selectable
+
+     (provided
+      (svg/selectable :element :cube-1) => :selectable))))
+
+
+(facts
  "render terrain"
 
- (render {:entity/class :terrain
-          :entity/cube :cube-1})
- => [:terrain {:translate :cube-1}]
+ (let [entity {:entity/class :terrain
+               :entity/cube :cube-1}]
 
- (provided
-  (render-terrain {:entity/class :terrain
-                   :entity/cube :cube-1})
-  => [:terrain {}]
+   (render entity) => :if-selectable
 
-  (svg/translate [:terrain {}] :cube-1)
-  => [:terrain {:translate :cube-1}])
+   (provided
+    (render-terrain entity) => [:terrain {}]
 
+    (svg/translate [:terrain {}] :cube-1) => :translate
 
- (render {:entity/class :terrain
-          :entity/cube :cube-1
-          :entity/interaction :selectable})
-
- => [:terrain {:translate :cube-1 :selectable :cube-1}]
-
- (provided
-  (render-terrain {:entity/class :terrain
-                   :entity/cube :cube-1
-                   :entity/interaction :selectable})
-  => [:terrain {}]
-
-  (svg/translate [:terrain {}] :cube-1)
-  => [:terrain {:translate :cube-1}]
-
-  (svg/selectable [:terrain {:translate :cube-1}] :cube-1)
-  => [:terrain {:translate :cube-1 :selectable :cube-1}]))
+    (if-selectable :translate entity) => :if-selectable)))
 
 
 (facts
  "render unit"
 
- (render {:entity/class :unit
-          :entity/cube :cube-1
-          :unit/facing :facing-1
-          :entity/name "unit"
-          :unit/id 1
-          :unit/player 1})
+ (let [unit {:entity/class :unit
+             :entity/cube :cube-1
+             :entity/name "unit"
 
- => [:transform :element-2 :cube-1]
+             :unit/facing :facing-1
+             :unit/id 1
+             :unit/player 1}]
 
- (provided
-  (render-terrain {:entity/class :unit
-                   :entity/cube :cube-1
-                   :entity/name "unit"
-                   :unit/facing :facing-1
-                   :unit/id 1
-                   :unit/player 1})
-  => :terrain-1
+   (render unit) => :if-selectable
 
-  (svg/hexagon) => [:hexagon {}]
+   (provided
+    (render-floor unit) => :terrain-1
 
-  (svg/chevron :facing-1) => [:chevron :facing-1]
+    (svg/hexagon) => [:hexagon {}]
 
-  (svg/text "unit" -1) => [:text "unit" -1]
+    (svg/chevron :facing-1) => [:chevron :facing-1]
 
-  (svg/text "i" 2) => [:text "i" 2]
+    (svg/text "unit" -1) => [:text "unit" -1]
 
-  (svg/scale [:g {}
-              [:hexagon {:class "unit player-1"}]
-              [:chevron :facing-1]
-              [:text "unit" -1]
-              [:text "i" 2]]
-             9/10)
-  => [:scale :element-1 9/10]
+    (svg/text "i" 2) => [:text "i" 2]
 
-  (svg/translate [:g {}
-                  :terrain-1
-                  [:scale :element-1 9/10]]
-                 :cube-1)
-  => [:transform :element-2 :cube-1])
+    (svg/scale [:g {}
+                [:hexagon {:class "unit player-1"}]
+                [:chevron :facing-1]
+                [:text "unit" -1]
+                [:text "i" 2]]
+               9/10)
+    => :scale
 
+    (svg/translate [:g {}
+                    :terrain-1
+                    :scale]
+                   :cube-1)
+    => :translate
 
- (render {:entity/class :unit
-          :entity/cube :cube-1
-          :unit/facing :facing-1
-          :entity/name "unit"
-          :unit/id 1
-          :unit/player 1
-          :entity/interaction :selectable})
-
- => [:selectable :element-3 :cube-1]
-
- (provided
-  (render-terrain {:entity/class :unit
-                   :entity/cube :cube-1
-                   :unit/facing :facing-1
-                   :entity/name "unit"
-                   :unit/id 1
-                   :unit/player 1
-                   :entity/interaction :selectable})
-  => :terrain-1
-
-  (svg/hexagon) => [:hexagon {}]
-
-  (svg/chevron :facing-1) => [:chevron :facing-1]
-
-  (svg/text "unit" -1) => [:text "unit" -1]
-
-  (svg/text "i" 2) => [:text "i" 2]
-
-  (svg/scale [:g {}
-              [:hexagon {:class "unit player-1"}]
-              [:chevron :facing-1]
-              [:text "unit" -1]
-              [:text "i" 2]]
-             9/10)
-  => [:scale :element-1 9/10]
-
-  (svg/translate [:g {}
-                  :terrain-1
-                  [:scale :element-1 9/10]]
-                 :cube-1)
-  => [:translate :element-2 :cube-1]
-
-  (svg/selectable [:translate :element-2 :cube-1] :cube-1)
-  => [:selectable :element-3 :cube-1]))
+    (if-selectable :translate unit) => :if-selectable)))
 
 
 (facts
