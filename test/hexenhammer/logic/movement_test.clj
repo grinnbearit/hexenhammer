@@ -414,7 +414,7 @@
  (let [battlefield {:cube-2 {} :cube-3 {}}]
 
    (show-threats battlefield :cube-1)
-   => {:cube-2 {:entity/presentation :marked}}
+   => {:cube-2 {:entity/state :marked}}
 
    (provided
     (list-threats battlefield :cube-1)

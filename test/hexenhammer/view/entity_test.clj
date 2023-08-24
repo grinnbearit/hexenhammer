@@ -7,7 +7,7 @@
 (facts
  "render-terrain"
 
- (render-terrain {})
+ (render-terrain {:entity/class :default})
  => [:hexagon {:class "terrain"}]
 
  (provided
@@ -27,6 +27,14 @@
  => [:hexagon {:class "terrain selected"}]
 
  (provided
+  (svg/hexagon) => [:hexagon {}])
+
+
+ (render-terrain {:entity/class :terrain
+                  :entity/state :marked})
+ => [:hexagon {:class "terrain marked"}]
+
+ (provided
   (svg/hexagon) => [:hexagon {}]))
 
 
@@ -44,7 +52,7 @@
 
 
 (facts
- "add cond selectable"
+ "if selectable"
 
  (let [entity {:entity/name "entity"}]
 

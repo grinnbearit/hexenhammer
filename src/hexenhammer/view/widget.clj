@@ -9,7 +9,7 @@
 (defn entity->z
   "Returns the z index value for the passed entity depending on the presentation status"
   [entity]
-  (let [presentation->rank {:default 0 :selectable 1 :selected 2}]
+  (let [presentation->rank {:default 0 :selectable 1 :marked 2 :selected 3}]
     (-> (:entity/state entity)
         (presentation->rank))))
 

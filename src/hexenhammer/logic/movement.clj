@@ -244,5 +244,5 @@
   "Returns a battlemap of cubes that 'threaten' this unit on the battlefield"
   [battlefield cube]
   (->> (for [threat (list-threats battlefield cube)]
-         [threat (assoc (battlefield threat) :entity/presentation :marked)])
+         [threat (assoc (battlefield threat) :entity/state :marked)])
        (into {})))

@@ -15,7 +15,10 @@
     (svg/add-classes ["selectable"])
 
     (= :selected (:entity/state terrain))
-    (svg/add-classes ["selected"])))
+    (svg/add-classes ["selected"])
+
+    (= :marked (:entity/state terrain))
+    (svg/add-classes ["marked"])))
 
 
 (defn render-floor

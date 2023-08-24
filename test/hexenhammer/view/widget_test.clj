@@ -10,7 +10,8 @@
 
  (entity->z {:entity/state :default}) => 0
  (entity->z {:entity/state :selectable}) => 1
- (entity->z {:entity/state :selected}) => 2)
+ (entity->z {:entity/state :marked}) => 2
+ (entity->z {:entity/state :selected}) => 3)
 
 
 (facts
