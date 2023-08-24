@@ -1,6 +1,7 @@
 (ns hexenhammer.model.logic.movement
   (:require [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.model.logic.entity :as mle]
+            [hexenhammer.model.logic.terrain :as mlt]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.cube :as mc]
             [clojure.set :as set]))
@@ -30,7 +31,9 @@
   "Given a cube, returns a battlemap with the set of allowed facings"
   [battlefield cube]
   (let [unit (battlefield cube)]
-    {cube (me/gen-mover cube (:unit/player unit) :options (reform-facings battlefield cube))}))
+    {cube (-> (me/gen-mover cube (:unit/player unit)
+                            :options (reform-facings battlefield cube))
+              (mlt/swap unit))}))
 
 
 (defn forward-step
@@ -115,7 +118,8 @@
                 mover-acc)))]
 
     (->> (for [[cube options] (reduce reducer {} (apply concat paths))]
-           [cube (me/gen-mover cube player :options options)])
+           [cube (-> (me/gen-mover cube player :options options)
+                     (mlt/swap (battlefield cube)))])
          (into {}))))
 
 
@@ -145,16 +149,18 @@
 (defn paths->breadcrumbs
   "combines all compressed maps for all paths into a single breadcrumbs object
   pointer -> battlemap"
-  [player mover-map paths]
+  [battlefield player mover-map paths]
   (letfn [(pointer->breadcrumb [pointer]
-            [(:cube pointer)
-             (if-let [mover (mover-map (:cube pointer))]
-               (assoc mover
-                      :mover/highlighted (:facing pointer)
-                      :mover/state :past)
-               (me/gen-mover (:cube pointer) player
-                             :highlighted (:facing pointer)
-                             :state :past))])]
+            (let [cube (:cube pointer)]
+              [cube
+               (if-let [mover (mover-map cube)]
+                 (assoc mover
+                        :mover/highlighted (:facing pointer)
+                        :mover/state :past)
+                 (-> (me/gen-mover (:cube pointer) player
+                                   :highlighted (:facing pointer)
+                                   :state :past)
+                     (mlt/swap (battlefield cube))))]))]
 
     (->> (for [[pointer path] (->> (map path->compressed-map paths)
                                    (apply merge))]
@@ -171,8 +177,8 @@
 (defn remove-unit
   "Returns a new battlefield with the unit at cube removed"
   [battlefield cube]
-  (let [terrain (me/gen-open-ground cube)]
-    (assoc battlefield cube terrain)))
+  (let [unit (battlefield cube)]
+    (assoc battlefield cube (mlt/pickup unit))))
 
 
 (defn show-moves
@@ -185,7 +191,7 @@
         start (mc/->Pointer cube (:unit/facing unit))
         paths (path-fn new-battlefield start hexes)
         battlemap (paths->battlemap new-battlefield (:unit/player unit) paths)
-        breadcrumbs (paths->breadcrumbs (:unit/player unit) battlemap paths)]
+        breadcrumbs (paths->breadcrumbs new-battlefield (:unit/player unit) battlemap paths)]
     {:battlemap battlemap
      :breadcrumbs breadcrumbs}))
 

@@ -1,5 +1,6 @@
 (ns hexenhammer.model.logic.entity-test
-  (:require [midje.sweet :refer :all]))
+  (:require [midje.sweet :refer :all]
+            [hexenhammer.model.logic.entity :refer :all]))
 
 
 (facts
@@ -12,5 +13,5 @@
 (facts
  "terrain?"
 
- (unit? {:entity/class :terrain}) => false
- (unit? {:entity/class :unit}) => true)
+ (terrain? {:entity/class :unit}) => false
+ (terrain? {:entity/class :terrain}) => true)

@@ -2,6 +2,7 @@
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.model.logic.entity :as mle]
+            [hexenhammer.model.logic.terrain :as mlt]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.movement :refer :all]))
@@ -46,16 +47,20 @@
 (facts
  "show reform"
 
- (let [battlefield {:cube-1 {:unit/player 1 :unit/facing :n}}]
+ (let [unit {:unit/player 1 :unit/facing :n}
+       battlefield {:cube-1 unit}]
 
    (show-reform battlefield :cube-1)
-   => {:cube-1 :mover-1}
+   => {:cube-1 :swap-1}
 
    (provided
     (reform-facings battlefield :cube-1) => :facings-1
 
     (me/gen-mover :cube-1 1 :options :facings-1)
-    => :mover-1)))
+    => :mover-1
+
+    (mlt/swap :mover-1 unit)
+    => :swap-1)))
 
 
 (facts
@@ -166,29 +171,35 @@
 (facts
  "paths -> battlemap"
 
- (paths->battlemap {} 1 [[{:cube :cube-1 :facing :n}]
-                         [{:cube :cube-1 :facing :n}
-                          {:cube :cube-1 :facing :ne}
-                          {:cube :cube-2 :facing :ne}
-                          {:cube :cube-2 :facing :n}]])
- => {:cube-1 :mover-1
-     :cube-2 :mover-2}
+ (paths->battlemap {:cube-1 :entity-1
+                    :cube-2 :entity-2}
+                   1
+                   [[{:cube :cube-1 :facing :n}]
+                    [{:cube :cube-1 :facing :n}
+                     {:cube :cube-1 :facing :ne}
+                     {:cube :cube-2 :facing :ne}
+                     {:cube :cube-2 :facing :n}]])
+ => {:cube-1 :swap-1
+     :cube-2 :swap-2}
 
  (provided
   (pointer->shadow 1 {:cube :cube-1 :facing :n}) => :shadow-1
-  (mlc/battlefield-engaged? {:cube-1 :shadow-1} :cube-1) => false
+  (mlc/battlefield-engaged? {:cube-1 :shadow-1 :cube-2 :entity-2} :cube-1) => false
 
   (pointer->shadow 1 {:cube :cube-1 :facing :ne}) => :shadow-2
-  (mlc/battlefield-engaged? {:cube-1 :shadow-2} :cube-1) => false
+  (mlc/battlefield-engaged? {:cube-1 :shadow-2 :cube-2 :entity-2} :cube-1) => false
 
   (pointer->shadow 1 {:cube :cube-2 :facing :ne}) => :shadow-3
-  (mlc/battlefield-engaged? {:cube-2 :shadow-3} :cube-2) => true
+  (mlc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-3} :cube-2) => true
 
   (pointer->shadow 1 {:cube :cube-2 :facing :n}) => :shadow-4
-  (mlc/battlefield-engaged? {:cube-2 :shadow-4} :cube-2) => false
+  (mlc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-4} :cube-2) => false
 
   (me/gen-mover :cube-1 1 :options #{:n :ne}) => :mover-1
-  (me/gen-mover :cube-2 1 :options #{:n}) => :mover-2))
+  (mlt/swap :mover-1 :entity-1) => :swap-1
+
+  (me/gen-mover :cube-2 1 :options #{:n}) => :mover-2
+  (mlt/swap :mover-2 :entity-2) => :swap-2))
 
 
 (facts
@@ -230,11 +241,11 @@
 (facts
  "paths -> breadcrumbs"
 
- (paths->breadcrumbs 1 {:cube-1 {}} [:path-1 :path-2])
+ (paths->breadcrumbs {:cube-2 :entity-2} 1 {:cube-1 {}} [:path-1 :path-2])
  => {:pointer-1 {}
      :pointer-2 {:cube-1 {:mover/highlighted :n
                           :mover/state :past}}
-     :pointer-3 {:cube-2 :mover-2}}
+     :pointer-3 {:cube-2 :swap-2}}
 
  (provided
   (path->compressed-map :path-1)
@@ -246,7 +257,9 @@
       :pointer-3 [{:cube :cube-2 :facing :n}]}
 
   (me/gen-mover :cube-2 1 :highlighted :n :state :past)
-  => :mover-2))
+  => :mover-2
+
+  (mlt/swap :mover-2 :entity-2) => :swap-2))
 
 
 (facts
@@ -262,10 +275,10 @@
  "remove unit"
 
  (remove-unit {:cube-1 :unit-1} :cube-1)
- => {:cube-1 :terrain}
+ => {:cube-1 :terrain-1}
 
  (provided
-  (me/gen-terrain :cube-1) => :terrain))
+  (mlt/pickup :unit-1) => :terrain-1))
 
 
 (facts
@@ -288,7 +301,7 @@
                       [:new-battlefield (mc/->Pointer :cube-1 :n) :hexes])
     => :battlemap-1
 
-    (paths->breadcrumbs 1 :battlemap-1
+    (paths->breadcrumbs :new-battlefield 1 :battlemap-1
                         [:new-battlefield (mc/->Pointer :cube-1 :n) :hexes])
     => :breadcrumbs-1)))
 

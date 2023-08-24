@@ -5,7 +5,6 @@
             [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.logic.terrain :as mlt]
             [hexenhammer.model.logic.movement :as mlm]
-            [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.dice :as cd]))
@@ -82,8 +81,8 @@
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)
-        (update :game/battlefield cb/reset-default)
-        (update :game/battlefield cb/set-interactable movable-cubes))))
+        (update :game/battlefield cb/set-state :default)
+        (update :game/battlefield cb/set-state movable-cubes :selectable))))
 
 
 (defmethod select [:movement :select-hex]
@@ -102,8 +101,9 @@
 
 (defn skip-movement
   [state]
-  (-> (update-in state [:game/battlefield (:game/selected state)] ce/reset-default)
-      (unselect)))
+  (let [cube (:game/selected state)]
+    (-> (assoc-in state [:game/battlefield cube :entity/state] :default)
+        (unselect))))
 
 
 (defmulti move (fn [state pointer] [(:game/phase state) (:game/subphase state)]))
@@ -139,11 +139,14 @@
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
         pointer (get-in state [:game/movement :pointer])
-        terrain (me/gen-open-ground cube)
-        updated-unit (-> (ce/reset-default unit)
-                         (assoc :entity/cube (:cube pointer)
-                                :unit/facing (:facing pointer)))]
-    (-> (assoc-in state [:game/battlefield cube] terrain)
+        old-terrain (mlt/pickup unit)
+        new-terrain (get-in state [:game/battlefield (:cube pointer)])
+        updated-unit (-> (assoc unit
+                                :entity/state :default
+                                :entity/cube (:cube pointer)
+                                :unit/facing (:facing pointer))
+                         (mlt/place new-terrain))]
+    (-> (assoc-in state [:game/battlefield cube] old-terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
         (assoc-in [:game/units (:unit/player unit) :cubes (:unit/id unit)] (:cube pointer))
         (unselect))))

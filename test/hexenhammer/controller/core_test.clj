@@ -6,7 +6,6 @@
             [hexenhammer.model.logic.entity :as mle]
             [hexenhammer.model.logic.terrain :as mlt]
             [hexenhammer.model.logic.movement :as mlm]
-            [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.dice :as cd]
@@ -171,10 +170,10 @@
   (mlc/battlefield-engaged? :battlefield-1 :unit-cube-2)
   => true
 
-  (cb/reset-default :battlefield-1)
+  (cb/set-state :battlefield-1 :default)
   => :battlefield-2
 
-  (cb/set-interactable :battlefield-2 [:unit-cube-1])
+  (cb/set-state :battlefield-2 [:unit-cube-1] :selectable)
   => :battlefield-3))
 
 
@@ -215,14 +214,13 @@
  "skip movement"
 
  (skip-movement {:game/selected :cube-1
-                 :game/battlefield {:cube-1 :unit-1}})
+                 :game/battlefield {:cube-1 {}}})
  => :unselect
 
  (provided
-  (ce/reset-default :unit-1) => :reset-unit-1
 
   (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :reset-unit-1}})
+             :game/battlefield {:cube-1 {:entity/state :default}}})
   => :unselect))
 
 
@@ -312,26 +310,29 @@
 
  (let [pointer (mc/->Pointer :cube-2 :n)
        unit {:unit/player 1
-             :unit/id 2
-             :entity/presentation :selected}]
+             :unit/id 2}]
 
    (finish-movement {:game/selected :cube-1
-                     :game/battlefield {:cube-1 unit}
+                     :game/battlefield {:cube-1 unit
+                                        :cube-2 :terrain-2}
                      :game/movement {:pointer pointer}})
    => :unselect
 
    (provided
-    (me/gen-terrain :cube-1) => :terrain
 
-    (ce/reset-default unit) => (assoc unit :entity/presentation :default)
+    (mlt/pickup unit) => :old-terrain
+
+    (mlt/place {:unit/player 1
+                :unit/id 2
+                :entity/state :default
+                :entity/cube :cube-2
+                :unit/facing :n}
+               :terrain-2)
+    => :unit-2
 
     (unselect {:game/selected :cube-1
-               :game/battlefield {:cube-1 :terrain
-                                  :cube-2 {:unit/player 1
-                                           :unit/id 2
-                                           :entity/cube :cube-2
-                                           :unit/facing :n
-                                           :entity/presentation :default}}
+               :game/battlefield {:cube-1 :old-terrain
+                                  :cube-2 :unit-2}
                :game/movement {:pointer pointer}
                :game/units {1 {:cubes {2 :cube-2}}}})
     => :unselect)))

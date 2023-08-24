@@ -1,15 +1,11 @@
-(ns hexenhammer.controller.battlefield
-  (:require [hexenhammer.controller.entity :as ce]))
+(ns hexenhammer.controller.battlefield)
 
 
-(defn reset-default
-  "Converts all entities on the battlefield to default presentation and interaction"
-  [battlefield]
-  (update-vals battlefield ce/reset-default))
-
-
-(defn set-interactable
-  "marks all passed cubes as highlighted and selectable"
-  [battlefield cubes]
-  (->> (update-vals (select-keys battlefield cubes) ce/set-interactable)
-       (merge battlefield)))
+(defn set-state
+  "sets all entities on the battlefield to the passed entity state
+  if a list of cubes is passed, sets only those cubes instead"
+  ([battlefield state]
+   (update-vals battlefield #(assoc % :entity/state state)))
+  ([battlefield cubes state]
+   (->> (set-state (select-keys battlefield cubes) state)
+        (merge battlefield))))
