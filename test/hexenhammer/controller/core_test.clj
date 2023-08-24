@@ -4,6 +4,7 @@
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.model.logic.entity :as mle]
+            [hexenhammer.model.logic.terrain :as mlt]
             [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
@@ -116,13 +117,13 @@
   (me/gen-unit :cube-1 1 1 :facing-1 :M 3 :Ld 7)
   => {:entity/class :unit}
 
-  (mle/onto-terrain {:entity/class :unit
-                     :entity/state :selectable}
-                    :terrain-1)
-  => :onto-terrain
+  (mlt/place {:entity/class :unit
+              :entity/state :selectable}
+             :terrain-1)
+  => :place
 
   (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :onto-terrain}
+             :game/battlefield {:cube-1 :place}
              :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
   => :unselect))
 
@@ -130,21 +131,23 @@
 (facts
  "remove unit"
 
- (remove-unit {:game/selected :cube-1
-               :game/battlefield {:cube-1 {:unit/player 1
-                                           :unit/id 1
-                                           :object/terrain {:entity/class :terrain}}}
-               :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
- => :unselect
+ (let [unit {:unit/player 1
+             :unit/id 1}]
 
+   (remove-unit {:game/selected :cube-1
+                 :game/battlefield {:cube-1 unit}
+                 :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
+   => :unselect
 
+   (provided
 
- (provided
-  (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 {:entity/class :terrain
-                                         :entity/state :selectable}}
-             :game/units {1 {:counter 1 :cubes {}}}})
-  => :unselect))
+    (mlt/pickup unit) => {:entity/class :terrain}
+
+    (unselect {:game/selected :cube-1
+               :game/battlefield {:cube-1 {:entity/class :terrain
+                                           :entity/state :selectable}}
+               :game/units {1 {:counter 1 :cubes {}}}})
+    => :unselect)))
 
 
 (facts

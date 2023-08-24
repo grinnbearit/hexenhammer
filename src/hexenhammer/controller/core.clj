@@ -3,6 +3,7 @@
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.logic.core :as mlc]
             [hexenhammer.model.logic.entity :as mle]
+            [hexenhammer.model.logic.terrain :as mlt]
             [hexenhammer.model.logic.movement :as mlm]
             [hexenhammer.controller.entity :as ce]
             [hexenhammer.controller.battlefield :as cb]
@@ -56,7 +57,7 @@
         id (inc (get-in state [:game/units player :counter]))
         unit (-> (me/gen-unit cube player id facing :M M :Ld Ld)
                  (assoc :entity/state :selectable)
-                 (mle/onto-terrain terrain))]
+                 (mlt/place terrain))]
     (-> (assoc-in state [:game/battlefield cube] unit)
         (assoc-in [:game/units player :cubes id] cube)
         (assoc-in [:game/units player :counter] id)
@@ -67,7 +68,7 @@
   [state]
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
-        terrain (-> (:object/terrain unit)
+        terrain (-> (mlt/pickup unit)
                     (assoc :entity/state :selectable))]
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
