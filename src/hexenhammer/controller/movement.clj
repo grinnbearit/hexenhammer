@@ -6,8 +6,7 @@
   (update battlemap (:cube pointer) assoc
           :mover/selected (:facing pointer)
           :mover/state :present
-          :entity/interaction :selectable
-          :entity/presentation :selected))
+          :entity/state :selected))
 
 
 (defn show-moves

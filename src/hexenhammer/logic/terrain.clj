@@ -1,5 +1,5 @@
-(ns hexenhammer.model.logic.terrain
-  (:require [hexenhammer.model.logic.entity :as mle]))
+(ns hexenhammer.logic.terrain
+  (:require [hexenhammer.logic.entity :as le]))
 
 
 (defn place
@@ -13,7 +13,7 @@
 (defn pickup
   "Returns the terrain object under the object or the terrain directly"
   [entity]
-  (if (mle/terrain? entity)
+  (if (le/terrain? entity)
     entity
     (:object/terrain entity)))
 

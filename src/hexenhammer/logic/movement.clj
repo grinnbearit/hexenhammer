@@ -1,7 +1,7 @@
-(ns hexenhammer.model.logic.movement
-  (:require [hexenhammer.model.logic.core :as mlc]
-            [hexenhammer.model.logic.entity :as mle]
-            [hexenhammer.model.logic.terrain :as mlt]
+(ns hexenhammer.logic.movement
+  (:require [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.entity :as le]
+            [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.entity :as me]
             [hexenhammer.model.cube :as mc]
             [clojure.set :as set]))
@@ -23,7 +23,7 @@
            :let [pointer (mc/->Pointer cube facing)
                  shadow (pointer->shadow (:unit/player unit) pointer)
                  shadow-battlefield (assoc battlefield cube shadow)]
-           :when (not (mlc/battlefield-engaged? shadow-battlefield cube))]
+           :when (not (lc/battlefield-engaged? shadow-battlefield cube))]
        facing))))
 
 
@@ -33,7 +33,7 @@
   (let [unit (battlefield cube)]
     {cube (-> (me/gen-mover cube (:unit/player unit)
                             :options (reform-facings battlefield cube))
-              (mlt/swap unit))}))
+              (lt/swap unit))}))
 
 
 (defn forward-step
@@ -56,7 +56,7 @@
   [battlefield pointer]
   (let [cube (:cube pointer)]
     (and (contains? battlefield cube)
-         (mle/terrain? (battlefield cube)))))
+         (le/terrain? (battlefield cube)))))
 
 
 (defn forward-paths
@@ -113,13 +113,13 @@
             (let [cube (:cube pointer)
                   shadow (pointer->shadow player pointer)
                   shadow-battlefield (assoc battlefield cube shadow)]
-              (if (not (mlc/battlefield-engaged? shadow-battlefield cube))
+              (if (not (lc/battlefield-engaged? shadow-battlefield cube))
                 (update mover-acc cube (fnil conj #{}) (:facing pointer))
                 mover-acc)))]
 
     (->> (for [[cube options] (reduce reducer {} (apply concat paths))]
            [cube (-> (me/gen-mover cube player :options options)
-                     (mlt/swap (battlefield cube)))])
+                     (lt/swap (battlefield cube)))])
          (into {}))))
 
 
@@ -160,7 +160,7 @@
                  (-> (me/gen-mover (:cube pointer) player
                                    :highlighted (:facing pointer)
                                    :state :past)
-                     (mlt/swap (battlefield cube))))]))]
+                     (lt/swap (battlefield cube))))]))]
 
     (->> (for [[pointer path] (->> (map path->compressed-map paths)
                                    (apply merge))]
@@ -178,7 +178,7 @@
   "Returns a new battlefield with the unit at cube removed"
   [battlefield cube]
   (let [unit (battlefield cube)]
-    (assoc battlefield cube (mlt/pickup unit))))
+    (assoc battlefield cube (lt/pickup unit))))
 
 
 (defn show-moves
@@ -235,8 +235,8 @@
     (for [neighbour (mc/neighbours-within cube 3)
           :when (contains? battlefield neighbour)
           :let [entity (battlefield neighbour)]
-          :when (and (mle/unit? entity)
-                     (mlc/enemies? unit entity))]
+          :when (and (le/unit? entity)
+                     (lc/enemies? unit entity))]
       neighbour)))
 
 

@@ -1,4 +1,4 @@
-(ns hexenhammer.model.logic.entity)
+(ns hexenhammer.logic.entity)
 
 
 (defn unit?

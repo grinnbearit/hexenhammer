@@ -1,7 +1,7 @@
-(ns hexenhammer.model.logic.terrain-test
+(ns hexenhammer.logic.terrain-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.model.logic.entity :as mle]
-            [hexenhammer.model.logic.terrain :refer :all]))
+            [hexenhammer.logic.entity :as le]
+            [hexenhammer.logic.terrain :refer :all]))
 
 
 (facts
@@ -18,14 +18,14 @@
  (pickup :terrain-1) => :terrain-1
 
  (provided
-  (mle/terrain? :terrain-1) => true)
+  (le/terrain? :terrain-1) => true)
 
 
  (let [object {:object/terrain :terrain-1}]
    (pickup object) => :terrain-1
 
    (provided
-    (mle/terrain? object) => false)))
+    (le/terrain? object) => false)))
 
 
 (facts

@@ -1,6 +1,6 @@
-(ns hexenhammer.model.logic.entity-test
+(ns hexenhammer.logic.entity-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.model.logic.entity :refer :all]))
+            [hexenhammer.logic.entity :refer :all]))
 
 
 (facts

@@ -2,10 +2,9 @@
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
-            [hexenhammer.model.logic.core :as mlc]
-            [hexenhammer.model.logic.entity :as mle]
-            [hexenhammer.model.logic.terrain :as mlt]
-            [hexenhammer.model.logic.movement :as mlm]
+            [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.terrain :as lt]
+            [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.dice :as cd]
@@ -116,9 +115,9 @@
   (me/gen-unit :cube-1 1 1 :facing-1 :M 3 :Ld 7)
   => {:entity/class :unit}
 
-  (mlt/place {:entity/class :unit
-              :entity/state :selectable}
-             :terrain-1)
+  (lt/place {:entity/class :unit
+             :entity/state :selectable}
+            :terrain-1)
   => :place
 
   (unselect {:game/selected :cube-1
@@ -140,7 +139,7 @@
 
    (provided
 
-    (mlt/pickup unit) => {:entity/class :terrain}
+    (lt/pickup unit) => {:entity/class :terrain}
 
     (unselect {:game/selected :cube-1
                :game/battlefield {:cube-1 {:entity/class :terrain
@@ -164,10 +163,10 @@
      :game/battlefield :battlefield-3}
 
  (provided
-  (mlc/battlefield-engaged? :battlefield-1 :unit-cube-1)
+  (lc/battlefield-engaged? :battlefield-1 :unit-cube-1)
   => false
 
-  (mlc/battlefield-engaged? :battlefield-1 :unit-cube-2)
+  (lc/battlefield-engaged? :battlefield-1 :unit-cube-2)
   => true
 
   (cb/set-state :battlefield-1 :default)
@@ -195,7 +194,7 @@
        :game/movement {:pointer pointer}}
 
    (provided
-    (mlm/show-reform battlefield :cube-1) => :battlemap-1
+    (lm/show-reform battlefield :cube-1) => :battlemap-1
     (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2)))
 
 
@@ -320,14 +319,14 @@
 
    (provided
 
-    (mlt/pickup unit) => :old-terrain
+    (lt/pickup unit) => :old-terrain
 
-    (mlt/place {:unit/player 1
-                :unit/id 2
-                :entity/state :default
-                :entity/cube :cube-2
-                :unit/facing :n}
-               :terrain-2)
+    (lt/place {:unit/player 1
+               :unit/id 2
+               :entity/state :default
+               :entity/cube :cube-2
+               :unit/facing :n}
+              :terrain-2)
     => :unit-2
 
     (unselect {:game/selected :cube-1
@@ -377,7 +376,7 @@
    => :move
 
    (provided
-    (mlm/show-reform battlefield :cube-1)
+    (lm/show-reform battlefield :cube-1)
     => :battlemap
 
     (move {:game/phase :movement
@@ -413,7 +412,7 @@
    => :move
 
    (provided
-    (mlm/show-forward battlefield :cube-1)
+    (lm/show-forward battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1}
 
@@ -452,7 +451,7 @@
    => :move
 
    (provided
-    (mlm/show-reposition battlefield :cube-1)
+    (lm/show-reposition battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1}
 
@@ -491,11 +490,11 @@
    => :move
 
    (provided
-    (mlm/show-march battlefield :cube-1)
+    (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
         :breadcrumbs :breadcrumbs-1}
 
-    (mlm/show-threats battlefield :cube-1)
+    (lm/show-threats battlefield :cube-1)
     => {}
 
     (move {:game/phase :movement
@@ -520,11 +519,11 @@
    => :move
 
    (provided
-    (mlm/show-march battlefield :cube-1)
+    (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
         :breadcrumbs :breadcrumbs-1}
 
-    (mlm/show-threats battlefield :cube-1)
+    (lm/show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry}
 
     (move {:game/phase :movement
@@ -552,11 +551,11 @@
    => :move
 
    (provided
-    (mlm/show-march battlefield :cube-1)
+    (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
         :breadcrumbs :breadcrumbs-1}
 
-    (mlm/show-threats battlefield :cube-1)
+    (lm/show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry}
 
     (move {:game/phase :movement
@@ -585,11 +584,11 @@
    => :move
 
    (provided
-    (mlm/show-march battlefield :cube-1)
+    (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
         :breadcrumbs :breadcrumbs-1}
 
-    (mlm/show-threats battlefield :cube-1)
+    (lm/show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry}
 
     (move {:game/phase :movement

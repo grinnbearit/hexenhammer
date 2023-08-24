@@ -1,8 +1,8 @@
-(ns hexenhammer.model.logic.core-test
+(ns hexenhammer.logic.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as cube]
-            [hexenhammer.model.logic.entity :as mle]
-            [hexenhammer.model.logic.core :refer :all]))
+            [hexenhammer.logic.entity :as le]
+            [hexenhammer.logic.core :refer :all]))
 
 
 (facts
@@ -97,7 +97,7 @@
  (provided
   (cube/neighbours :cube-1) => [:cube-2]
 
-  (mle/unit? :terrain-1) => false)
+  (le/unit? :terrain-1) => false)
 
 
  (battlefield-engaged? {:cube-1 :unit-1
@@ -108,7 +108,7 @@
  (provided
   (cube/neighbours :cube-1) => [:cube-2]
 
-  (mle/unit? :unit-2) => true
+  (le/unit? :unit-2) => true
 
   (engaged? :unit-1 :unit-2) => false)
 
@@ -121,7 +121,7 @@
  (provided
   (cube/neighbours :cube-1) => [:cube-2]
 
-  (mle/unit? :unit-2) => true
+  (le/unit? :unit-2) => true
 
   (engaged? :unit-1 :unit-2) => true))
 
@@ -148,7 +148,7 @@
 
  (provided
   (cube/cubes-between :cube-1 :cube-2) => [:cube-3]
-  (mle/terrain? :unit-1) => false)
+  (le/terrain? :unit-1) => false)
 
 
  (battlefield-visible? {:cube-3 :terrain-1} :cube-1 :cube-2)
@@ -156,7 +156,7 @@
 
  (provided
   (cube/cubes-between :cube-1 :cube-2) => [:cube-3]
-  (mle/terrain? :terrain-1) => true))
+  (le/terrain? :terrain-1) => true))
 
 
 (facts

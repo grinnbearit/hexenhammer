@@ -1,6 +1,6 @@
-(ns hexenhammer.model.logic.core
+(ns hexenhammer.logic.core
   (:require [hexenhammer.model.cube :as cube]
-            [hexenhammer.model.logic.entity :as mle]))
+            [hexenhammer.logic.entity :as le]))
 
 
 (defn enemies?
@@ -28,7 +28,7 @@
     (->> (for [neighbour (cube/neighbours cube)
                :when (contains? battlefield neighbour)
                :let [entity (battlefield neighbour)]
-               :when (and (mle/unit? entity)
+               :when (and (le/unit? entity)
                           (engaged? unit entity))]
            entity)
          ((comp boolean seq)))))
@@ -39,7 +39,7 @@
   [battlefield cx cy]
   (->> (cube/cubes-between cx cy)
        (map battlefield)
-       (remove mle/terrain?)
+       (remove le/terrain?)
        (empty?)))
 
 

@@ -1,11 +1,11 @@
-(ns hexenhammer.model.logic.movement-test
+(ns hexenhammer.logic.movement-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.model.logic.core :as mlc]
-            [hexenhammer.model.logic.entity :as mle]
-            [hexenhammer.model.logic.terrain :as mlt]
+            [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.entity :as le]
+            [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
-            [hexenhammer.model.logic.movement :refer :all]))
+            [hexenhammer.logic.movement :refer :all]))
 
 
 (facts
@@ -26,22 +26,22 @@
 
  (provided
   (pointer->shadow 1 (mc/->Pointer :cube-1 :n)) => :shadow-n
-  (mlc/battlefield-engaged? {:cube-1 :shadow-n} :cube-1) => false
+  (lc/battlefield-engaged? {:cube-1 :shadow-n} :cube-1) => false
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :ne)) => :shadow-ne
-  (mlc/battlefield-engaged? {:cube-1 :shadow-ne} :cube-1) => true
+  (lc/battlefield-engaged? {:cube-1 :shadow-ne} :cube-1) => true
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :se)) => :shadow-se
-  (mlc/battlefield-engaged? {:cube-1 :shadow-se} :cube-1) => true
+  (lc/battlefield-engaged? {:cube-1 :shadow-se} :cube-1) => true
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :s)) => :shadow-s
-  (mlc/battlefield-engaged? {:cube-1 :shadow-s} :cube-1) => true
+  (lc/battlefield-engaged? {:cube-1 :shadow-s} :cube-1) => true
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :sw)) => :shadow-sw
-  (mlc/battlefield-engaged? {:cube-1 :shadow-sw} :cube-1) => false
+  (lc/battlefield-engaged? {:cube-1 :shadow-sw} :cube-1) => false
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :nw)) => :shadow-nw
-  (mlc/battlefield-engaged? {:cube-1 :shadow-nw} :cube-1) => false))
+  (lc/battlefield-engaged? {:cube-1 :shadow-nw} :cube-1) => false))
 
 
 (facts
@@ -59,7 +59,7 @@
     (me/gen-mover :cube-1 1 :options :facings-1)
     => :mover-1
 
-    (mlt/swap :mover-1 unit)
+    (lt/swap :mover-1 unit)
     => :swap-1)))
 
 
@@ -88,13 +88,13 @@
  => false
 
  (provided
-  (mle/terrain? :unit-1) => false)
+  (le/terrain? :unit-1) => false)
 
  (valid-pointer? {:cube-1 :terrain-1} (mc/->Pointer :cube-1 :facing-1))
  => true
 
  (provided
-  (mle/terrain? :terrain-1) => true))
+  (le/terrain? :terrain-1) => true))
 
 
 (facts
@@ -184,22 +184,22 @@
 
  (provided
   (pointer->shadow 1 {:cube :cube-1 :facing :n}) => :shadow-1
-  (mlc/battlefield-engaged? {:cube-1 :shadow-1 :cube-2 :entity-2} :cube-1) => false
+  (lc/battlefield-engaged? {:cube-1 :shadow-1 :cube-2 :entity-2} :cube-1) => false
 
   (pointer->shadow 1 {:cube :cube-1 :facing :ne}) => :shadow-2
-  (mlc/battlefield-engaged? {:cube-1 :shadow-2 :cube-2 :entity-2} :cube-1) => false
+  (lc/battlefield-engaged? {:cube-1 :shadow-2 :cube-2 :entity-2} :cube-1) => false
 
   (pointer->shadow 1 {:cube :cube-2 :facing :ne}) => :shadow-3
-  (mlc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-3} :cube-2) => true
+  (lc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-3} :cube-2) => true
 
   (pointer->shadow 1 {:cube :cube-2 :facing :n}) => :shadow-4
-  (mlc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-4} :cube-2) => false
+  (lc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-4} :cube-2) => false
 
   (me/gen-mover :cube-1 1 :options #{:n :ne}) => :mover-1
-  (mlt/swap :mover-1 :entity-1) => :swap-1
+  (lt/swap :mover-1 :entity-1) => :swap-1
 
   (me/gen-mover :cube-2 1 :options #{:n}) => :mover-2
-  (mlt/swap :mover-2 :entity-2) => :swap-2))
+  (lt/swap :mover-2 :entity-2) => :swap-2))
 
 
 (facts
@@ -259,7 +259,7 @@
   (me/gen-mover :cube-2 1 :highlighted :n :state :past)
   => :mover-2
 
-  (mlt/swap :mover-2 :entity-2) => :swap-2))
+  (lt/swap :mover-2 :entity-2) => :swap-2))
 
 
 (facts
@@ -278,7 +278,7 @@
  => {:cube-1 :terrain-1}
 
  (provided
-  (mlt/pickup :unit-1) => :terrain-1))
+  (lt/pickup :unit-1) => :terrain-1))
 
 
 (facts
@@ -372,7 +372,7 @@
   (mc/neighbours-within :cube-1 3)
   => [:cube-2]
 
-  (mle/unit? :terrain-1)
+  (le/unit? :terrain-1)
   => false)
 
 
@@ -385,10 +385,10 @@
   (mc/neighbours-within :cube-1 3)
   => [:cube-2]
 
-  (mle/unit? :unit-2)
+  (le/unit? :unit-2)
   => true
 
-  (mlc/enemies? :unit-1 :unit-2)
+  (lc/enemies? :unit-1 :unit-2)
   => false)
 
 
@@ -401,10 +401,10 @@
   (mc/neighbours-within :cube-1 3)
   => [:cube-2]
 
-  (mle/unit? :unit-2)
+  (le/unit? :unit-2)
   => true
 
-  (mlc/enemies? :unit-1 :unit-2)
+  (lc/enemies? :unit-1 :unit-2)
   => true))
 
 
