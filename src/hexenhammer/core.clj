@@ -57,6 +57,7 @@
   (GET "/favicon.ico" [] "")
   (POST "/setup/add-unit" [] setup-add-unit-handler)
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state controller/remove-unit))
+  (POST "/setup/swap-terrain" [terrain] (swap! hexenhammer-state controller/swap-terrain (keyword terrain)))
   (POST "/setup/to-movement" [] (swap! hexenhammer-state controller/to-movement))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state controller/skip-movement))
   (POST "/movement/finish-movement" [] (swap! hexenhammer-state controller/finish-movement))

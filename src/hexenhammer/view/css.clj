@@ -6,7 +6,10 @@
 (def STYLESHEET
   (css
    [:polygon
-    [:&.terrain {:fill (PALETTE "dark green 1") :stroke "black"}
+    [:&.terrain {:stroke "black"}
+     [:&.open {:fill (PALETTE "dark green 1")}]
+     [:&.dangerous {:fill (PALETTE "dark orange 1")}]
+     [:&.impassable {:fill (PALETTE "dark gray 1")}]
      [:&.selectable {:stroke "orange"}]
      [:&.selected {:stroke "yellow"}]
      [:&.marked {:stroke "white"}]]

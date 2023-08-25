@@ -3,6 +3,7 @@
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.battlefield :as cb]
@@ -146,6 +147,83 @@
                                            :entity/state :selectable}}
                :game/units {1 {:counter 1 :cubes {}}}})
     => :unselect)))
+
+
+(facts
+ "swap terrain"
+
+ (swap-terrain {:game/selected :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :open)
+ => :select
+
+ (provided
+  (me/gen-open-ground :cube-1) => :open-terrain
+
+  (le/terrain? :entity-1) => true
+
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 :open-terrain}})
+  => :unselect
+
+  (select :unselect :cube-1)
+  => :select)
+
+
+ (swap-terrain {:game/selected :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :dangerous)
+ => :select
+
+ (provided
+  (me/gen-dangerous-terrain :cube-1) => :dangerous-terrain
+
+  (le/terrain? :entity-1) => true
+
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 :dangerous-terrain}})
+  => :unselect
+
+  (select :unselect :cube-1)
+  => :select)
+
+
+ (swap-terrain {:game/selected :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :impassable)
+ => :select
+
+ (provided
+  (me/gen-impassable-terrain :cube-1) => :impassable-terrain
+
+  (le/terrain? :entity-1) => true
+
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 :impassable-terrain}})
+  => :unselect
+
+  (select :unselect :cube-1)
+  => :select)
+
+
+ (swap-terrain {:game/selected :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :open)
+ => :select
+
+ (provided
+  (me/gen-open-ground :cube-1) => :open-terrain
+
+  (le/terrain? :entity-1) => false
+
+  (lt/place :entity-1 :open-terrain) => :entity-2
+
+  (unselect {:game/selected :cube-1
+             :game/battlefield {:cube-1 :entity-2}})
+  => :unselect
+
+  (select :unselect :cube-1)
+  => :select))
 
 
 (facts

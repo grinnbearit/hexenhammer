@@ -17,6 +17,32 @@
 
 
 (facts
+ "gen dangerous terrain"
+
+ (gen-dangerous-terrain :cube-1)
+ => {:entity/class :terrain
+     :entity/name "terrain"
+     :entity/cube :cube-1
+     :entity/state :default
+     :entity/los 0
+
+     :terrain/type :dangerous})
+
+
+(facts
+ "gen impassable terrain"
+
+ (gen-impassable-terrain :cube-1)
+ => {:entity/class :terrain
+     :entity/name "terrain"
+     :entity/cube :cube-1
+     :entity/state :default
+     :entity/los 5
+
+     :terrain/type :impassable})
+
+
+(facts
  "gen unit"
 
  (gen-unit :cube-1 :player-1 :id-1 :facing-1)

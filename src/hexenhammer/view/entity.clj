@@ -9,7 +9,7 @@
   "Generates a base, selectable svg terrain entity"
   [terrain]
   (cond-> (-> (svg/hexagon)
-              (svg/add-classes ["terrain"]))
+              (svg/add-classes ["terrain" (name (:terrain/type terrain))]))
 
     (= :selectable (:entity/state terrain))
     (svg/add-classes ["selectable"])

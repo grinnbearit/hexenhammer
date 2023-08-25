@@ -2,6 +2,7 @@
   (:require [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
             [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.battlefield :as cb]
@@ -71,6 +72,20 @@
     (-> (assoc-in state [:game/battlefield cube] terrain)
         (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
         (unselect))))
+
+
+(defn swap-terrain
+  [state terrain]
+  (let [cube (:game/selected state)
+        entity (get-in state [:game/battlefield cube])
+        new-terrain (case terrain
+                      :open (me/gen-open-ground cube)
+                      :dangerous (me/gen-dangerous-terrain cube)
+                      :impassable (me/gen-impassable-terrain cube))
+        new-entity (if (le/terrain? entity) new-terrain (lt/place entity new-terrain))]
+    (-> (assoc-in state [:game/battlefield cube] new-entity)
+        (unselect)
+        (select cube))))
 
 
 (defn to-movement

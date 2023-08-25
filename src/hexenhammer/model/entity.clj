@@ -13,6 +13,21 @@
    :terrain/type :open})
 
 
+(defn gen-dangerous-terrain
+  "Returns a dangerous terrain object"
+  [cube]
+  (assoc (gen-open-ground cube)
+         :terrain/type :dangerous))
+
+
+(defn gen-impassable-terrain
+  "Returns an impassable terrain object"
+  [cube]
+  (assoc (gen-open-ground cube)
+         :terrain/type :impassable
+         :entity/los 5))
+
+
 (defn gen-unit
   "Returns a generic unit entity"
   [cube player id facing
