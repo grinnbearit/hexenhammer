@@ -175,14 +175,14 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]}  (lm/show-forward (:game/battlefield state) cube)
+    (let [{:keys [battlemap path-map]}  (lm/show-forward (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
                  :game/battlemap battlemap)
           (update :game/movement assoc
                   :battlemap battlemap
-                  :breadcrumbs breadcrumbs)
+                  :path-map path-map)
           (move pointer)))))
 
 
@@ -190,14 +190,14 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]}  (lm/show-reposition (:game/battlefield state) cube)
+    (let [{:keys [battlemap path-map]}  (lm/show-reposition (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
                  :game/battlemap battlemap)
           (update :game/movement assoc
                   :battlemap battlemap
-                  :breadcrumbs breadcrumbs)
+                  :path-map path-map)
           (move pointer)))))
 
 
@@ -205,7 +205,7 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]}  (lm/show-march (:game/battlefield state) cube)
+    (let [{:keys [battlemap path-map]}  (lm/show-march (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))
           threats (lm/show-threats (:game/battlefield state) cube)
           threat-map (merge battlemap threats)
@@ -222,7 +222,7 @@
                  :game/battlemap threat-map)
           (update :game/movement assoc
                   :battlemap threat-map
-                  :breadcrumbs breadcrumbs)
+                  :path-map path-map)
 
           (move pointer)))))
 

@@ -94,21 +94,31 @@
 (defn reposition-paths
   "returns all valid repositioning paths given the starting pointer and a number of hexes
   ensures the returned paths are vectors"
-  [battlefield pointer hexes]
-  (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing pointer))]
-    (->> (iterate #(mc/step % facing) (:cube pointer))
+  [battlefield start hexes]
+  (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing start))]
+    (->> (iterate #(mc/step % facing) (:cube start))
          (drop 1)
-         (map #(mc/->Pointer % (:facing pointer)))
+         (map #(mc/->Pointer % (:facing start)))
          (take-while #(valid-pointer? battlefield %))
          (take hexes)
-         (cons pointer)
+         (cons start)
          (vec))))
 
 
-(defn paths->battlemap
-  "Given a player and a list of paths returns a new battlemap with the movers representing those paths
+(defn paths->path-map
+  "Given a vector of paths, returns a map of pointer->subpath for every path in paths"
+  [paths]
+  (->> (for [path paths
+             n (range (count path))
+             :let [subpath (subvec path 0 (inc n))]]
+         [(peek subpath) subpath])
+       (into {})))
+
+
+(defn path-map->battlemap
+  "Given a player and path map returns a new battlemap with the movers representing those paths
   removes invalid pointers from paths"
-  [battlefield player paths]
+  [battlefield player path-map]
   (letfn [(reducer [mover-acc pointer]
             (let [cube (:cube pointer)
                   shadow (pointer->shadow player pointer)
@@ -117,55 +127,9 @@
                 (update mover-acc cube (fnil conj #{}) (:facing pointer))
                 mover-acc)))]
 
-    (->> (for [[cube options] (reduce reducer {} (apply concat paths))]
+    (->> (for [[cube options] (reduce reducer {} (apply concat (vals path-map)))]
            [cube (-> (me/gen-mover cube player :options options)
                      (lt/swap (battlefield cube)))])
-         (into {}))))
-
-
-(defn compress-path
-  "Returns a subset of path containing only the last pointer for every cube in the path
-  assumes the last pointer is the end step so excludes it"
-  [path]
-  (letfn [(reducer [acc pointer]
-            (if (= (:cube (peek acc))
-                   (:cube pointer))
-              (conj (pop acc) pointer)
-              (conj acc pointer)))]
-
-    (pop (reduce reducer [] path))))
-
-
-(defn path->compressed-map
-  "Returns a map of pointer -> compressed path where every pointer in the path
-  points to the relevant compressed path"
-  [path]
-  (->> (for [cutoff (range 1 (inc (count path)))
-             :let [sub-path (subvec path 0 cutoff)]]
-         [(peek sub-path) (compress-path sub-path)])
-       (into {})))
-
-
-(defn paths->breadcrumbs
-  "combines all compressed maps for all paths into a single breadcrumbs object
-  pointer -> battlemap"
-  [battlefield player mover-map paths]
-  (letfn [(pointer->breadcrumb [pointer]
-            (let [cube (:cube pointer)]
-              [cube
-               (if-let [mover (mover-map cube)]
-                 (assoc mover
-                        :mover/highlighted (:facing pointer)
-                        :mover/state :past)
-                 (-> (me/gen-mover (:cube pointer) player
-                                   :highlighted (:facing pointer)
-                                   :state :past)
-                     (lt/swap (battlefield cube))))]))]
-
-    (->> (for [[pointer path] (->> (map path->compressed-map paths)
-                                   (apply merge))]
-           [pointer (->> (map pointer->breadcrumb path)
-                         (into {}))])
          (into {}))))
 
 
@@ -183,17 +147,17 @@
 
 (defn show-moves
   "Given a battlefield, cube, hexes and a path-fn returns
-  :battlemap,  cube->mover that the unit can reach when moving
-  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  :battlemap, cube->mover that the unit can reach when moving
+  :path-map, pointer->cube->path that the unit needs to pass through to reach the pointer"
   [battlefield cube hexes path-fn]
   (let [unit (battlefield cube)
         new-battlefield (remove-unit battlefield cube)
         start (mc/->Pointer cube (:unit/facing unit))
         paths (path-fn new-battlefield start hexes)
-        battlemap (paths->battlemap new-battlefield (:unit/player unit) paths)
-        breadcrumbs (paths->breadcrumbs new-battlefield (:unit/player unit) battlemap paths)]
+        path-map (paths->path-map paths)
+        battlemap (path-map->battlemap new-battlefield (:unit/player unit) path-map)]
     {:battlemap battlemap
-     :breadcrumbs breadcrumbs}))
+     :path-map path-map}))
 
 
 (defn show-forward
@@ -224,6 +188,36 @@
   (let [M (get-in battlefield [cube :unit/M])
         hexes (M->hexes (* M 2))]
     (show-moves battlefield cube hexes forward-paths)))
+
+
+(defn compress-path
+  "Returns a subset of path containing only the last pointer for every cube in the path
+  assumes the last pointer is the end step so excludes it"
+  [path]
+  (letfn [(reducer [acc pointer]
+            (if (= (:cube (peek acc))
+                   (:cube pointer))
+              (conj (pop acc) pointer)
+              (conj acc pointer)))]
+
+    (pop (reduce reducer [] path))))
+
+
+(defn show-breadcrumbs
+  "Given a path, returns the battlemap of breadcrumbs representing it"
+  [battlefield battlemap player path]
+  (->> (for [pointer (compress-path path)
+             :let [cube (:cube pointer)]]
+         [cube
+          (if-let [mover (battlemap cube)]
+            (assoc mover
+                   :mover/highlighted (:facing pointer)
+                   :mover/state :past)
+            (-> (me/gen-mover (:cube pointer) player
+                              :highlighted (:facing pointer)
+                              :state :past)
+                (lt/swap (battlefield cube))))])
+       (into {})))
 
 
 (defn list-threats
