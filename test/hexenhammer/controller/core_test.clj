@@ -307,6 +307,36 @@
 (facts
  "finish movement"
 
+ (let [pointer (mc/->Pointer :cube-1 :n)
+       unit {:unit/player 1
+             :unit/id 2}]
+
+   (finish-movement {:game/selected :cube-1
+                     :game/battlefield {:cube-1 unit
+                                        :cube-2 :terrain-2}
+                     :game/movement {:pointer pointer}})
+   => :unselect
+
+   (provided
+
+    (lt/pickup unit) => :old-terrain
+
+    (lt/swap {:unit/player 1
+              :unit/id 2
+              :entity/state :default
+              :entity/cube :cube-1
+              :unit/facing :n}
+             unit)
+    => :unit-2
+
+    (unselect {:game/selected :cube-1
+               :game/battlefield {:cube-1 :unit-2
+                                  :cube-2 :terrain-2}
+               :game/movement {:pointer pointer}
+               :game/units {1 {:cubes {2 :cube-1}}}})
+    => :unselect))
+
+
  (let [pointer (mc/->Pointer :cube-2 :n)
        unit {:unit/player 1
              :unit/id 2}]
@@ -321,12 +351,12 @@
 
     (lt/pickup unit) => :old-terrain
 
-    (lt/place {:unit/player 1
-               :unit/id 2
-               :entity/state :default
-               :entity/cube :cube-2
-               :unit/facing :n}
-              :terrain-2)
+    (lt/swap {:unit/player 1
+              :unit/id 2
+              :entity/state :default
+              :entity/cube :cube-2
+              :unit/facing :n}
+             :terrain-2)
     => :unit-2
 
     (unselect {:game/selected :cube-1

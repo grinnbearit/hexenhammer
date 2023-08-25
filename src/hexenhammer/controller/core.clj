@@ -144,7 +144,7 @@
                                 :entity/state :default
                                 :entity/cube (:cube pointer)
                                 :unit/facing (:facing pointer))
-                         (lt/place new-terrain))]
+                         (lt/swap new-terrain))]
     (-> (assoc-in state [:game/battlefield cube] old-terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
         (assoc-in [:game/units (:unit/player unit) :cubes (:unit/id unit)] (:cube pointer))

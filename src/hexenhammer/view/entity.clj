@@ -66,15 +66,12 @@
 (defmethod render :mover
   [mover]
   (-> [:g {}
-       (render-terrain mover)
+       (render-floor mover)
        (-> [:g {}
-            (cond-> (-> (svg/hexagon)
-                        (svg/add-classes ["mover"
-                                          (name (:mover/state mover))
-                                          (str "player-" (:unit/player mover))]))
-
-              (= :selectable (:entity/interaction mover))
-              (svg/selectable (:entity/cube mover)))
+            (-> (svg/hexagon)
+                (svg/add-classes ["mover"
+                                  (name (:mover/state mover))
+                                  (str "player-" (:unit/player mover))]))
 
             (for [option (disj (:mover/options mover)
                                (:mover/selected mover)
@@ -94,4 +91,5 @@
 
            (svg/scale 9/10))]
 
-      (svg/translate (:entity/cube mover))))
+      (svg/translate (:entity/cube mover))
+      (if-selectable mover)))
