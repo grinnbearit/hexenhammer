@@ -22,3 +22,10 @@
   "Places object onto the entity after picking up what's on it"
   [object entity]
   (place object (pickup entity)))
+
+
+(defn passable?
+  "Returns true if the passed entity can be moved trough"
+  [entity]
+  (and (le/terrain? entity)
+       (not= :impassable (:terrain/type entity))))

@@ -52,11 +52,11 @@
 
 
 (defn valid-pointer?
-  "Returns true if the pointer is on the battlefield and on a terrain hex"
+  "Returns true if the pointer is on the battlefield and not on an impassable hex"
   [battlefield pointer]
   (let [cube (:cube pointer)]
     (and (contains? battlefield cube)
-         (le/terrain? (battlefield cube)))))
+         (lt/passable? (battlefield cube)))))
 
 
 (defn forward-paths

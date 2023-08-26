@@ -35,3 +35,26 @@
 
  (provided
   (place :object (pickup :entity)) => :place))
+
+
+(facts
+ "passable?"
+
+ (passable? :unit-1) => false
+
+ (provided
+  (le/terrain? :unit-1) => false)
+
+
+ (let [entity {:terrain/type :impassable}]
+   (passable? entity) => false
+
+   (provided
+    (le/terrain? entity) => true))
+
+
+ (let [entity {:terrain/type :open}]
+   (passable? entity) => true
+
+   (provided
+    (le/terrain? entity) => true)))

@@ -88,13 +88,13 @@
  => false
 
  (provided
-  (le/terrain? :unit-1) => false)
+  (lt/passable? :unit-1) => false)
 
  (valid-pointer? {:cube-1 :terrain-1} (mc/->Pointer :cube-1 :facing-1))
  => true
 
  (provided
-  (le/terrain? :terrain-1) => true))
+  (lt/passable? :terrain-1) => true))
 
 
 (facts
