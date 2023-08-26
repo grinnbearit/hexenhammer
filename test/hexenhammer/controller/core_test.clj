@@ -227,6 +227,18 @@
 
 
 (facts
+ "to charge"
+
+ (to-charge {:game/battlefield :battlefield-1})
+ => {:game/phase :charge
+     :game/subphase :select-hex
+     :game/battlefield :battlefield-2}
+
+ (provided
+  (cb/set-state :battlefield-1 :default) => :battlefield-2))
+
+
+(facts
  "to movement"
 
  (to-movement {:game/player 1

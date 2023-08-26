@@ -88,6 +88,14 @@
         (select cube))))
 
 
+(defn to-charge
+  [state]
+  (-> (assoc state
+             :game/phase :charge
+             :game/subphase :select-hex)
+      (update :game/battlefield cb/set-state :default)))
+
+
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (vals (get-in state [:game/units player :cubes]))

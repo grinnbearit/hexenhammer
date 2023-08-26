@@ -21,8 +21,8 @@
      [:style STYLESHEET]]
     [:body
      (vw/render-battlefield state) [:br] [:br]
-     [:form {:action "/setup/to-movement" :method "post"}
-      [:input {:type "submit" :value "To Movement"}]]]]))
+     [:form {:action "/setup/to-charge" :method "post"}
+      [:input {:type "submit" :value "To Charge"}]]]]))
 
 
 (defmethod render [:setup :add-unit]
@@ -129,6 +129,20 @@
              [:input {:type "radio" :id "terrain" :name "terrain" :value "open" :checked true} "open"])]]]
 
         [:input {:type "submit" :value "Swap Terrain"}]]]])))
+
+
+(defmethod render [:charge :select-hex]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Charge"]
+     [:style STYLESHEET]]
+    [:body
+     (vw/render-battlefield state) [:br] [:br]
+     [:form {:action "/charge/to-movement" :method "post"}
+      [:input {:type "submit" :value "To Movement"}]]]]))
 
 
 (defmethod render [:movement :select-hex]
