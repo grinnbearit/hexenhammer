@@ -229,13 +229,29 @@
 (facts
  "to charge"
 
- (to-charge {:game/battlefield :battlefield-1})
- => {:game/phase :charge
+ (to-charge {:game/player 1
+             :game/battlefield :battlefield-1
+             :game/units {1 {:cubes {:id-1 :cube-1}}}})
+ => {:game/player 1
+     :game/phase :charge
      :game/subphase :select-hex
-     :game/battlefield :battlefield-2}
+     :game/battlefield :battlefield-3
+     :game/units {1 {:cubes {:id-1 :cube-1}}}}
 
  (provided
-  (cb/set-state :battlefield-1 :default) => :battlefield-2))
+  (cb/set-state :battlefield-1 :default) => :battlefield-2
+  (cb/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3))
+
+
+(facts
+ "unselect charge"
+
+ (unselect {:game/phase :charge
+            :game/selected :cube-1
+            :game/battlemap :battlemap-1})
+
+ => {:game/phase :charge
+     :game/subphase :select-hex})
 
 
 (facts

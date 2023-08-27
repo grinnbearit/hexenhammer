@@ -1,6 +1,7 @@
 (ns hexenhammer.logic.core
   (:require [hexenhammer.model.cube :as cube]
-            [hexenhammer.logic.entity :as le]))
+            [hexenhammer.logic.entity :as le]
+            [hexenhammer.logic.terrain :as lt]))
 
 
 (defn enemies?
@@ -35,12 +36,15 @@
 
 
 (defn battlefield-visible?
-  "Returns true if every cube between cx and cy is terrain"
+  "Returns true if every cube between cx and cy has an los value
+  less than either of their los"
   [battlefield cx cy]
-  (->> (cube/cubes-between cx cy)
-       (map battlefield)
-       (remove le/terrain?)
-       (empty?)))
+  (let [max-los (max (:entity/los (battlefield cx))
+                     (:entity/los (battlefield cy)))]
+    (->> (cube/cubes-between cx cy)
+         (map (comp :entity/los battlefield))
+         (remove #(< % max-los))
+         (empty?))))
 
 
 (defn field-of-view
@@ -56,3 +60,11 @@
                   (concat acc slice))))]
 
       (reduce reducer [] (drop 1 (range))))))
+
+
+(defn valid-pointer?
+  "Returns true if the pointer is on the battlefield and not on an impassable hex"
+  [battlefield pointer]
+  (let [cube (:cube pointer)]
+    (and (contains? battlefield cube)
+         (lt/passable? (battlefield cube)))))

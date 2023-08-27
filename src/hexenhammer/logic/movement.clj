@@ -1,5 +1,5 @@
 (ns hexenhammer.logic.movement
-  (:require [hexenhammer.logic.core :as lc]
+  (:require [hexenhammer.logic.core :as l]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.entity :as me]
@@ -23,7 +23,7 @@
            :let [pointer (mc/->Pointer cube facing)
                  shadow (pointer->shadow (:unit/player unit) pointer)
                  shadow-battlefield (assoc battlefield cube shadow)]
-           :when (not (lc/battlefield-engaged? shadow-battlefield cube))]
+           :when (not (l/battlefield-engaged? shadow-battlefield cube))]
        facing))))
 
 
@@ -51,18 +51,10 @@
      (mc/->Pointer forward-cube rp)]))
 
 
-(defn valid-pointer?
-  "Returns true if the pointer is on the battlefield and not on an impassable hex"
-  [battlefield pointer]
-  (let [cube (:cube pointer)]
-    (and (contains? battlefield cube)
-         (lt/passable? (battlefield cube)))))
-
-
 (defn forward-paths
   "Returns all sequences of steps reachable in hexes from the passed pointer,
   does not include duplicate paths to the same pointer
-  prioritises by shortest path and the order in `forward-steps`"
+  prioritises by shortest path and the order in `forward-step`"
   [battlefield start hexes]
   (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
          paths []
@@ -80,7 +72,7 @@
           (let [path (peek queue)
                 pointer (peek path)
                 steps (->> (forward-step pointer)
-                           (filter #(valid-pointer? battlefield %))
+                           (filter #(l/valid-pointer? battlefield %))
                            (remove seen))]
 
             (if (empty? steps)
@@ -99,7 +91,7 @@
     (->> (iterate #(mc/step % facing) (:cube start))
          (drop 1)
          (map #(mc/->Pointer % (:facing start)))
-         (take-while #(valid-pointer? battlefield %))
+         (take-while #(l/valid-pointer? battlefield %))
          (take hexes)
          (cons start)
          (vec))))
@@ -123,7 +115,7 @@
             (let [cube (:cube pointer)
                   shadow (pointer->shadow player pointer)
                   shadow-battlefield (assoc battlefield cube shadow)]
-              (if (not (lc/battlefield-engaged? shadow-battlefield cube))
+              (if (not (l/battlefield-engaged? shadow-battlefield cube))
                 (update mover-acc cube (fnil conj #{}) (:facing pointer))
                 mover-acc)))]
 
@@ -230,7 +222,7 @@
           :when (contains? battlefield neighbour)
           :let [entity (battlefield neighbour)]
           :when (and (le/unit? entity)
-                     (lc/enemies? unit entity))]
+                     (l/enemies? unit entity))]
       neighbour)))
 
 

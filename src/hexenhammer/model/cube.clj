@@ -117,4 +117,5 @@
          (drop 1)
          (take (dec cuts))
          (map round)
+         (remove #{cx cy})
          (distinct))))

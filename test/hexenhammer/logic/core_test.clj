@@ -1,7 +1,8 @@
 (ns hexenhammer.logic.core-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.model.cube :as cube]
+            [hexenhammer.model.cube :as mc]
             [hexenhammer.logic.entity :as le]
+            [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.core :refer :all]))
 
 
@@ -36,10 +37,10 @@
  => false
 
  (provided
-  (cube/forward-arc :cube-1 :n)
+  (mc/forward-arc :cube-1 :n)
   => [:cube-3 :cube-4]
 
-  (cube/forward-arc :cube-2 :n)
+  (mc/forward-arc :cube-2 :n)
   => [:cube-5 :cube-6])
 
 
@@ -52,7 +53,7 @@
  => true
 
  (provided
-  (cube/forward-arc :cube-1 :n)
+  (mc/forward-arc :cube-1 :n)
   => [:cube-2])
 
 
@@ -65,10 +66,10 @@
  => true
 
  (provided
-  (cube/forward-arc :cube-1 :n)
+  (mc/forward-arc :cube-1 :n)
   => [:cube-3 :cube-4]
 
-  (cube/forward-arc :cube-2 :n)
+  (mc/forward-arc :cube-2 :n)
   => [:cube-1]))
 
 
@@ -79,14 +80,14 @@
  => false
 
  (provided
-  (cube/neighbours :cube-1) => [])
+  (mc/neighbours :cube-1) => [])
 
 
  (battlefield-engaged? {:cube-1 :unit-1} :cube-1)
  => false
 
  (provided
-  (cube/neighbours :cube-1) => [:cube-2])
+  (mc/neighbours :cube-1) => [:cube-2])
 
 
  (battlefield-engaged? {:cube-1 :unit-1
@@ -95,7 +96,7 @@
  => false
 
  (provided
-  (cube/neighbours :cube-1) => [:cube-2]
+  (mc/neighbours :cube-1) => [:cube-2]
 
   (le/unit? :terrain-1) => false)
 
@@ -106,7 +107,7 @@
  => false
 
  (provided
-  (cube/neighbours :cube-1) => [:cube-2]
+  (mc/neighbours :cube-1) => [:cube-2]
 
   (le/unit? :unit-2) => true
 
@@ -119,7 +120,7 @@
  => true
 
  (provided
-  (cube/neighbours :cube-1) => [:cube-2]
+  (mc/neighbours :cube-1) => [:cube-2]
 
   (le/unit? :unit-2) => true
 
@@ -129,34 +130,43 @@
 (facts
  "battlefield visible?"
 
- (battlefield-visible? :battlefield :cube-1 :cube-2)
+ (battlefield-visible? {:cube-1 {:entity/los 0}
+                        :cube-2 {:entity/los 0}}
+                       :cube-1 :cube-2)
  => true
 
  (provided
-  (cube/cubes-between :cube-1 :cube-2) => [])
+  (mc/cubes-between :cube-1 :cube-2) => [])
 
 
- (battlefield-visible? :battlefield :cube-1 :cube-2)
+ (battlefield-visible? {:cube-1 {:entity/los 1}
+                        :cube-2 {:entity/los 1}
+                        :cube-3 {:entity/los 1}}
+                       :cube-1 :cube-3)
  => false
 
  (provided
-  (cube/cubes-between :cube-1 :cube-2) => [:cube-1])
+  (mc/cubes-between :cube-1 :cube-3) => [:cube-2])
 
 
- (battlefield-visible? {:cube-3 :unit-1} :cube-1 :cube-2)
- => false
-
- (provided
-  (cube/cubes-between :cube-1 :cube-2) => [:cube-3]
-  (le/terrain? :unit-1) => false)
-
-
- (battlefield-visible? {:cube-3 :terrain-1} :cube-1 :cube-2)
+ (battlefield-visible? {:cube-1 {:entity/los 1}
+                        :cube-2 {:entity/los 0}
+                        :cube-3 {:entity/los 1}}
+                       :cube-1 :cube-3)
  => true
 
  (provided
-  (cube/cubes-between :cube-1 :cube-2) => [:cube-3]
-  (le/terrain? :terrain-1) => true))
+  (mc/cubes-between :cube-1 :cube-3) => [:cube-2])
+
+
+ (battlefield-visible? {:cube-1 {:entity/los 1}
+                        :cube-2 {:entity/los 1}
+                        :cube-3 {:entity/los 2}}
+                       :cube-1 :cube-3)
+ => true
+
+ (provided
+  (mc/cubes-between :cube-1 :cube-3) => [:cube-2]))
 
 
 (facts
@@ -166,14 +176,14 @@
  => []
 
  (provided
-  (cube/forward-slice :cube-1 :n 1) => [])
+  (mc/forward-slice :cube-1 :n 1) => [])
 
 
  (field-of-view {:cube-1 {:unit/facing :n}} :cube-1)
  => []
 
  (provided
-  (cube/forward-slice :cube-1 :n 1) => [:cube-2])
+  (mc/forward-slice :cube-1 :n 1) => [:cube-2])
 
 
  (let [battlefield {:cube-1 {:unit/facing :n}
@@ -183,7 +193,7 @@
    => []
 
    (provided
-    (cube/forward-slice :cube-1 :n 1) => [:cube-2]
+    (mc/forward-slice :cube-1 :n 1) => [:cube-2]
     (battlefield-visible? battlefield :cube-1 :cube-2) => false))
 
 
@@ -194,6 +204,25 @@
    => [:cube-2]
 
    (provided
-    (cube/forward-slice :cube-1 :n 1) => [:cube-2]
+    (mc/forward-slice :cube-1 :n 1) => [:cube-2]
     (battlefield-visible? battlefield :cube-1 :cube-2) => true
-    (cube/forward-slice :cube-1 :n 2) => [])))
+    (mc/forward-slice :cube-1 :n 2) => [])))
+
+
+(facts
+ "valid pointer?"
+
+ (valid-pointer? {} (mc/->Pointer :cube-1 :facing-1))
+ => false
+
+ (valid-pointer? {:cube-1 :unit-1} (mc/->Pointer :cube-1 :facing-1))
+ => false
+
+ (provided
+  (lt/passable? :unit-1) => false)
+
+ (valid-pointer? {:cube-1 :terrain-1} (mc/->Pointer :cube-1 :facing-1))
+ => true
+
+ (provided
+  (lt/passable? :terrain-1) => true))

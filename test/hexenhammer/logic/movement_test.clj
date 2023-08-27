@@ -1,6 +1,6 @@
 (ns hexenhammer.logic.movement-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.core :as l]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.cube :as mc]
@@ -26,22 +26,22 @@
 
  (provided
   (pointer->shadow 1 (mc/->Pointer :cube-1 :n)) => :shadow-n
-  (lc/battlefield-engaged? {:cube-1 :shadow-n} :cube-1) => false
+  (l/battlefield-engaged? {:cube-1 :shadow-n} :cube-1) => false
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :ne)) => :shadow-ne
-  (lc/battlefield-engaged? {:cube-1 :shadow-ne} :cube-1) => true
+  (l/battlefield-engaged? {:cube-1 :shadow-ne} :cube-1) => true
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :se)) => :shadow-se
-  (lc/battlefield-engaged? {:cube-1 :shadow-se} :cube-1) => true
+  (l/battlefield-engaged? {:cube-1 :shadow-se} :cube-1) => true
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :s)) => :shadow-s
-  (lc/battlefield-engaged? {:cube-1 :shadow-s} :cube-1) => true
+  (l/battlefield-engaged? {:cube-1 :shadow-s} :cube-1) => true
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :sw)) => :shadow-sw
-  (lc/battlefield-engaged? {:cube-1 :shadow-sw} :cube-1) => false
+  (l/battlefield-engaged? {:cube-1 :shadow-sw} :cube-1) => false
 
   (pointer->shadow 1 (mc/->Pointer :cube-1 :nw)) => :shadow-nw
-  (lc/battlefield-engaged? {:cube-1 :shadow-nw} :cube-1) => false))
+  (l/battlefield-engaged? {:cube-1 :shadow-nw} :cube-1) => false))
 
 
 (facts
@@ -79,25 +79,6 @@
 
 
 (facts
- "valid pointer?"
-
- (valid-pointer? {} (mc/->Pointer :cube-1 :facing-1))
- => false
-
- (valid-pointer? {:cube-1 :unit-1} (mc/->Pointer :cube-1 :facing-1))
- => false
-
- (provided
-  (lt/passable? :unit-1) => false)
-
- (valid-pointer? {:cube-1 :terrain-1} (mc/->Pointer :cube-1 :facing-1))
- => true
-
- (provided
-  (lt/passable? :terrain-1) => true))
-
-
-(facts
  "forward paths"
 
  (forward-paths :battlefield :pointer-1 0)
@@ -116,7 +97,7 @@
 
  (provided
   (forward-step :pointer-1) => [:pointer-2]
-  (valid-pointer? :battlefield :pointer-2) => false)
+  (l/valid-pointer? :battlefield :pointer-2) => false)
 
 
  (forward-paths :battlefield :pointer-1 1)
@@ -124,7 +105,7 @@
 
  (provided
   (forward-step :pointer-1) => [:pointer-2]
-  (valid-pointer? :battlefield :pointer-2) => true)
+  (l/valid-pointer? :battlefield :pointer-2) => true)
 
 
  (forward-paths :battlefield :pointer-1 2)
@@ -132,9 +113,9 @@
 
  (provided
   (forward-step :pointer-1) => [:pointer-2]
-  (valid-pointer? :battlefield :pointer-2) => true
+  (l/valid-pointer? :battlefield :pointer-2) => true
   (forward-step :pointer-2) => [:pointer-1]
-  (valid-pointer? :battlefield :pointer-1) => true))
+  (l/valid-pointer? :battlefield :pointer-1) => true))
 
 
 (facts
@@ -161,11 +142,11 @@
     (mc/step :cube-1 :sw) => :cube-1-sw
     (mc/step :cube-1 :nw) => :cube-1-nw
 
-    (valid-pointer? :battlefield pointer-ne) => true
-    (valid-pointer? :battlefield pointer-se) => true
-    (valid-pointer? :battlefield pointer-s) => true
-    (valid-pointer? :battlefield pointer-sw) => true
-    (valid-pointer? :battlefield pointer-nw) => true)))
+    (l/valid-pointer? :battlefield pointer-ne) => true
+    (l/valid-pointer? :battlefield pointer-se) => true
+    (l/valid-pointer? :battlefield pointer-s) => true
+    (l/valid-pointer? :battlefield pointer-sw) => true
+    (l/valid-pointer? :battlefield pointer-nw) => true)))
 
 
 (facts
@@ -198,16 +179,16 @@
 
    (provided
     (pointer->shadow 1 pointer-1) => :shadow-1
-    (lc/battlefield-engaged? {:cube-1 :shadow-1 :cube-2 :entity-2} :cube-1) => false
+    (l/battlefield-engaged? {:cube-1 :shadow-1 :cube-2 :entity-2} :cube-1) => false
 
     (pointer->shadow 1 pointer-2) => :shadow-2
-    (lc/battlefield-engaged? {:cube-1 :shadow-2 :cube-2 :entity-2} :cube-1) => false
+    (l/battlefield-engaged? {:cube-1 :shadow-2 :cube-2 :entity-2} :cube-1) => false
 
     (pointer->shadow 1 pointer-3) => :shadow-3
-    (lc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-3} :cube-2) => true
+    (l/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-3} :cube-2) => true
 
     (pointer->shadow 1 pointer-4) => :shadow-4
-    (lc/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-4} :cube-2) => false
+    (l/battlefield-engaged? {:cube-1 :entity-1 :cube-2 :shadow-4} :cube-2) => false
 
     (me/gen-mover :cube-1 1 :options #{:n :ne}) => :mover-1
     (lt/swap :mover-1 :entity-1) => :swap-1
@@ -386,7 +367,7 @@
   (le/unit? :unit-2)
   => true
 
-  (lc/enemies? :unit-1 :unit-2)
+  (l/enemies? :unit-1 :unit-2)
   => false)
 
 
@@ -402,7 +383,7 @@
   (le/unit? :unit-2)
   => true
 
-  (lc/enemies? :unit-1 :unit-2)
+  (l/enemies? :unit-1 :unit-2)
   => true))
 
 

@@ -1,9 +1,10 @@
 (ns hexenhammer.controller.core
   (:require [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
-            [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.core :as l]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
+            [hexenhammer.logic.charge :as lc]
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
@@ -89,17 +90,35 @@
 
 
 (defn to-charge
+  [{:keys [game/player] :as state}]
+  (let [player-cubes (vals (get-in state [:game/units player :cubes]))]
+    (-> (assoc state
+               :game/phase :charge
+               :game/subphase :select-hex)
+        (update :game/battlefield cb/set-state :default)
+        (update :game/battlefield cb/set-state player-cubes :selectable))))
+
+
+(defmethod unselect :charge
   [state]
-  (-> (assoc state
-             :game/phase :charge
-             :game/subphase :select-hex)
-      (update :game/battlefield cb/set-state :default)))
+  (-> (assoc state :game/subphase :select-hex)
+      (dissoc :game/selected
+              :game/battlemap)))
+
+
+(defmethod select [:charge :select-hex]
+  [state cube]
+  (if (= cube (:game/selected state))
+    (unselect state)
+    (let [battlemap (lc/show-charge (:game/battlefield state) cube)]
+      (-> (assoc state :game/selected cube)
+          (assoc :game/battlemap battlemap)))))
 
 
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (vals (get-in state [:game/units player :cubes]))
-        movable-cubes (remove #(lc/battlefield-engaged? battlefield %) player-cubes)]
+        movable-cubes (remove #(l/battlefield-engaged? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)
