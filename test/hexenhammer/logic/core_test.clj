@@ -1,6 +1,7 @@
 (ns hexenhammer.logic.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as mc]
+            [hexenhammer.model.entity :as me]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.core :refer :all]))
@@ -74,26 +75,26 @@
 
 
 (facts
- "battlefield engaged?"
+ "engaged cubes?"
 
- (battlefield-engaged? {:cube-1 :unit-1} :cube-1)
- => false
+ (engaged-cubes {:cube-1 :unit-1} :cube-1)
+ => []
 
  (provided
   (mc/neighbours :cube-1) => [])
 
 
- (battlefield-engaged? {:cube-1 :unit-1} :cube-1)
- => false
+ (engaged-cubes {:cube-1 :unit-1} :cube-1)
+ => []
 
  (provided
   (mc/neighbours :cube-1) => [:cube-2])
 
 
- (battlefield-engaged? {:cube-1 :unit-1
-                        :cube-2 :terrain-1}
-                       :cube-1)
- => false
+ (engaged-cubes {:cube-1 :unit-1
+                 :cube-2 :terrain-1}
+                :cube-1)
+ => []
 
  (provided
   (mc/neighbours :cube-1) => [:cube-2]
@@ -101,10 +102,10 @@
   (le/unit? :terrain-1) => false)
 
 
- (battlefield-engaged? {:cube-1 :unit-1
-                        :cube-2 :unit-2}
-                       :cube-1)
- => false
+ (engaged-cubes {:cube-1 :unit-1
+                 :cube-2 :unit-2}
+                :cube-1)
+ => []
 
  (provided
   (mc/neighbours :cube-1) => [:cube-2]
@@ -114,10 +115,10 @@
   (engaged? :unit-1 :unit-2) => false)
 
 
- (battlefield-engaged? {:cube-1 :unit-1
-                        :cube-2 :unit-2}
-                       :cube-1)
- => true
+ (engaged-cubes {:cube-1 :unit-1
+                 :cube-2 :unit-2}
+                :cube-1)
+ => [:cube-2]
 
  (provided
   (mc/neighbours :cube-1) => [:cube-2]
@@ -125,6 +126,23 @@
   (le/unit? :unit-2) => true
 
   (engaged? :unit-1 :unit-2) => true))
+
+
+(facts
+ "battlefield engaged?"
+
+ (battlefield-engaged? :battlefield :cube-1)
+ => false
+
+ (provided
+  (engaged-cubes :battlefield :cube-1) => [])
+
+
+ (battlefield-engaged? :battlefield :cube-1)
+ => true
+
+ (provided
+  (engaged-cubes :battlefield :cube-1) => [:cube-2]))
 
 
 (facts
@@ -210,19 +228,34 @@
 
 
 (facts
- "valid pointer?"
+ "remove unit"
 
- (valid-pointer? {} (mc/->Pointer :cube-1 :facing-1))
- => false
+ (let [battlefield {:cube-1 {:entity/class :unit}
+                    :cube-2 :terrain-2}]
 
- (valid-pointer? {:cube-1 :unit-1} (mc/->Pointer :cube-1 :facing-1))
- => false
+   (remove-unit battlefield :cube-1)
+   => {:cube-1 :terrain-1
+       :cube-2 :terrain-2}
 
- (provided
-  (lt/passable? :unit-1) => false)
+   (provided
+    (lt/pickup {:entity/class :unit}) => :terrain-1)))
 
- (valid-pointer? {:cube-1 :terrain-1} (mc/->Pointer :cube-1 :facing-1))
- => true
 
- (provided
-  (lt/passable? :terrain-1) => true))
+(facts
+ "move unit"
+
+ (let [battlefield {:cube-1 {:entity/class :unit}
+                    :cube-2 :terrain-2}]
+
+   (move-unit battlefield :cube-1 (mc/->Pointer :cube-2 :n))
+   => {:cube-1 :terrain-1
+       :cube-2 :unit-2}
+
+   (provided
+    (lt/pickup {:entity/class :unit}) => :terrain-1
+
+    (lt/place {:entity/class :unit
+               :entity/cube :cube-2
+               :unit/facing :n}
+              :terrain-2)
+    => :unit-2)))

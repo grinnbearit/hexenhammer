@@ -550,7 +550,7 @@
    (provided
     (lm/show-forward battlefield :cube-1)
     => {:battlemap :battlemap-1
-        :path-map :path-map-1}
+        :breadcrumbs :breadcrumbs-1}
 
     (move {:game/phase :movement
            :game/subphase :forward
@@ -558,7 +558,7 @@
            :game/selected :cube-1
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
-                           :path-map :path-map-1}}
+                           :breadcrumbs :breadcrumbs-1}}
           pointer)
     => :move)))
 
@@ -589,7 +589,7 @@
    (provided
     (lm/show-reposition battlefield :cube-1)
     => {:battlemap :battlemap-1
-        :path-map :path-map-1}
+        :breadcrumbs :breadcrumbs-1}
 
     (move {:game/phase :movement
            :game/subphase :reposition
@@ -597,7 +597,7 @@
            :game/selected :cube-1
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
-                           :path-map :path-map-1}}
+                           :breadcrumbs :breadcrumbs-1}}
           pointer)
     => :move)))
 
@@ -628,7 +628,7 @@
    (provided
     (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
-        :path-map :path-map-1}
+        :breadcrumbs :breadcrumbs-1}
 
     (lm/show-threats battlefield :cube-1)
     => {}
@@ -639,7 +639,7 @@
            :game/selected :cube-1
            :game/battlemap {:cube-1 :battlemap-entry}
            :game/movement {:battlemap {:cube-1 :battlemap-entry}
-                           :path-map :path-map-1
+                           :breadcrumbs :breadcrumbs-1
                            :march :unnecessary}}
           pointer)
     => :move))
@@ -657,7 +657,7 @@
    (provided
     (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
-        :path-map :path-map-1}
+        :breadcrumbs :breadcrumbs-1}
 
     (lm/show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry}
@@ -670,7 +670,7 @@
                             :cube-2 :threat-entry}
            :game/movement {:battlemap {:cube-1 :battlemap-entry
                                        :cube-2 :threat-entry}
-                           :path-map :path-map-1
+                           :breadcrumbs :breadcrumbs-1
                            :march :required}}
           pointer)
     => :move))
@@ -689,7 +689,7 @@
    (provided
     (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
-        :path-map :path-map-1}
+        :breadcrumbs :breadcrumbs-1}
 
     (lm/show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry}
@@ -702,7 +702,7 @@
                             :cube-2 :threat-entry}
            :game/movement {:battlemap {:cube-1 :battlemap-entry
                                        :cube-2 :threat-entry}
-                           :path-map :path-map-1
+                           :breadcrumbs :breadcrumbs-1
                            :march :passed}}
           pointer)
     => :move))
@@ -722,7 +722,7 @@
    (provided
     (lm/show-march battlefield :cube-1)
     => {:battlemap {:cube-1 :battlemap-entry}
-        :path-map :path-map-1}
+        :breadcrumbs :breadcrumbs-1}
 
     (lm/show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry}
@@ -735,7 +735,7 @@
                             :cube-2 :threat-entry}
            :game/movement {:battlemap {:cube-1 :battlemap-entry
                                        :cube-2 :threat-entry}
-                           :path-map :path-map-1
+                           :breadcrumbs :breadcrumbs-1
                            :march :failed}}
           pointer)
     => :move)))

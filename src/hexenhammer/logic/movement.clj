@@ -7,24 +7,16 @@
             [clojure.set :as set]))
 
 
-(defn pointer->shadow
-  "Takes a player and a pointer and returns a shadow unit with that cube and facing"
-  [player pointer]
-  (me/gen-shadow (:cube pointer) player (:facing pointer)))
-
-
 (defn reform-facings
   "Given a cube, returns a set of allowed facings after a reform,
   includes the original facing"
   [battlefield cube]
-  (let [unit (battlefield cube)]
-    (set
-     (for [facing #{:n :ne :se :s :sw :nw}
-           :let [pointer (mc/->Pointer cube facing)
-                 shadow (pointer->shadow (:unit/player unit) pointer)
-                 shadow-battlefield (assoc battlefield cube shadow)]
-           :when (not (l/battlefield-engaged? shadow-battlefield cube))]
-       facing))))
+  (set
+   (for [facing #{:n :ne :se :s :sw :nw}
+         :let [pointer (mc/->Pointer cube facing)
+               shadow-battlefield (l/move-unit battlefield cube pointer)]
+         :when (not (l/battlefield-engaged? shadow-battlefield cube))]
+     facing)))
 
 
 (defn show-reform
@@ -51,75 +43,89 @@
      (mc/->Pointer forward-cube rp)]))
 
 
+(defn valid-move?
+  "Returns true if this pointer can be moved to"
+  [battlefield cube pointer]
+  (let [shadow-battlefield (l/remove-unit battlefield cube)]
+    (lt/passable? (shadow-battlefield (:cube pointer)))))
+
+
+(defn valid-end?
+  "Returns true if this pointer can be the end step in a move"
+  [battlefield cube pointer]
+  (let [shadow-battlefield (l/move-unit battlefield cube pointer)]
+    (not (l/battlefield-engaged? shadow-battlefield (:cube pointer)))))
+
+
 (defn forward-paths
   "Returns all sequences of steps reachable in hexes from the passed pointer,
   does not include duplicate paths to the same pointer
+  removes paths that end as engaged
   prioritises by shortest path and the order in `forward-step`"
   [battlefield start hexes]
-  (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
-         paths []
-         seen #{start}]
+  (let [cube (:cube start)]
+    (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
+           paths []
+           seen #{start}]
 
-    (cond (empty? queue)
-          paths
+      (if (empty? queue)
+        paths
 
-          (= (inc hexes) (count (peek queue)))
-          (recur (pop queue)
-                 (conj paths (peek queue))
-                 seen)
+        (let [path (peek queue)
+              pointer (peek path)
+              steps (->> (forward-step pointer)
+                         (filter #(valid-move? battlefield cube %))
+                         (remove seen))]
 
-          :else
-          (let [path (peek queue)
-                pointer (peek path)
-                steps (->> (forward-step pointer)
-                           (filter #(l/valid-pointer? battlefield %))
-                           (remove seen))]
+          (cond (and (or (= (inc hexes) (count path))
+                         (empty? steps))
+                     (valid-end? battlefield cube pointer))
+                (recur (pop queue) (conj paths path) seen)
 
-            (if (empty? steps)
-              (recur (pop queue) (conj paths path) seen)
-              (recur (->> (map #(conj path %) steps)
-                          (into (pop queue)))
-                     paths
-                     (into seen steps)))))))
+                (or (= (inc hexes) (count path))
+                    (empty? steps))
+                (recur (pop queue) paths seen)
+
+                (valid-end? battlefield cube pointer)
+                (recur (->> (map #(conj path %) steps)
+                            (into (pop queue)))
+                       (conj paths path)
+                       (into seen steps))
+
+                :else
+                (recur (->> (map #(conj path %) steps)
+                            (into (pop queue)))
+                       paths
+                       (into seen steps))))))))
 
 
 (defn reposition-paths
   "returns all valid repositioning paths given the starting pointer and a number of hexes
-  ensures the returned paths are vectors"
+  removes paths that end as engaged"
   [battlefield start hexes]
-  (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing start))]
-    (->> (iterate #(mc/step % facing) (:cube start))
-         (drop 1)
-         (map #(mc/->Pointer % (:facing start)))
-         (take-while #(l/valid-pointer? battlefield %))
-         (take hexes)
-         (cons start)
-         (vec))))
+  (->> (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing start))
+             :let [steps (->> (iterate #(mc/step % facing) (:cube start))
+                              (drop 1)
+                              (map #(mc/->Pointer % (:facing start)))
+                              (take-while #(valid-move? battlefield (:cube start) %))
+                              (take hexes)
+                              (cons start)
+                              (vec))]
+             path-length (range 2 (+ 2 hexes))
+             :when (<= path-length (count steps))
+             :let [path (subvec steps 0 path-length)]
+             :when (valid-end? battlefield (:cube start) (peek path))]
+         path)
+       (cons [start])))
 
 
-(defn paths->path-map
-  "Given a vector of paths, returns a map of pointer->subpath for every path in paths"
-  [paths]
-  (->> (for [path paths
-             n (range (count path))
-             :let [subpath (subvec path 0 (inc n))]]
-         [(peek subpath) subpath])
-       (into {})))
-
-
-(defn path-map->battlemap
-  "Given a player and path map returns a new battlemap with the movers representing those paths
-  removes invalid pointers from paths"
-  [battlefield player path-map]
+(defn show-battlemap
+  "Given a battlefield, player and path-map returns a new battlemap with the movers representing those paths"
+  [battlefield player paths]
   (letfn [(reducer [mover-acc pointer]
-            (let [cube (:cube pointer)
-                  shadow (pointer->shadow player pointer)
-                  shadow-battlefield (assoc battlefield cube shadow)]
-              (if (not (l/battlefield-engaged? shadow-battlefield cube))
-                (update mover-acc cube (fnil conj #{}) (:facing pointer))
-                mover-acc)))]
+            (update mover-acc (:cube pointer) (fnil conj #{}) (:facing pointer)))]
 
-    (->> (for [[cube options] (reduce reducer {} (apply concat (vals path-map)))]
+    (->> (for [[cube options] (reduce reducer {} (map peek paths))]
            [cube (-> (me/gen-mover cube player :options options)
                      (lt/swap (battlefield cube)))])
          (into {}))))
@@ -130,11 +136,42 @@
   (Math/round (float (/ M 3))))
 
 
-(defn remove-unit
-  "Returns a new battlefield with the unit at cube removed"
-  [battlefield cube]
-  (let [unit (battlefield cube)]
-    (assoc battlefield cube (lt/pickup unit))))
+(defn compress-path
+  "Returns a subset of path containing only the last pointer for every cube in the path
+  assumes the last pointer is the end step so excludes it"
+  [path]
+  (letfn [(reducer [acc pointer]
+            (if (= (:cube (peek acc))
+                   (:cube pointer))
+              (conj (pop acc) pointer)
+              (conj acc pointer)))]
+
+    (pop (reduce reducer [] path))))
+
+
+(defn path->breadcrumbs
+  "Given a path, returns the battlemap of breadcrumbs representing it"
+  [battlefield battlemap player path]
+  (->> (for [pointer (compress-path path)
+             :let [cube (:cube pointer)]]
+         [cube
+          (if-let [mover (battlemap cube)]
+            (assoc mover
+                   :mover/highlighted (:facing pointer)
+                   :mover/state :past)
+            (-> (me/gen-mover (:cube pointer) player
+                              :highlighted (:facing pointer)
+                              :state :past)
+                (lt/swap (battlefield cube))))])
+       (into {})))
+
+
+(defn show-breadcrumbs
+  "returns a map of pointer->breadcrumbs for all paths"
+  [battlefield battlemap player paths]
+  (->> (for [path paths]
+         [(peek path) (path->breadcrumbs battlefield battlemap player path)])
+       (into {})))
 
 
 (defn show-moves
@@ -143,13 +180,12 @@
   :path-map, pointer->cube->path that the unit needs to pass through to reach the pointer"
   [battlefield cube hexes path-fn]
   (let [unit (battlefield cube)
-        new-battlefield (remove-unit battlefield cube)
         start (mc/->Pointer cube (:unit/facing unit))
-        paths (path-fn new-battlefield start hexes)
-        path-map (paths->path-map paths)
-        battlemap (path-map->battlemap new-battlefield (:unit/player unit) path-map)]
+        paths (path-fn battlefield start hexes)
+        battlemap (show-battlemap battlefield (:unit/player unit) paths)
+        breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) paths)]
     {:battlemap battlemap
-     :path-map path-map}))
+     :breadcrumbs breadcrumbs}))
 
 
 (defn show-forward
@@ -180,36 +216,6 @@
   (let [M (get-in battlefield [cube :unit/M])
         hexes (M->hexes (* M 2))]
     (show-moves battlefield cube hexes forward-paths)))
-
-
-(defn compress-path
-  "Returns a subset of path containing only the last pointer for every cube in the path
-  assumes the last pointer is the end step so excludes it"
-  [path]
-  (letfn [(reducer [acc pointer]
-            (if (= (:cube (peek acc))
-                   (:cube pointer))
-              (conj (pop acc) pointer)
-              (conj acc pointer)))]
-
-    (pop (reduce reducer [] path))))
-
-
-(defn show-breadcrumbs
-  "Given a path, returns the battlemap of breadcrumbs representing it"
-  [battlefield battlemap player path]
-  (->> (for [pointer (compress-path path)
-             :let [cube (:cube pointer)]]
-         [cube
-          (if-let [mover (battlemap cube)]
-            (assoc mover
-                   :mover/highlighted (:facing pointer)
-                   :mover/state :past)
-            (-> (me/gen-mover (:cube pointer) player
-                              :highlighted (:facing pointer)
-                              :state :past)
-                (lt/swap (battlefield cube))))])
-       (into {})))
 
 
 (defn list-threats

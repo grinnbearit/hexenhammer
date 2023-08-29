@@ -15,17 +15,13 @@
   [state pointer]
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
-        {:keys [battlemap path-map]} (:game/movement state)
-        breadcrumbs (lm/show-breadcrumbs (:game/battlefield state)
-                                         battlemap
-                                         (:unit/player unit)
-                                         (path-map pointer))]
+        {:keys [battlemap breadcrumbs]} (:game/movement state)]
 
     (-> (if (and (= (:cube pointer) (:entity/cube unit))
                  (= (:facing pointer) (:unit/facing unit)))
           (update state :game/movement dissoc :moved?)
           (assoc-in state [:game/movement :moved?] true))
 
-        (assoc :game/battlemap (merge battlemap breadcrumbs))
+        (assoc :game/battlemap (merge battlemap (breadcrumbs pointer)))
         (assoc-in [:game/movement :pointer] pointer)
         (update :game/battlemap set-mover-selected pointer))))
