@@ -43,20 +43,6 @@
      (mc/->Pointer forward-cube rp)]))
 
 
-(defn valid-move?
-  "Returns true if this pointer can be moved to"
-  [battlefield cube pointer]
-  (let [shadow-battlefield (l/remove-unit battlefield cube)]
-    (lt/passable? (shadow-battlefield (:cube pointer)))))
-
-
-(defn valid-end?
-  "Returns true if this pointer can be the end step in a move"
-  [battlefield cube pointer]
-  (let [shadow-battlefield (l/move-unit battlefield cube pointer)]
-    (not (l/battlefield-engaged? shadow-battlefield (:cube pointer)))))
-
-
 (defn forward-paths
   "Returns all sequences of steps reachable in hexes from the passed pointer,
   does not include duplicate paths to the same pointer
@@ -75,7 +61,7 @@
               pointer (peek path)]
 
           (cond (and (= (inc hexes) (count path))
-                     (valid-end? battlefield cube pointer))
+                     (l/valid-end? battlefield cube pointer))
                 (recur (pop queue) (conj paths path) seen)
 
                 (= (inc hexes) (count path))
@@ -83,13 +69,13 @@
 
                 :else
                 (let [steps (->> (forward-step pointer)
-                                 (filter #(valid-move? battlefield cube %))
+                                 (filter #(l/valid-move? battlefield cube %))
                                  (remove seen))
                       next-queue (->> (map #(conj path %) steps)
                                       (into (pop queue)))
                       next-seen (into seen steps)]
 
-                  (if (valid-end? battlefield cube pointer)
+                  (if (l/valid-end? battlefield cube pointer)
                     (recur next-queue (conj paths path) next-seen)
                     (recur next-queue paths next-seen)))))))))
 
@@ -102,14 +88,14 @@
              :let [steps (->> (iterate #(mc/step % facing) (:cube start))
                               (drop 1)
                               (map #(mc/->Pointer % (:facing start)))
-                              (take-while #(valid-move? battlefield (:cube start) %))
+                              (take-while #(l/valid-move? battlefield (:cube start) %))
                               (take hexes)
                               (cons start)
                               (vec))]
              path-length (range 2 (+ 2 hexes))
              :when (<= path-length (count steps))
              :let [path (subvec steps 0 path-length)]
-             :when (valid-end? battlefield (:cube start) (peek path))]
+             :when (l/valid-end? battlefield (:cube start) (peek path))]
          path)
        (cons [start])))
 

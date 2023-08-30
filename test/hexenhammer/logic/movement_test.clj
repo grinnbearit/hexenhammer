@@ -69,52 +69,6 @@
 
 
 (facts
- "valid move?"
-
- (let [pointer {:cube :cube-2}]
-
-   (valid-move? :battlefield-1 :cube-1 {:cube :cube-2})
-   => false
-
-   (provided
-    (l/remove-unit :battlefield-1 :cube-1) => {:cube-2 :terrain}
-
-    (lt/passable? :terrain) => false)
-
-
-   (valid-move? :battlefield-1 :cube-1 {:cube :cube-2})
-   => true
-
-   (provided
-    (l/remove-unit :battlefield-1 :cube-1) => {:cube-2 :terrain}
-
-    (lt/passable? :terrain) => true)))
-
-
-(facts
- "valid end?"
-
- (let [pointer {:cube :cube-2}]
-
-   (valid-end? :battlefield-1 :cube-1 {:cube :cube-2})
-   => false
-
-   (provided
-    (l/move-unit :battlefield-1 :cube-1 pointer) => :battlefield-2
-
-    (l/battlefield-engaged? :battlefield-2 :cube-2) => true)
-
-
-   (valid-end? :battlefield-1 :cube-1 {:cube :cube-2})
-   => true
-
-   (provided
-    (l/move-unit :battlefield-1 :cube-1 pointer) => :battlefield-2
-
-    (l/battlefield-engaged? :battlefield-2 :cube-2) => false)))
-
-
-(facts
  "forward paths"
 
  (let [pointer-1 {:cube :cube-1}]
@@ -123,7 +77,7 @@
    => [[pointer-1]]
 
    (provided
-    (valid-end? :battlefield :cube-1 pointer-1) => true))
+    (l/valid-end? :battlefield :cube-1 pointer-1) => true))
 
 
  (let [pointer-1 {:cube :cube-1}]
@@ -133,7 +87,7 @@
 
    (provided
     (forward-step pointer-1) => []
-    (valid-end? :battlefield :cube-1 pointer-1) => true))
+    (l/valid-end? :battlefield :cube-1 pointer-1) => true))
 
 
  (let [pointer-1 {:cube :cube-1}]
@@ -142,7 +96,7 @@
    => []
 
    (provided
-    (valid-end? :battlefield :cube-1 pointer-1) => false))
+    (l/valid-end? :battlefield :cube-1 pointer-1) => false))
 
 
  (let [pointer-1 {:cube :cube-1}]
@@ -152,7 +106,7 @@
 
    (provided
     (forward-step pointer-1) => []
-    (valid-end? :battlefield :cube-1 pointer-1) => false))
+    (l/valid-end? :battlefield :cube-1 pointer-1) => false))
 
 
  (let [pointer-1 {:cube :cube-1 :facing :n}
@@ -168,16 +122,16 @@
 
    (provided
 
-    (valid-end? :battlefield :cube-1 pointer-1) => true
+    (l/valid-end? :battlefield :cube-1 pointer-1) => true
 
     (forward-step pointer-1) => [pointer-2 pointer-3 pointer-4]
-    (valid-move? :battlefield :cube-1 pointer-2) => true
-    (valid-move? :battlefield :cube-1 pointer-3) => true
-    (valid-move? :battlefield :cube-1 pointer-4) => false
+    (l/valid-move? :battlefield :cube-1 pointer-2) => true
+    (l/valid-move? :battlefield :cube-1 pointer-3) => true
+    (l/valid-move? :battlefield :cube-1 pointer-4) => false
 
-    (valid-end? :battlefield :cube-1 pointer-2) => true
+    (l/valid-end? :battlefield :cube-1 pointer-2) => true
 
-    (valid-end? :battlefield :cube-1 pointer-3) => true)))
+    (l/valid-end? :battlefield :cube-1 pointer-3) => true)))
 
 
 (facts
@@ -218,31 +172,31 @@
     (mc/step :cube-1 :sw) => :cube-2-sw
     (mc/step :cube-1 :nw) => :cube-2-nw
 
-    (valid-move? :battlefield :cube-1 pointer-1-ne) => true
-    (valid-move? :battlefield :cube-1 pointer-1-se) => true
-    (valid-move? :battlefield :cube-1 pointer-1-s) => true
-    (valid-move? :battlefield :cube-1 pointer-1-sw) => true
-    (valid-move? :battlefield :cube-1 pointer-1-nw) => false
+    (l/valid-move? :battlefield :cube-1 pointer-1-ne) => true
+    (l/valid-move? :battlefield :cube-1 pointer-1-se) => true
+    (l/valid-move? :battlefield :cube-1 pointer-1-s) => true
+    (l/valid-move? :battlefield :cube-1 pointer-1-sw) => true
+    (l/valid-move? :battlefield :cube-1 pointer-1-nw) => false
 
     (mc/step :cube-2-ne :ne) => :cube-3-ne
     (mc/step :cube-2-se :se) => :cube-3-se
     (mc/step :cube-2-s :s) => :cube-3-s
     (mc/step :cube-2-sw :sw) => :cube-3-sw
 
-    (valid-move? :battlefield :cube-1 pointer-2-ne) => true
-    (valid-move? :battlefield :cube-1 pointer-2-se) => true
-    (valid-move? :battlefield :cube-1 pointer-2-s) => true
-    (valid-move? :battlefield :cube-1 pointer-2-sw) => true
+    (l/valid-move? :battlefield :cube-1 pointer-2-ne) => true
+    (l/valid-move? :battlefield :cube-1 pointer-2-se) => true
+    (l/valid-move? :battlefield :cube-1 pointer-2-s) => true
+    (l/valid-move? :battlefield :cube-1 pointer-2-sw) => true
 
-    (valid-end? :battlefield :cube-1 pointer-1-ne) => true
-    (valid-end? :battlefield :cube-1 pointer-1-se) => true
-    (valid-end? :battlefield :cube-1 pointer-1-s) => true
-    (valid-end? :battlefield :cube-1 pointer-1-sw) => false
+    (l/valid-end? :battlefield :cube-1 pointer-1-ne) => true
+    (l/valid-end? :battlefield :cube-1 pointer-1-se) => true
+    (l/valid-end? :battlefield :cube-1 pointer-1-s) => true
+    (l/valid-end? :battlefield :cube-1 pointer-1-sw) => false
 
-    (valid-end? :battlefield :cube-1 pointer-2-ne) => true
-    (valid-end? :battlefield :cube-1 pointer-2-se) => true
-    (valid-end? :battlefield :cube-1 pointer-2-s) => true
-    (valid-end? :battlefield :cube-1 pointer-2-sw) => true)))
+    (l/valid-end? :battlefield :cube-1 pointer-2-ne) => true
+    (l/valid-end? :battlefield :cube-1 pointer-2-se) => true
+    (l/valid-end? :battlefield :cube-1 pointer-2-s) => true
+    (l/valid-end? :battlefield :cube-1 pointer-2-sw) => true)))
 
 
 (facts

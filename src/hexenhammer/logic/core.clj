@@ -94,3 +94,17 @@
     (assoc battlefield
            cube old-terrain
            (:cube pointer) new-unit)))
+
+
+(defn valid-move?
+  "Returns true if this pointer can be moved to"
+  [battlefield cube pointer]
+  (let [shadow-battlefield (remove-unit battlefield cube)]
+    (lt/passable? (shadow-battlefield (:cube pointer)))))
+
+
+(defn valid-end?
+  "Returns true if this pointer can be the end step in a move"
+  [battlefield cube pointer]
+  (let [shadow-battlefield (move-unit battlefield cube pointer)]
+    (not (battlefield-engaged? shadow-battlefield (:cube pointer)))))
