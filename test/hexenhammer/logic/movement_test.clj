@@ -123,7 +123,6 @@
    => [[pointer-1]]
 
    (provided
-    (forward-step pointer-1) => []
     (valid-end? :battlefield :cube-1 pointer-1) => true))
 
 
@@ -143,7 +142,6 @@
    => []
 
    (provided
-    (forward-step pointer-1) => []
     (valid-end? :battlefield :cube-1 pointer-1) => false))
 
 
@@ -177,10 +175,8 @@
     (valid-move? :battlefield :cube-1 pointer-3) => true
     (valid-move? :battlefield :cube-1 pointer-4) => false
 
-    (forward-step pointer-2) => []
     (valid-end? :battlefield :cube-1 pointer-2) => true
 
-    (forward-step pointer-3) => []
     (valid-end? :battlefield :cube-1 pointer-3) => true)))
 
 

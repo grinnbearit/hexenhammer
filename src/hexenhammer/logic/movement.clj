@@ -72,31 +72,26 @@
         paths
 
         (let [path (peek queue)
-              pointer (peek path)
-              steps (->> (forward-step pointer)
-                         (filter #(valid-move? battlefield cube %))
-                         (remove seen))]
+              pointer (peek path)]
 
-          (cond (and (or (= (inc hexes) (count path))
-                         (empty? steps))
+          (cond (and (= (inc hexes) (count path))
                      (valid-end? battlefield cube pointer))
                 (recur (pop queue) (conj paths path) seen)
 
-                (or (= (inc hexes) (count path))
-                    (empty? steps))
+                (= (inc hexes) (count path))
                 (recur (pop queue) paths seen)
 
-                (valid-end? battlefield cube pointer)
-                (recur (->> (map #(conj path %) steps)
-                            (into (pop queue)))
-                       (conj paths path)
-                       (into seen steps))
-
                 :else
-                (recur (->> (map #(conj path %) steps)
-                            (into (pop queue)))
-                       paths
-                       (into seen steps))))))))
+                (let [steps (->> (forward-step pointer)
+                                 (filter #(valid-move? battlefield cube %))
+                                 (remove seen))
+                      next-queue (->> (map #(conj path %) steps)
+                                      (into (pop queue)))
+                      next-seen (into seen steps)]
+
+                  (if (valid-end? battlefield cube pointer)
+                    (recur next-queue (conj paths path) next-seen)
+                    (recur next-queue paths next-seen)))))))))
 
 
 (defn reposition-paths
