@@ -49,35 +49,34 @@
   removes paths that end as engaged
   prioritises by shortest path and the order in `forward-step`"
   [battlefield start hexes]
-  (let [cube (:cube start)]
-    (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
-           paths []
-           seen #{start}]
+  (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
+         paths []
+         seen #{start}]
 
-      (if (empty? queue)
-        paths
+    (if (empty? queue)
+      paths
 
-        (let [path (peek queue)
-              pointer (peek path)]
+      (let [path (peek queue)
+            pointer (peek path)]
 
-          (cond (and (= (inc hexes) (count path))
-                     (l/valid-end? battlefield cube pointer))
-                (recur (pop queue) (conj paths path) seen)
+        (cond (and (= (inc hexes) (count path))
+                   (l/valid-end? battlefield (:cube start) pointer))
+              (recur (pop queue) (conj paths path) seen)
 
-                (= (inc hexes) (count path))
-                (recur (pop queue) paths seen)
+              (= (inc hexes) (count path))
+              (recur (pop queue) paths seen)
 
-                :else
-                (let [steps (->> (forward-step pointer)
-                                 (filter #(l/valid-move? battlefield cube %))
-                                 (remove seen))
-                      next-queue (->> (map #(conj path %) steps)
-                                      (into (pop queue)))
-                      next-seen (into seen steps)]
+              :else
+              (let [steps (->> (forward-step pointer)
+                               (filter #(l/valid-move? battlefield (:cube start) %))
+                               (remove seen))
+                    next-queue (->> (map #(conj path %) steps)
+                                    (into (pop queue)))
+                    next-seen (into seen steps)]
 
-                  (if (l/valid-end? battlefield cube pointer)
-                    (recur next-queue (conj paths path) next-seen)
-                    (recur next-queue paths next-seen)))))))))
+                (if (l/valid-end? battlefield (:cube start) pointer)
+                  (recur next-queue (conj paths path) next-seen)
+                  (recur next-queue paths next-seen))))))))
 
 
 (defn reposition-paths
