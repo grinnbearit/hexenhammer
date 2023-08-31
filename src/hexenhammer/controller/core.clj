@@ -108,7 +108,8 @@
 
 (defmethod select [:charge :select-hex]
   [state cube]
-  (if (= cube (:game/selected state))
+  (if (or (= cube (:game/selected state))
+          (= cube (get-in state [:game/charge :pointer :cube])))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]} (lm/show-charge (:game/battlefield state) cube)
           unit-map (cb/show-cubes (:game/battlefield state) [cube] :selected)
@@ -161,10 +162,8 @@
   [state pointer]
   (let [{:keys [battlemap breadcrumbs]} (:game/charge state)]
     (-> (assoc state :game/battlemap (merge battlemap (breadcrumbs pointer)))
-        (assoc-in [:game/charge :pointer] pointer)
-        (update-in [:game/battlemap (:cube pointer)] assoc
-                   :mover/selected (:facing pointer)
-                   :mover/state :present))))
+        (update :game/battlemap cm/set-mover-selected pointer)
+        (assoc-in [:game/charge :pointer] pointer))))
 
 
 (defmethod move [:movement :reform]

@@ -274,6 +274,19 @@
   => :unselect)
 
 
+ (select {:game/charge {:pointer {:cube :cube-1}}
+          :game/phase :charge
+          :game/subphase :select-hex}
+         :cube-1)
+ => :unselect
+
+ (provided
+  (unselect {:game/charge {:pointer {:cube :cube-1}}
+             :game/phase :charge
+             :game/subphase :select-hex})
+  => :unselect)
+
+
  (select {:game/selected :cube-2
           :game/phase :charge
           :game/subphase :select-hex
@@ -378,17 +391,21 @@
 
    (move {:game/phase :charge
           :game/subphase :select-hex
-          :game/charge {:battlemap {:cube-1 {}}
+          :game/charge {:battlemap {:cube-1 :battlemap-entry-1}
                         :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
          pointer)
    => {:game/phase :charge
        :game/subphase :select-hex
-       :game/battlemap {:cube-1 {:mover/selected :n
-                                 :mover/state :present}
-                        :cube-2 :breadcrumbs-entry-1}
+       :game/battlemap :battlemap-2
        :game/charge {:pointer pointer
-                     :battlemap {:cube-1 {}}
-                     :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}))
+                     :battlemap {:cube-1 :battlemap-entry-1}
+                     :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
+
+   (provided
+    (cm/set-mover-selected {:cube-1 :battlemap-entry-1
+                            :cube-2 :breadcrumbs-entry-1}
+                           pointer)
+    => :battlemap-2)))
 
 
 (facts
