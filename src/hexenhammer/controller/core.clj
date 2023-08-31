@@ -263,23 +263,21 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]}  (lm/show-march (:game/battlefield state) cube)
+    (let [{:keys [battlemap breadcrumbs threats?]}  (lm/show-march (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))
-          threats (lm/show-threats (:game/battlefield state) cube)
-          threat-map (merge battlemap threats)
           unit (get-in state [:game/battlefield cube])]
 
       (-> (assoc-in state [:game/movement :march]
-                    (if (seq threats)
+                    (if threats?
                       (if (get-in unit [:unit/movement :marched?])
                         (if (get-in unit [:unit/movement :passed?]) :passed :failed)
                         :required)
                       :unnecessary))
 
           (assoc :game/selected cube
-                 :game/battlemap threat-map)
+                 :game/battlemap battlemap)
           (update :game/movement assoc
-                  :battlemap threat-map
+                  :battlemap battlemap
                   :breadcrumbs breadcrumbs)
 
           (move pointer)))))

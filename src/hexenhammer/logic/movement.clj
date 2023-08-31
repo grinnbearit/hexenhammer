@@ -201,16 +201,6 @@
     (show-moves battlefield cube hexes reposition-paths)))
 
 
-(defn show-march
-  "Given a battlefield and cube, returns
-  :battlemap,  cube->mover that the unit can reach when marching
-  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
-  [battlefield cube]
-  (let [M (get-in battlefield [cube :unit/M])
-        hexes (M->hexes (* M 2))]
-    (show-moves battlefield cube hexes forward-paths)))
-
-
 (defn list-threats
   "Returns a list of cubes that 'threaten' this unit on the battlefield
   i.e. enemy units within 3 hexes
@@ -231,6 +221,21 @@
   (->> (for [threat (list-threats battlefield cube)]
          [threat (assoc (battlefield threat) :entity/state :marked)])
        (into {})))
+
+
+(defn show-march
+  "Given a battlefield and cube, returns
+  :battlemap,  cube->mover that the unit can reach when marching
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer
+  :threats? whether any threats prevent a free march"
+  [battlefield cube]
+  (let [M (get-in battlefield [cube :unit/M])
+        hexes (M->hexes (* M 2))
+        {:keys [battlemap breadcrumbs]} (show-moves battlefield cube hexes forward-paths)
+        threats (show-threats battlefield cube)]
+    {:battlemap (merge battlemap threats)
+     :breadcrumbs breadcrumbs
+     :threats? (not (empty? threats))}))
 
 
 (defn charge-step

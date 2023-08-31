@@ -372,19 +372,6 @@
 
 
 (facts
- "show march"
-
- (let [battlefield {:cube-1 {:unit/M 8}}]
-
-   (show-march battlefield :cube-1)
-   => :show-moves
-
-   (provided
-    (show-moves battlefield :cube-1 5 forward-paths)
-    => :show-moves)))
-
-
-(facts
  "list threats"
 
  (list-threats {:cube-1 :unit-1} :cube-1)
@@ -458,6 +445,26 @@
    (provided
     (list-threats battlefield :cube-1)
     => [:cube-2])))
+
+
+(facts
+ "show march"
+
+ (let [battlefield {:cube-1 {:unit/M 8}}]
+
+   (show-march battlefield :cube-1)
+   => {:battlemap {:cube-1 :battlemap-entry
+                   :cube-2 :threat-entry}
+       :breadcrumbs :breadcrumbs-1
+       :threats? true}
+
+   (provided
+    (show-moves battlefield :cube-1 5 forward-paths)
+    => {:battlemap {:cube-1 :battlemap-entry}
+        :breadcrumbs :breadcrumbs-1}
+
+    (show-threats battlefield :cube-1)
+    => {:cube-2 :threat-entry})))
 
 
 (facts
