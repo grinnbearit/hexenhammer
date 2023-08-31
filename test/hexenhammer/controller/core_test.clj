@@ -231,14 +231,18 @@
 
  (to-charge {:game/player 1
              :game/battlefield :battlefield-1
-             :game/units {1 {:cubes {:id-1 :cube-1}}}})
+             :game/units {1 {:cubes {:id-1 :cube-1
+                                     :id-2 :cube-2}}}})
  => {:game/player 1
      :game/phase :charge
      :game/subphase :select-hex
      :game/battlefield :battlefield-3
-     :game/units {1 {:cubes {:id-1 :cube-1}}}}
+     :game/units {1 {:cubes {:id-1 :cube-1
+                             :id-2 :cube-2}}}}
 
  (provided
+  (lm/charger? :battlefield-1 :cube-1) => true
+  (lm/charger? :battlefield-1 :cube-2) => false
   (cb/set-state :battlefield-1 :default) => :battlefield-2
   (cb/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3))
 
@@ -252,6 +256,44 @@
 
  => {:game/phase :charge
      :game/subphase :select-hex})
+
+
+(facts
+ "select charge select-hex"
+
+ (select {:game/selected :cube-1
+          :game/phase :charge
+          :game/subphase :select-hex}
+         :cube-1)
+ => :unselect
+
+ (provided
+  (unselect {:game/selected :cube-1
+             :game/phase :charge
+             :game/subphase :select-hex})
+  => :unselect)
+
+
+ (select {:game/selected :cube-2
+          :game/phase :charge
+          :game/subphase :select-hex
+          :game/battlefield :battlefield-1}
+         :cube-1)
+ => {:game/selected :cube-1
+     :game/phase :charge
+     :game/subphase :select-hex
+     :game/battlefield :battlefield-1
+     :game/battlemap {:cube-1 :unit-entry-1
+                      :cube-3 :battlemap-entry-1}
+     :game/charge {:battlemap {:cube-1 :unit-entry-1
+                               :cube-3 :battlemap-entry-1}
+                   :breadcrumbs :breadcrumbs-1}}
+
+ (provided
+  (lm/show-charge :battlefield-1 :cube-1) => {:battlemap {:cube-3 :battlemap-entry-1}
+                                              :breadcrumbs :breadcrumbs-1}
+
+  (cb/show-cubes :battlefield-1 [:cube-1] :selected) => {:cube-1 :unit-entry-1}))
 
 
 (facts
@@ -327,6 +369,26 @@
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 {:entity/state :default}}})
   => :unselect))
+
+
+(facts
+ "move charge select-hex"
+
+ (let [pointer (mc/->Pointer :cube-1 :n)]
+
+   (move {:game/phase :charge
+          :game/subphase :select-hex
+          :game/charge {:battlemap {:cube-1 {}}
+                        :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
+         pointer)
+   => {:game/phase :charge
+       :game/subphase :select-hex
+       :game/battlemap {:cube-1 {:mover/selected :n
+                                 :mover/state :present}
+                        :cube-2 :breadcrumbs-entry-1}
+       :game/charge {:pointer pointer
+                     :battlemap {:cube-1 {}}
+                     :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}))
 
 
 (facts

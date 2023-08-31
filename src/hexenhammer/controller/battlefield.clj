@@ -9,3 +9,10 @@
   ([battlefield cubes state]
    (->> (set-state (select-keys battlefield cubes) state)
         (merge battlefield))))
+
+
+(defn show-cubes
+  "Returns a new battlemap with the cubes set to the passed state"
+  [battlefield cubes state]
+  (-> (select-keys battlefield cubes)
+      (set-state state)))

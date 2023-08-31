@@ -7,15 +7,28 @@
             [clojure.set :as set]))
 
 
+(defn valid-move?
+  "Returns true if this pointer can be moved to"
+  [battlefield cube pointer]
+  (let [shadow-battlefield (l/remove-unit battlefield cube)]
+    (lt/passable? (shadow-battlefield (:cube pointer)))))
+
+
+(defn valid-end?
+  "Returns true if this pointer can be the end step in a move"
+  [battlefield cube pointer]
+  (let [shadow-battlefield (l/move-unit battlefield cube pointer)]
+    (not (l/battlefield-engaged? shadow-battlefield (:cube pointer)))))
+
+
 (defn reform-facings
   "Given a cube, returns a set of allowed facings after a reform,
   includes the original facing"
   [battlefield cube]
   (set
    (for [facing #{:n :ne :se :s :sw :nw}
-         :let [pointer (mc/->Pointer cube facing)
-               shadow-battlefield (l/move-unit battlefield cube pointer)]
-         :when (not (l/battlefield-engaged? shadow-battlefield cube))]
+         :let [pointer (mc/->Pointer cube facing)]
+         :when (valid-end? battlefield cube pointer)]
      facing)))
 
 
@@ -60,7 +73,7 @@
             pointer (peek path)]
 
         (cond (and (= (inc hexes) (count path))
-                   (l/valid-end? battlefield (:cube start) pointer))
+                   (valid-end? battlefield (:cube start) pointer))
               (recur (pop queue) (conj paths path) seen)
 
               (= (inc hexes) (count path))
@@ -68,13 +81,13 @@
 
               :else
               (let [steps (->> (forward-step pointer)
-                               (filter #(l/valid-move? battlefield (:cube start) %))
+                               (filter #(valid-move? battlefield (:cube start) %))
                                (remove seen))
                     next-queue (->> (map #(conj path %) steps)
                                     (into (pop queue)))
                     next-seen (into seen steps)]
 
-                (if (l/valid-end? battlefield (:cube start) pointer)
+                (if (valid-end? battlefield (:cube start) pointer)
                   (recur next-queue (conj paths path) next-seen)
                   (recur next-queue paths next-seen))))))))
 
@@ -87,14 +100,14 @@
              :let [steps (->> (iterate #(mc/step % facing) (:cube start))
                               (drop 1)
                               (map #(mc/->Pointer % (:facing start)))
-                              (take-while #(l/valid-move? battlefield (:cube start) %))
+                              (take-while #(valid-move? battlefield (:cube start) %))
                               (take hexes)
                               (cons start)
                               (vec))]
              path-length (range 2 (+ 2 hexes))
              :when (<= path-length (count steps))
              :let [path (subvec steps 0 path-length)]
-             :when (l/valid-end? battlefield (:cube start) (peek path))]
+             :when (valid-end? battlefield (:cube start) (peek path))]
          path)
        (cons [start])))
 
@@ -218,3 +231,85 @@
   (->> (for [threat (list-threats battlefield cube)]
          [threat (assoc (battlefield threat) :entity/state :marked)])
        (into {})))
+
+
+(defn charge-step
+  "Given a pointer, returns a set of pointers reachable in a single charge step
+  The order of pointers in the list determines the priority"
+  [pointer]
+  (let [facing->pivots {:n [:nw :ne] :ne [:n :se] :se [:ne :s]
+                        :s [:se :sw] :sw [:s :nw] :nw [:sw :n]}
+        [lp rp] (facing->pivots (:facing pointer))
+        forward-cube (mc/step (:cube pointer) (:facing pointer))]
+    [(mc/->Pointer forward-cube (:facing pointer))
+     (mc/->Pointer forward-cube lp)
+     (mc/->Pointer forward-cube rp)]))
+
+
+(defn charge-paths
+  "Returns a list of paths->targets with a charge path to every target cube
+  always returns the shortest path to each target cube prioritised by the order in `charge-step`
+  each shortest path to a target _could_ contain other targets that have shorter engagement paths
+  but no path can end engaged to a non target"
+  [battlefield start targets]
+  (loop [queue (conj (clojure.lang.PersistentQueue/EMPTY) [start])
+         charges {}
+         seen #{start}
+         remaining targets]
+
+    (if (or (empty? queue)
+            (empty? remaining))
+      charges
+
+      (let [path (peek queue)
+            pointer (peek path)
+            engaged (-> (l/move-unit battlefield (:cube start) pointer)
+                        (l/engaged-cubes (:cube pointer))
+                        (set))
+            steps (->> (charge-step pointer)
+                       (filter #(valid-move? battlefield (:cube start) %))
+                       (remove seen))
+            next-queue (->> (map #(conj path %) steps)
+                            (into (pop queue)))
+            next-seen (into seen steps)]
+
+        (if (and (set/subset? engaged targets)
+                 (seq (set/intersection engaged remaining)))
+          (recur next-queue
+                 (assoc charges path engaged)
+                 next-seen
+                 (set/difference remaining engaged))
+          (recur next-queue
+                 charges
+                 next-seen
+                 remaining))))))
+
+
+(defn list-targets
+  "Returns a set of visible enemies to the passed unit cube"
+  [battlefield cube]
+  (let [unit (battlefield cube)]
+    (->> (for [viewed (l/field-of-view battlefield cube)
+               :let [entity (battlefield viewed)]
+               :when (and (le/unit? entity)
+                          (l/enemies? unit entity))]
+           viewed)
+         set)))
+
+
+(defn charger?
+  "Returns true if this unit has any viable charge targets"
+  [battlefield cube]
+  (not (empty? (list-targets battlefield cube))))
+
+
+(defn show-charge
+  [battlefield cube]
+  (let [unit (battlefield cube)
+        start (mc/->Pointer cube (:unit/facing unit))
+        targets (list-targets battlefield cube)
+        paths (charge-paths battlefield start targets)
+        battlemap (show-battlemap battlefield (:unit/player unit) (keys paths))
+        breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) (keys paths))]
+    {:battlemap battlemap
+     :breadcrumbs breadcrumbs}))

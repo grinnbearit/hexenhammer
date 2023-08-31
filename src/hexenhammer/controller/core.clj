@@ -4,7 +4,6 @@
             [hexenhammer.logic.core :as l]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
-            [hexenhammer.logic.charge :as lc]
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
@@ -91,12 +90,13 @@
 
 (defn to-charge
   [{:keys [game/player] :as state}]
-  (let [player-cubes (vals (get-in state [:game/units player :cubes]))]
+  (let [player-cubes (vals (get-in state [:game/units player :cubes]))
+        charger-cubes (filter #(lm/charger? (:game/battlefield state) %) player-cubes)]
     (-> (assoc state
                :game/phase :charge
                :game/subphase :select-hex)
         (update :game/battlefield cb/set-state :default)
-        (update :game/battlefield cb/set-state player-cubes :selectable))))
+        (update :game/battlefield cb/set-state charger-cubes :selectable))))
 
 
 (defmethod unselect :charge
@@ -110,9 +110,16 @@
   [state cube]
   (if (= cube (:game/selected state))
     (unselect state)
-    (let [battlemap (lc/show-charge (:game/battlefield state) cube)]
-      (-> (assoc state :game/selected cube)
-          (assoc :game/battlemap battlemap)))))
+    (let [{:keys [battlemap breadcrumbs]} (lm/show-charge (:game/battlefield state) cube)
+          unit-map (cb/show-cubes (:game/battlefield state) [cube] :selected)
+          ub-map (merge battlemap unit-map)
+          pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
+      (-> (assoc state
+                 :game/selected cube
+                 :game/battlemap ub-map)
+          (update :game/charge assoc
+                  :battlemap ub-map
+                  :breadcrumbs breadcrumbs)))))
 
 
 (defn to-movement
@@ -148,6 +155,16 @@
 
 
 (defmulti move (fn [state pointer] [(:game/phase state) (:game/subphase state)]))
+
+
+(defmethod move [:charge :select-hex]
+  [state pointer]
+  (let [{:keys [battlemap breadcrumbs]} (:game/charge state)]
+    (-> (assoc state :game/battlemap (merge battlemap (breadcrumbs pointer)))
+        (assoc-in [:game/charge :pointer] pointer)
+        (update-in [:game/battlemap (:cube pointer)] assoc
+                   :mover/selected (:facing pointer)
+                   :mover/state :present))))
 
 
 (defmethod move [:movement :reform]
