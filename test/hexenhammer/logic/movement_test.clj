@@ -544,38 +544,53 @@
 (facts
  "list targets"
 
- (let [battlefield {:cube-1 :unit-1
+ (let [unit-1 {:unit/M 4}
+       battlefield {:cube-1 unit-1
                     :cube-2 :terrain-1
                     :cube-3 :unit-2
                     :cube-4 :unit-3
-                    :cube-5 :unit-4}]
+                    :cube-5 :unit-4
+                    :cube-6 :unit-5}]
 
-   (list-targets battlefield :cube-1) => #{:cube-4}
+   (list-targets battlefield :cube-1) => #{:cube-5}
 
    (provided
-    (l/field-of-view battlefield :cube-1) => [:cube-2 :cube-3 :cube-4]
+    (l/field-of-view battlefield :cube-1) => [:cube-2 :cube-3 :cube-4 :cube-5]
     (le/unit? :terrain-1) => false
 
     (le/unit? :unit-2) => true
-    (l/enemies? :unit-1 :unit-2) => false
+    (l/enemies? unit-1 :unit-2) => false
 
     (le/unit? :unit-3) => true
-    (l/enemies? :unit-1 :unit-3) => true)))
+    (l/enemies? unit-1 :unit-3) => true
+    (mc/distance :cube-1 :cube-4) => 4
+
+    (le/unit? :unit-4) => true
+    (l/enemies? unit-1 :unit-4) => true
+    (mc/distance :cube-1 :cube-5) => 3)))
 
 
 (facts
  "charger?"
 
- (charger? :battlefield :cube-1) => false
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)]
 
- (provided
-  (list-targets :battlefield :cube-1) => [])
+   (charger? battlefield :cube-1) => false
+
+   (provided
+    (list-targets battlefield :cube-1) => :targets
+    (charge-paths battlefield pointer :targets) => {}))
 
 
- (charger? :battlefield :cube-1) => true
+ (let [battlefield {:cube-1 {:unit/facing :n}}
+       pointer (mc/->Pointer :cube-1 :n)]
 
- (provided
-  (list-targets :battlefield :cube-1) => [:cube-2]))
+   (charger? battlefield :cube-1) => true
+
+   (provided
+    (list-targets battlefield :cube-1) => :targets
+    (charge-paths battlefield pointer :targets) => {:path-1 :targets-1})))
 
 
 (facts

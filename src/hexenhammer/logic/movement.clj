@@ -288,11 +288,13 @@
 (defn list-targets
   "Returns a set of visible enemies to the passed unit cube"
   [battlefield cube]
-  (let [unit (battlefield cube)]
+  (let [unit (battlefield cube)
+        max-charge (M->hexes (+ 6 (:unit/M unit)))]
     (->> (for [viewed (l/field-of-view battlefield cube)
                :let [entity (battlefield viewed)]
                :when (and (le/unit? entity)
-                          (l/enemies? unit entity))]
+                          (l/enemies? unit entity)
+                          (<= (mc/distance cube viewed) max-charge))]
            viewed)
          set)))
 
@@ -300,7 +302,11 @@
 (defn charger?
   "Returns true if this unit has any viable charge targets"
   [battlefield cube]
-  (not (empty? (list-targets battlefield cube))))
+  (let [unit (battlefield cube)
+        start (mc/->Pointer cube (:unit/facing unit))
+        targets (list-targets battlefield cube)
+        paths (charge-paths battlefield start targets)]
+    (not (empty? paths))))
 
 
 (defn show-charge
