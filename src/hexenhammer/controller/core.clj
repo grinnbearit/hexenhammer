@@ -5,7 +5,6 @@
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
-            [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.dice :as cd]))
 
@@ -95,8 +94,8 @@
     (-> (assoc state
                :game/phase :charge
                :game/subphase :select-hex)
-        (update :game/battlefield cb/set-state :default)
-        (update :game/battlefield cb/set-state charger-cubes :selectable))))
+        (update :game/battlefield l/set-state :default)
+        (update :game/battlefield l/set-state charger-cubes :selectable))))
 
 
 (defmethod unselect :charge
@@ -112,7 +111,7 @@
           (= cube (get-in state [:game/charge :pointer :cube])))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]} (lm/show-charge (:game/battlefield state) cube)
-          unit-map (cb/show-cubes (:game/battlefield state) [cube] :selected)
+          unit-map (l/show-cubes (:game/battlefield state) [cube] :selected)
           ub-map (merge battlemap unit-map)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
@@ -130,8 +129,8 @@
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)
-        (update :game/battlefield cb/set-state :default)
-        (update :game/battlefield cb/set-state movable-cubes :selectable))))
+        (update :game/battlefield l/set-state :default)
+        (update :game/battlefield l/set-state movable-cubes :selectable))))
 
 
 (defmethod select [:movement :select-hex]

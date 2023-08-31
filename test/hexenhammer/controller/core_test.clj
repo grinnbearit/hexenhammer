@@ -2,11 +2,10 @@
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
-            [hexenhammer.logic.core :as lc]
+            [hexenhammer.logic.core :as l]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
-            [hexenhammer.controller.battlefield :as cb]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.dice :as cd]
             [hexenhammer.controller.core :refer :all]))
@@ -243,8 +242,8 @@
  (provided
   (lm/charger? :battlefield-1 :cube-1) => true
   (lm/charger? :battlefield-1 :cube-2) => false
-  (cb/set-state :battlefield-1 :default) => :battlefield-2
-  (cb/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3))
+  (l/set-state :battlefield-1 :default) => :battlefield-2
+  (l/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3))
 
 
 (facts
@@ -306,7 +305,7 @@
   (lm/show-charge :battlefield-1 :cube-1) => {:battlemap {:cube-3 :battlemap-entry-1}
                                               :breadcrumbs :breadcrumbs-1}
 
-  (cb/show-cubes :battlefield-1 [:cube-1] :selected) => {:cube-1 :unit-entry-1}))
+  (l/show-cubes :battlefield-1 [:cube-1] :selected) => {:cube-1 :unit-entry-1}))
 
 
 (facts
@@ -324,16 +323,16 @@
      :game/battlefield :battlefield-3}
 
  (provided
-  (lc/battlefield-engaged? :battlefield-1 :unit-cube-1)
+  (l/battlefield-engaged? :battlefield-1 :unit-cube-1)
   => false
 
-  (lc/battlefield-engaged? :battlefield-1 :unit-cube-2)
+  (l/battlefield-engaged? :battlefield-1 :unit-cube-2)
   => true
 
-  (cb/set-state :battlefield-1 :default)
+  (l/set-state :battlefield-1 :default)
   => :battlefield-2
 
-  (cb/set-state :battlefield-2 [:unit-cube-1] :selectable)
+  (l/set-state :battlefield-2 [:unit-cube-1] :selectable)
   => :battlefield-3))
 
 
