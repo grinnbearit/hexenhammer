@@ -613,6 +613,19 @@
 
 
 (facts
+ "show targets"
+
+ (show-targets :battlefield {[:pointer-1] #{:cube-1}
+                             [:pointer-1 :pointer-2] #{:cube-1 :cube-2}})
+ => {:pointer-1 :marked-1
+     :pointer-2 :marked-2}
+
+ (provided
+  (l/show-cubes :battlefield #{:cube-1} :marked) => :marked-1
+  (l/show-cubes :battlefield #{:cube-1 :cube-2} :marked) => :marked-2))
+
+
+(facts
  "show charge"
 
  (let [battlefield {:cube-1 {:unit/facing :n
@@ -620,14 +633,26 @@
        start (mc/->Pointer :cube-1 :n)]
 
    (show-charge battlefield :cube-1)
-   => {:battlemap :battlemap-1
-       :breadcrumbs :breadcrumbs-1}
+   => {:battlemap {:cube-1 :unit-map-entry-1
+                   :cube-2 :battlemap-entry-1}
+       :breadcrumbs {:cube-3 :breadcrumbs-entry-1
+                     :cube-4 :target-map-entry-1}}
 
    (provided
-    (list-targets battlefield :cube-1) => :targets
+    (list-targets battlefield :cube-1)
+    => :targets
 
-    (charge-paths battlefield start :targets) => {:path-1 :target-1}
+    (charge-paths battlefield start :targets)
+    => {:path-1 :target-1}
 
-    (show-battlemap battlefield 1 [:path-1]) => :battlemap-1
+    (show-battlemap battlefield 1 [:path-1])
+    => {:cube-2 :battlemap-entry-1}
 
-    (show-breadcrumbs battlefield :battlemap-1 1 [:path-1]) => :breadcrumbs-1)))
+    (show-breadcrumbs battlefield {:cube-2 :battlemap-entry-1} 1 [:path-1])
+    => {:cube-3 :breadcrumbs-entry-1}
+
+    (l/show-cubes battlefield [:cube-1] :selected)
+    => {:cube-1 :unit-map-entry-1}
+
+    (show-targets battlefield {:path-1 :target-1})
+    => {:cube-4 :target-map-entry-1})))

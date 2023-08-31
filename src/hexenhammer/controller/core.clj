@@ -111,14 +111,12 @@
           (= cube (get-in state [:game/charge :pointer :cube])))
     (unselect state)
     (let [{:keys [battlemap breadcrumbs]} (lm/show-charge (:game/battlefield state) cube)
-          unit-map (l/show-cubes (:game/battlefield state) [cube] :selected)
-          ub-map (merge battlemap unit-map)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
-                 :game/battlemap ub-map)
+                 :game/battlemap battlemap)
           (update :game/charge assoc
-                  :battlemap ub-map
+                  :battlemap battlemap
                   :breadcrumbs breadcrumbs)))))
 
 

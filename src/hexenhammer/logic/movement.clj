@@ -321,6 +321,14 @@
     (not (empty? paths))))
 
 
+(defn show-targets
+  "Returns a breadcrumbs map that marks targets for each pointer"
+  [battlefield paths]
+  (->> (for [[path targets] paths]
+         [(peek path) (l/show-cubes battlefield targets :marked)])
+       (into {})))
+
+
 (defn show-charge
   [battlefield cube]
   (let [unit (battlefield cube)
@@ -328,6 +336,8 @@
         targets (list-targets battlefield cube)
         paths (charge-paths battlefield start targets)
         battlemap (show-battlemap battlefield (:unit/player unit) (keys paths))
-        breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) (keys paths))]
-    {:battlemap battlemap
-     :breadcrumbs breadcrumbs}))
+        breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) (keys paths))
+        unit-map (l/show-cubes battlefield [cube] :selected)
+        target-map (show-targets battlefield paths)]
+    {:battlemap (merge battlemap unit-map)
+     :breadcrumbs (merge-with merge breadcrumbs target-map)}))

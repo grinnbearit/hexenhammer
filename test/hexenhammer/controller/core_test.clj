@@ -295,17 +295,13 @@
      :game/phase :charge
      :game/subphase :select-hex
      :game/battlefield :battlefield-1
-     :game/battlemap {:cube-1 :unit-entry-1
-                      :cube-3 :battlemap-entry-1}
-     :game/charge {:battlemap {:cube-1 :unit-entry-1
-                               :cube-3 :battlemap-entry-1}
+     :game/battlemap :battlemap-1
+     :game/charge {:battlemap :battlemap-1
                    :breadcrumbs :breadcrumbs-1}}
 
  (provided
-  (lm/show-charge :battlefield-1 :cube-1) => {:battlemap {:cube-3 :battlemap-entry-1}
-                                              :breadcrumbs :breadcrumbs-1}
-
-  (l/show-cubes :battlefield-1 [:cube-1] :selected) => {:cube-1 :unit-entry-1}))
+  (lm/show-charge :battlefield-1 :cube-1) => {:battlemap :battlemap-1
+                                              :breadcrumbs :breadcrumbs-1}))
 
 
 (facts
