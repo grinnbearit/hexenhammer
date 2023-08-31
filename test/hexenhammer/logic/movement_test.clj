@@ -463,13 +463,25 @@
 (facts
  "charge step"
 
- (charge-step (mc/->Pointer :cube-1 :n))
- => [(mc/->Pointer :cube-2 :n)
+ (charge-step (mc/->Pointer :cube-1 :n) :n)
+ => [(mc/->Pointer :cube-1 :nw)
+     (mc/->Pointer :cube-1 :ne)
+     (mc/->Pointer :cube-2 :n)
      (mc/->Pointer :cube-2 :nw)
      (mc/->Pointer :cube-2 :ne)]
 
  (provided
   (mc/step :cube-1 :n)
+  => :cube-2)
+
+
+ (charge-step (mc/->Pointer :cube-1 :nw) :n)
+ => [(mc/->Pointer :cube-1 :n)
+     (mc/->Pointer :cube-2 :nw)
+     (mc/->Pointer :cube-2 :n)]
+
+ (provided
+  (mc/step :cube-1 :nw)
   => :cube-2))
 
 
@@ -488,7 +500,7 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
     (l/engaged-cubes :battlefield-2 :cube-1) => []
-    (charge-step start) => []))
+    (charge-step start :n) => []))
 
 
  (let [start (mc/->Pointer :cube-1 :n)]
@@ -499,7 +511,7 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
     (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-2]
-    (charge-step start) => []))
+    (charge-step start :n) => []))
 
 
  (let [start (mc/->Pointer :cube-1 :n)]
@@ -510,7 +522,7 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
     (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-2]
-    (charge-step start) => []))
+    (charge-step start :n) => []))
 
 
  (let [start (mc/->Pointer :cube-1 :n)
@@ -522,12 +534,12 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
     (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-3]
-    (charge-step start) => [pointer-1]
+    (charge-step start :n) => [pointer-1]
     (valid-move? :battlefield-1 :cube-1 pointer-1) => true
 
     (l/move-unit :battlefield-1 :cube-1 pointer-1) => :battlefield-3
     (l/engaged-cubes :battlefield-3 :cube-2) => [:cube-3]
-    (charge-step pointer-1) => []))
+    (charge-step pointer-1 :n) => []))
 
 
  (let [start (mc/->Pointer :cube-1 :n)]
@@ -538,7 +550,7 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
     (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-2 :cube-3]
-    (charge-step start) => [])))
+    (charge-step start :n) => [])))
 
 
 (facts

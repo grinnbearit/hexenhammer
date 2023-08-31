@@ -235,15 +235,22 @@
 
 (defn charge-step
   "Given a pointer, returns a set of pointers reachable in a single charge step
-  The order of pointers in the list determines the priority"
-  [pointer]
+  The order of pointers in the list determines the priority
+  guide is the facing of the start pointer and limits possible facings"
+  [pointer guide]
   (let [facing->pivots {:n [:nw :ne] :ne [:n :se] :se [:ne :s]
                         :s [:se :sw] :sw [:s :nw] :nw [:sw :n]}
         [lp rp] (facing->pivots (:facing pointer))
         forward-cube (mc/step (:cube pointer) (:facing pointer))]
-    [(mc/->Pointer forward-cube (:facing pointer))
-     (mc/->Pointer forward-cube lp)
-     (mc/->Pointer forward-cube rp)]))
+    (if (= guide (:facing pointer))
+      [(mc/->Pointer (:cube pointer) lp)
+       (mc/->Pointer (:cube pointer) rp)
+       (mc/->Pointer forward-cube (:facing pointer))
+       (mc/->Pointer forward-cube lp)
+       (mc/->Pointer forward-cube rp)]
+      [(mc/->Pointer (:cube pointer) guide)
+       (mc/->Pointer forward-cube (:facing pointer))
+       (mc/->Pointer forward-cube guide)])))
 
 
 (defn charge-paths
@@ -266,7 +273,7 @@
             engaged (-> (l/move-unit battlefield (:cube start) pointer)
                         (l/engaged-cubes (:cube pointer))
                         (set))
-            steps (->> (charge-step pointer)
+            steps (->> (charge-step pointer (:facing start))
                        (filter #(valid-move? battlefield (:cube start) %))
                        (remove seen))
             next-queue (->> (map #(conj path %) steps)
