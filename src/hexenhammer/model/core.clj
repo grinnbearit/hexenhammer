@@ -30,3 +30,8 @@
                             [cube (assoc (entity/gen-open-ground cube)
                                          :entity/state :silent-selectable)])
                           (into {}))})
+
+
+(defn M->hexes
+  [M]
+  (Math/round (float (/ M 3))))

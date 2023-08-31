@@ -45,3 +45,12 @@
   (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]
   (entity/gen-open-ground :cube-1) => {}
   (entity/gen-open-ground :cube-2) => {}))
+
+
+(facts
+ "M -> hexes"
+
+ (M->hexes 2) => 1
+ (M->hexes 3) => 1
+ (M->hexes 4) => 1
+ (M->hexes 5) => 2)

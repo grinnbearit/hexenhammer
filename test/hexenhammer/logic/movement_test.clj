@@ -259,15 +259,6 @@
 
 
 (facts
- "M -> hexes"
-
- (M->hexes 2) => 1
- (M->hexes 3) => 1
- (M->hexes 4) => 1
- (M->hexes 5) => 2)
-
-
-(facts
  "compress path"
 
  (compress-path [{:cube :cube-1 :facing :n}])

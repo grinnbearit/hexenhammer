@@ -3,6 +3,7 @@
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.entity :as me]
+            [hexenhammer.model.core :as m]
             [hexenhammer.model.cube :as mc]
             [clojure.set :as set]))
 
@@ -124,11 +125,6 @@
          (into {}))))
 
 
-(defn M->hexes
-  [M]
-  (Math/round (float (/ M 3))))
-
-
 (defn compress-path
   "Returns a subset of path containing only the last pointer for every cube in the path
   assumes the last pointer is the end step so excludes it"
@@ -187,7 +183,7 @@
   :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
   [battlefield cube]
   (let [M (get-in battlefield [cube :unit/M])
-        hexes (M->hexes M)]
+        hexes (m/M->hexes M)]
     (show-moves battlefield cube hexes forward-paths)))
 
 
@@ -197,7 +193,7 @@
   :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
   [battlefield cube]
   (let [M (get-in battlefield [cube :unit/M])
-        hexes (M->hexes (/ M 2))]
+        hexes (m/M->hexes (/ M 2))]
     (show-moves battlefield cube hexes reposition-paths)))
 
 
@@ -230,7 +226,7 @@
   :threats? whether any threats prevent a free march"
   [battlefield cube]
   (let [M (get-in battlefield [cube :unit/M])
-        hexes (M->hexes (* M 2))
+        hexes (m/M->hexes (* M 2))
         {:keys [battlemap breadcrumbs]} (show-moves battlefield cube hexes forward-paths)
         threats (show-threats battlefield cube)]
     {:battlemap (merge battlemap threats)
@@ -301,7 +297,7 @@
   "Returns a set of visible enemies to the passed unit cube"
   [battlefield cube]
   (let [unit (battlefield cube)
-        max-charge (M->hexes (+ 6 (:unit/M unit)))]
+        max-charge (m/M->hexes (+ 6 (:unit/M unit)))]
     (->> (for [viewed (l/field-of-view battlefield cube)
                :let [entity (battlefield viewed)]
                :when (and (le/unit? entity)

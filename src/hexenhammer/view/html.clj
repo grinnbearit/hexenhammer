@@ -145,6 +145,33 @@
       [:input {:type "submit" :value "To Movement"}]]]]))
 
 
+(defmethod render [:charge :select-target]
+  [state]
+  (let [cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])
+        charge-prob (sort (mp/charge (:unit/M unit)))]
+
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Charge"]
+       [:style STYLESHEET]]
+      [:body
+       (vw/render-battlefield state) [:br] [:br]
+       (vw/render-profile unit) [:br]
+       [:table
+        [:thead
+         [:th "Charge Range"]
+         [:th "Success %"]]
+        [:tbody
+         (for [[hexes prob] charge-prob
+               :let [perc (Math/round (float (* 100 prob)))]]
+           [:tr
+            [:td hexes]
+            [:td (format "~%d%%" perc)]])]]]])))
+
+
 (defmethod render [:movement :select-hex]
   [state]
   (let [player (:game/player state)]

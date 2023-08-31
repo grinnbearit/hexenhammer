@@ -293,7 +293,7 @@
          :cube-1)
  => {:game/selected :cube-1
      :game/phase :charge
-     :game/subphase :select-hex
+     :game/subphase :select-target
      :game/battlefield :battlefield-1
      :game/battlemap :battlemap-1
      :game/charge {:battlemap :battlemap-1
@@ -302,6 +302,22 @@
  (provided
   (lm/show-charge :battlefield-1 :cube-1) => {:battlemap :battlemap-1
                                               :breadcrumbs :breadcrumbs-1}))
+
+
+(facts
+ "select charge select-target"
+
+ (select {:game/selected :cube-1
+          :game/phase :charge
+          :game/subphase :select-target}
+         :cube-1)
+ => :unselect
+
+ (provided
+  (unselect {:game/selected :cube-1
+             :game/phase :charge
+             :game/subphase :select-hex})
+  => :unselect))
 
 
 (facts
@@ -380,17 +396,17 @@
 
 
 (facts
- "move charge select-hex"
+ "move charge select-target"
 
  (let [pointer (mc/->Pointer :cube-1 :n)]
 
    (move {:game/phase :charge
-          :game/subphase :select-hex
+          :game/subphase :select-target
           :game/charge {:battlemap {:cube-1 :battlemap-entry-1}
                         :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
          pointer)
    => {:game/phase :charge
-       :game/subphase :select-hex
+       :game/subphase :select-target
        :game/battlemap :battlemap-2
        :game/charge {:pointer pointer
                      :battlemap {:cube-1 :battlemap-entry-1}

@@ -113,11 +113,18 @@
     (let [{:keys [battlemap breadcrumbs]} (lm/show-charge (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
+                 :game/subphase :select-target
                  :game/selected cube
                  :game/battlemap battlemap)
           (update :game/charge assoc
                   :battlemap battlemap
                   :breadcrumbs breadcrumbs)))))
+
+
+(defmethod select [:charge :select-target]
+  [state cube]
+  (-> (assoc state :game/subphase :select-hex)
+      (select cube)))
 
 
 (defn to-movement
@@ -155,7 +162,7 @@
 (defmulti move (fn [state pointer] [(:game/phase state) (:game/subphase state)]))
 
 
-(defmethod move [:charge :select-hex]
+(defmethod move [:charge :select-target]
   [state pointer]
   (let [{:keys [battlemap breadcrumbs]} (:game/charge state)]
     (-> (assoc state :game/battlemap (merge battlemap (breadcrumbs pointer)))
