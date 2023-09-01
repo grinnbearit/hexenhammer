@@ -110,7 +110,7 @@
   (if (or (= cube (:game/selected state))
           (= cube (get-in state [:game/charge :pointer :cube])))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]} (lm/show-charge (:game/battlefield state) cube)
+    (let [{:keys [battlemap breadcrumbs ranges]} (lm/show-charge (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/subphase :select-target
@@ -118,10 +118,17 @@
                  :game/battlemap battlemap)
           (update :game/charge assoc
                   :battlemap battlemap
-                  :breadcrumbs breadcrumbs)))))
+                  :breadcrumbs breadcrumbs
+                  :ranges ranges)))))
 
 
 (defmethod select [:charge :select-target]
+  [state cube]
+  (-> (assoc state :game/subphase :select-hex)
+      (select cube)))
+
+
+(defmethod select [:charge :declare]
   [state cube]
   (-> (assoc state :game/subphase :select-hex)
       (select cube)))
@@ -165,9 +172,17 @@
 (defmethod move [:charge :select-target]
   [state pointer]
   (let [{:keys [battlemap breadcrumbs]} (:game/charge state)]
-    (-> (assoc state :game/battlemap (merge battlemap (breadcrumbs pointer)))
+    (-> (assoc state
+               :game/battlemap (merge battlemap (breadcrumbs pointer))
+               :game/subphase :declare)
         (update :game/battlemap cm/set-mover-selected pointer)
         (assoc-in [:game/charge :pointer] pointer))))
+
+
+(defmethod move [:charge :declare]
+  [state pointer]
+  (-> (assoc state :game/subphase :select-target)
+      (move pointer)))
 
 
 (defmethod move [:movement :reform]

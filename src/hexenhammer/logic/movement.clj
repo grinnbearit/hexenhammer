@@ -325,6 +325,15 @@
        (into {})))
 
 
+(defn target-ranges
+  "Given charge paths and a source cube Returns a map of pointer to charge ranges, if multiple targets returns the largest"
+  [paths cube]
+  (->> (for [[path targets] paths]
+         [(peek path) (->> (map #(mc/distance cube %) targets)
+                           (apply max))])
+       (into {})))
+
+
 (defn show-charge
   [battlefield cube]
   (let [unit (battlefield cube)
@@ -334,6 +343,8 @@
         battlemap (show-battlemap battlefield (:unit/player unit) (keys paths))
         breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) (keys paths))
         unit-map (l/show-cubes battlefield [cube] :selected)
-        target-map (show-targets battlefield paths)]
+        target-map (show-targets battlefield paths)
+        ranges (target-ranges paths cube)]
     {:battlemap (merge battlemap unit-map)
-     :breadcrumbs (merge-with merge breadcrumbs target-map)}))
+     :breadcrumbs (merge-with merge breadcrumbs target-map)
+     :ranges ranges}))

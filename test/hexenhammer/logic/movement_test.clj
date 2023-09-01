@@ -617,6 +617,20 @@
 
 
 (facts
+ "target ranges"
+
+ (target-ranges {[:pointer-1] #{:cube-2 :cube-3}
+                 [:pointer-1 :pointer-2]  #{:cube-2}}
+                :cube-1)
+ => {:pointer-1 3
+     :pointer-2 2}
+
+ (provided
+  (mc/distance :cube-1 :cube-2) => 2
+  (mc/distance :cube-1 :cube-3) => 3))
+
+
+(facts
  "show charge"
 
  (let [battlefield {:cube-1 {:unit/facing :n
@@ -627,7 +641,8 @@
    => {:battlemap {:cube-1 :unit-map-entry-1
                    :cube-2 :battlemap-entry-1}
        :breadcrumbs {:cube-3 :breadcrumbs-entry-1
-                     :cube-4 :target-map-entry-1}}
+                     :cube-4 :target-map-entry-1}
+       :ranges :target-ranges}
 
    (provided
     (list-targets battlefield :cube-1)
@@ -646,4 +661,6 @@
     => {:cube-1 :unit-map-entry-1}
 
     (show-targets battlefield {:path-1 :target-1})
-    => {:cube-4 :target-map-entry-1})))
+    => {:cube-4 :target-map-entry-1}
+
+    (target-ranges {:path-1 :target-1} :cube-1) => :target-ranges)))

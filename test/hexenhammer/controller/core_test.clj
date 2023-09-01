@@ -297,11 +297,13 @@
      :game/battlefield :battlefield-1
      :game/battlemap :battlemap-1
      :game/charge {:battlemap :battlemap-1
-                   :breadcrumbs :breadcrumbs-1}}
+                   :breadcrumbs :breadcrumbs-1
+                   :ranges :ranges-1}}
 
  (provided
   (lm/show-charge :battlefield-1 :cube-1) => {:battlemap :battlemap-1
-                                              :breadcrumbs :breadcrumbs-1}))
+                                              :breadcrumbs :breadcrumbs-1
+                                              :ranges :ranges-1}))
 
 
 (facts
@@ -310,6 +312,22 @@
  (select {:game/selected :cube-1
           :game/phase :charge
           :game/subphase :select-target}
+         :cube-1)
+ => :unselect
+
+ (provided
+  (unselect {:game/selected :cube-1
+             :game/phase :charge
+             :game/subphase :select-hex})
+  => :unselect))
+
+
+(facts
+ "select charge declare"
+
+ (select {:game/selected :cube-1
+          :game/phase :charge
+          :game/subphase :declare}
          :cube-1)
  => :unselect
 
@@ -406,7 +424,31 @@
                         :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
          pointer)
    => {:game/phase :charge
-       :game/subphase :select-target
+       :game/subphase :declare
+       :game/battlemap :battlemap-2
+       :game/charge {:pointer pointer
+                     :battlemap {:cube-1 :battlemap-entry-1}
+                     :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
+
+   (provided
+    (cm/set-mover-selected {:cube-1 :battlemap-entry-1
+                            :cube-2 :breadcrumbs-entry-1}
+                           pointer)
+    => :battlemap-2)))
+
+
+(facts
+ "move charge declare"
+
+ (let [pointer (mc/->Pointer :cube-1 :n)]
+
+   (move {:game/phase :charge
+          :game/subphase :declare
+          :game/charge {:battlemap {:cube-1 :battlemap-entry-1}
+                        :breadcrumbs {pointer {:cube-2 :breadcrumbs-entry-1}}}}
+         pointer)
+   => {:game/phase :charge
+       :game/subphase :declare
        :game/battlemap :battlemap-2
        :game/charge {:pointer pointer
                      :battlemap {:cube-1 :battlemap-entry-1}
