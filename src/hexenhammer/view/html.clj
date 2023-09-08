@@ -230,6 +230,8 @@
         unit (get-in state [:game/battlefield cube])
         status (get-in state [:game/movement :march])
         moved? (get-in state [:game/movement :moved?])
+        pointer (get-in state [:game/movement :pointer])
+        events (get-in state [:game/movement :pointer->events pointer])
         Ld (get-in state [:game/battlefield cube :unit/Ld])
         prob-Ld (Math/round (float (* 100 (mp/march Ld))))
         roll (get-in unit [:unit/movement :roll])]
@@ -243,6 +245,7 @@
        [:body
         (vw/render-battlefield state)
         (vw/render-profile unit) [:br]
+        (vw/render-events events) [:br]
         [:form {:action "/movement/skip-movement" :method "post"}
          [:input {:type "submit" :value "Skip Movement"}]
 

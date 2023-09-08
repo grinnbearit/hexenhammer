@@ -5,6 +5,7 @@
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.entity :as me]
+            [hexenhammer.model.event :as mv]
             [hexenhammer.logic.movement :refer :all]))
 
 
@@ -318,6 +319,36 @@
 
 
 (facts
+ "path events"
+
+ (let [battlefield {:cube-1 :terrain-1
+                    :cube-2 :terrain-2
+                    :cube-3 :unit-1}]
+
+   (path-events battlefield [(mc/->Pointer :cube-1 :n)
+                             (mc/->Pointer :cube-2 :n)
+                             (mc/->Pointer :cube-3 :n)])
+   => [(mv/dangerous)]
+
+   (provided
+    (lt/dangerous? :terrain-1) => true
+    (lt/dangerous? :terrain-2) => false
+    (lt/dangerous? :unit-1) => false)))
+
+
+(facts
+ "show events"
+
+ (show-events :battlefield [[:pointer-1] [:pointer-1 :pointer-2]])
+ => {:pointer-1 :events-1
+     :pointer-2 :events-2}
+
+ (provided
+  (path-events :battlefield [:pointer-1]) => :events-1
+  (path-events :battlefield [:pointer-1 :pointer-2]) => :events-2))
+
+
+(facts
  "show moves"
 
  (let [battlefield {:cube-1 {:unit/facing :n
@@ -328,12 +359,15 @@
 
    (show-moves battlefield :cube-1 :hexes path-fn)
    => {:battlemap :battlemap-1
-       :breadcrumbs :breadcrumbs-1}
+       :breadcrumbs :breadcrumbs-1
+       :pointer->events :p->e-1}
 
    (provided
     (show-battlemap battlefield 1 :paths-1) => :battlemap-1
 
-    (show-breadcrumbs battlefield :battlemap-1 1 :paths-1) => :breadcrumbs-1)))
+    (show-breadcrumbs battlefield :battlemap-1 1 :paths-1) => :breadcrumbs-1
+
+    (show-events battlefield :paths-1) => :p->e-1)))
 
 
 (facts
@@ -446,13 +480,11 @@
    (show-march battlefield :cube-1)
    => {:battlemap {:cube-1 :battlemap-entry
                    :cube-2 :threat-entry}
-       :breadcrumbs :breadcrumbs-1
        :threats? true}
 
    (provided
     (show-moves battlefield :cube-1 5 forward-paths)
-    => {:battlemap {:cube-1 :battlemap-entry}
-        :breadcrumbs :breadcrumbs-1}
+    => {:battlemap {:cube-1 :battlemap-entry}}
 
     (show-threats battlefield :cube-1)
     => {:cube-2 :threat-entry})))

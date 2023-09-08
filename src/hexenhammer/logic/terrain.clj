@@ -29,3 +29,8 @@
   [entity]
   (and (le/terrain? entity)
        (not= :impassable (:terrain/type entity))))
+
+
+(defn dangerous?
+  [entity]
+  (= :dangerous (:terrain/type entity)))

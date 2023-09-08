@@ -682,7 +682,8 @@
    (provided
     (lm/show-forward battlefield :cube-1)
     => {:battlemap :battlemap-1
-        :breadcrumbs :breadcrumbs-1}
+        :breadcrumbs :breadcrumbs-1
+        :pointer->events :p->e-1}
 
     (move {:game/phase :movement
            :game/subphase :forward
@@ -690,7 +691,8 @@
            :game/selected :cube-1
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
-                           :breadcrumbs :breadcrumbs-1}}
+                           :breadcrumbs :breadcrumbs-1
+                           :pointer->events :p->e-1}}
           pointer)
     => :move)))
 
@@ -721,7 +723,8 @@
    (provided
     (lm/show-reposition battlefield :cube-1)
     => {:battlemap :battlemap-1
-        :breadcrumbs :breadcrumbs-1}
+        :breadcrumbs :breadcrumbs-1
+        :pointer->events :p->e-1}
 
     (move {:game/phase :movement
            :game/subphase :reposition
@@ -729,7 +732,8 @@
            :game/selected :cube-1
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
-                           :breadcrumbs :breadcrumbs-1}}
+                           :breadcrumbs :breadcrumbs-1
+                           :pointer->events :p->e-1}}
           pointer)
     => :move)))
 
@@ -761,7 +765,8 @@
     (lm/show-march battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1
-        :threats? false}
+        :threats? false
+        :pointer->events :p->e-1}
 
     (move {:game/phase :movement
            :game/subphase :march
@@ -770,7 +775,8 @@
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
                            :breadcrumbs :breadcrumbs-1
-                           :march :unnecessary}}
+                           :march :unnecessary
+                           :pointer->events :p->e-1}}
           pointer)
     => :move))
 
@@ -788,7 +794,8 @@
     (lm/show-march battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1
-        :threats? true}
+        :threats? true
+        :pointer->events :p->e-1}
 
     (move {:game/phase :movement
            :game/subphase :march
@@ -797,7 +804,8 @@
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
                            :breadcrumbs :breadcrumbs-1
-                           :march :required}}
+                           :march :required
+                           :pointer->events :p->e-1}}
           pointer)
     => :move))
 
@@ -816,6 +824,7 @@
     (lm/show-march battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1
+        :pointer->events :p->e-1
         :threats? true}
 
     (move {:game/phase :movement
@@ -825,7 +834,8 @@
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
                            :breadcrumbs :breadcrumbs-1
-                           :march :passed}}
+                           :march :passed
+                           :pointer->events :p->e-1}}
           pointer)
     => :move))
 
@@ -845,6 +855,7 @@
     (lm/show-march battlefield :cube-1)
     => {:battlemap :battlemap-1
         :breadcrumbs :breadcrumbs-1
+        :pointer->events :p->e-1
         :threats? true}
 
     (move {:game/phase :movement
@@ -854,7 +865,8 @@
            :game/battlemap :battlemap-1
            :game/movement {:battlemap :battlemap-1
                            :breadcrumbs :breadcrumbs-1
-                           :march :failed}}
+                           :march :failed
+                           :pointer->events :p->e-1}}
           pointer)
     => :move)))
 

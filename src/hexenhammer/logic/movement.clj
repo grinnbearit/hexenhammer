@@ -3,6 +3,7 @@
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.entity :as me]
+            [hexenhammer.model.event :as mv]
             [hexenhammer.model.core :as m]
             [hexenhammer.model.cube :as mc]
             [clojure.set :as set]))
@@ -163,6 +164,23 @@
        (into {})))
 
 
+(defn path-events
+  "Returns a list of events for the passed path"
+  [battlefield path]
+  (let [num-dangerous (->> (map #(battlefield (:cube %)) path)
+                           (filter #(lt/dangerous? %))
+                           (count))]
+    (repeat num-dangerous (mv/dangerous))))
+
+
+(defn show-events
+  "Returns a map of pointer->events for all paths"
+  [battlefield paths]
+  (->> (for [path paths]
+         [(peek path) (path-events battlefield path)])
+       (into {})))
+
+
 (defn show-moves
   "Given a battlefield, cube, hexes and a path-fn returns
   :battlemap, cube->mover that the unit can reach when moving
@@ -172,9 +190,11 @@
         start (mc/->Pointer cube (:unit/facing unit))
         paths (path-fn battlefield start hexes)
         battlemap (show-battlemap battlefield (:unit/player unit) paths)
-        breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) paths)]
+        breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) paths)
+        pointer->events (show-events battlefield paths)]
     {:battlemap battlemap
-     :breadcrumbs breadcrumbs}))
+     :breadcrumbs breadcrumbs
+     :pointer->events pointer->events}))
 
 
 (defn show-forward
@@ -227,11 +247,10 @@
   [battlefield cube]
   (let [M (get-in battlefield [cube :unit/M])
         hexes (m/M->hexes (* M 2))
-        {:keys [battlemap breadcrumbs]} (show-moves battlefield cube hexes forward-paths)
+        moves (show-moves battlefield cube hexes forward-paths)
         threats (show-threats battlefield cube)]
-    {:battlemap (merge battlemap threats)
-     :breadcrumbs breadcrumbs
-     :threats? (not (empty? threats))}))
+    (-> (update moves :battlemap merge threats)
+        (assoc :threats? (not (empty? threats))))))
 
 
 (defn charge-step

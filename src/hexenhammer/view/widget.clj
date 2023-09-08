@@ -33,12 +33,26 @@
     [:tr [:td (:unit/M unit)] [:td (:unit/Ld unit)]]]])
 
 
+(defn render-events
+  [events]
+  (when (seq events)
+    [:table
+     [:thead
+      [:tr [:th "Order"] [:th "Event"]]]
+     (for [[index event] (zipmap (range) events)]
+       (case (:event/class event)
+         :dangerous
+         [:tr [:td (inc index)] [:td "Dangerous Terrain"]]))]))
+
+
 (defn render-movement
   [state movement]
   (let [player (:game/player state)
         cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
-        moved? (get-in state [:game/movement :moved?])]
+        moved? (get-in state [:game/movement :moved?])
+        pointer (get-in state [:game/movement :pointer])
+        events (get-in state [:game/movement :pointer->events pointer])]
 
     [:html
      [:head
@@ -48,6 +62,8 @@
       [:body
        (render-battlefield state)
        (render-profile unit) [:br]
+       (render-events events) [:br]
+
        [:form {:action "/movement/skip-movement" :method "post"}
         [:input {:type "submit" :value "Skip Movement"}]
 

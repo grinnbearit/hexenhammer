@@ -252,14 +252,15 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]}  (lm/show-forward (:game/battlefield state) cube)
+    (let [{:keys [battlemap breadcrumbs pointer->events]}  (lm/show-forward (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
                  :game/battlemap battlemap)
           (update :game/movement assoc
                   :battlemap battlemap
-                  :breadcrumbs breadcrumbs)
+                  :breadcrumbs breadcrumbs
+                  :pointer->events pointer->events)
           (move pointer)))))
 
 
@@ -267,14 +268,15 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs]}  (lm/show-reposition (:game/battlefield state) cube)
+    (let [{:keys [battlemap breadcrumbs pointer->events]}  (lm/show-reposition (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
                  :game/battlemap battlemap)
           (update :game/movement assoc
                   :battlemap battlemap
-                  :breadcrumbs breadcrumbs)
+                  :breadcrumbs breadcrumbs
+                  :pointer->events pointer->events)
           (move pointer)))))
 
 
@@ -282,7 +284,7 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs threats?]}  (lm/show-march (:game/battlefield state) cube)
+    (let [{:keys [battlemap breadcrumbs pointer->events threats?]}  (lm/show-march (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))
           unit (get-in state [:game/battlefield cube])]
 
@@ -297,8 +299,8 @@
                  :game/battlemap battlemap)
           (update :game/movement assoc
                   :battlemap battlemap
-                  :breadcrumbs breadcrumbs)
-
+                  :breadcrumbs breadcrumbs
+                  :pointer->events pointer->events)
           (move pointer)))))
 
 
