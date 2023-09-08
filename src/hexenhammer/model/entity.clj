@@ -43,7 +43,11 @@
    :unit/id id
    :unit/facing facing
    :unit/M M
-   :unit/Ld Ld})
+   :unit/Ld Ld
+   :unit/W 1
+   :unit/F 4
+   :unit/R 4
+   :unit/D 0})
 
 
 (defn gen-mover

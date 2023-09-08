@@ -56,7 +56,11 @@
      :unit/id :id-1
      :unit/facing :facing-1
      :unit/M 4
-     :unit/Ld 7}
+     :unit/Ld 7
+     :unit/W 1
+     :unit/F 4
+     :unit/R 4
+     :unit/D 0}
 
  (gen-unit :cube-1 :player-1 :id-1 :facing-1
            :M 3 :Ld 8)
@@ -70,7 +74,11 @@
      :unit/facing :facing-1
      :unit/id :id-1
      :unit/M 3
-     :unit/Ld 8})
+     :unit/Ld 8
+     :unit/W 1
+     :unit/F 4
+     :unit/R 4
+     :unit/D 0})
 
 
 (facts

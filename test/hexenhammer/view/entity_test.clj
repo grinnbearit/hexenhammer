@@ -99,7 +99,10 @@
 
              :unit/facing :facing-1
              :unit/id 1
-             :unit/player 1}]
+             :unit/player 1
+
+             :unit/F 4
+             :unit/R 3}]
 
    (render unit) => :if-selectable
 
@@ -112,12 +115,15 @@
 
     (svg/text "unit" -1) => [:text "unit" -1]
 
+    (svg/text "4 x 3" 0) => [:text "4 x 3" 0]
+
     (svg/text "i" 2) => [:text "i" 2]
 
     (svg/scale [:g {}
                 [:hexagon {:class "unit player-1"}]
                 [:chevron :facing-1]
                 [:text "unit" -1]
+                [:text "4 x 3" 0]
                 [:text "i" 2]]
                9/10)
     => :scale

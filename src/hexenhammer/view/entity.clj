@@ -56,6 +56,7 @@
                   (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
               (svg/chevron (:unit/facing unit))
               (svg/text (:entity/name unit) -1)
+              (svg/text (format "%d x %d" (:unit/F unit) (:unit/R unit)) 0)
               (svg/text (int->roman (:unit/id unit)) 2)]
              (svg/scale 9/10))]
 

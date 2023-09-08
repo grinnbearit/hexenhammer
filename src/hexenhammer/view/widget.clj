@@ -28,9 +28,15 @@
   [:table
    [:h3 (str (:entity/name unit) " (" (:unit/id unit) ")")]
    [:thead
-    [:tr [:th "M"][:th "Ld"]]]
+    [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "F"] [:th "R"] [:th "D"]]]
    [:tbody
-    [:tr [:td (:unit/M unit)] [:td (:unit/Ld unit)]]]])
+    [:tr
+     [:td (:unit/M unit)]
+     [:td (:unit/Ld unit)]
+     [:td (:unit/W unit)]
+     [:td (:unit/F unit)]
+     [:td (:unit/R unit)]
+     [:td (:unit/D unit)]]]])
 
 
 (defn render-events
