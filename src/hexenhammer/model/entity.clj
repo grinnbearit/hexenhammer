@@ -28,13 +28,13 @@
          :entity/los 5))
 
 
-(defn gen-unit
-  "Returns a generic unit entity"
+(defn gen-infantry
+  "Returns a generic infantry entity"
   [cube player id facing
    & {:keys [M Ld]
       :or {M 4 Ld 7}}]
   {:entity/class :unit
-   :entity/name "unit"
+   :entity/name "infantry"
    :entity/cube cube
    :entity/state :default
    :entity/los 1
@@ -47,7 +47,9 @@
    :unit/W 1
    :unit/F 4
    :unit/R 4
-   :unit/D 0})
+   :unit/model-strength 1
+   :unit/ranks 4
+   :unit/damage 0})
 
 
 (defn gen-mover

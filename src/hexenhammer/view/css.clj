@@ -30,6 +30,7 @@
      [:&.selected {:stroke "yellow" :fill "yellow"}]
      [:&.highlighted {:stroke "orange" :fill "orange"}]]]
    [:table :th :td {:border "1px solid"}]
+   [:table.profile {:text-align "center"}]
    [:text
     [:&.dice.passed {:color (PALETTE "dark green 2") :font-size "5em"}]
     [:&.dice.failed {:color (PALETTE "dark red 2") :font-size "5em"}]]))

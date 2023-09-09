@@ -45,9 +45,9 @@
 (facts
  "gen unit"
 
- (gen-unit :cube-1 :player-1 :id-1 :facing-1)
+ (gen-infantry :cube-1 :player-1 :id-1 :facing-1)
  => {:entity/class :unit
-     :entity/name "unit"
+     :entity/name "infantry"
      :entity/cube :cube-1
      :entity/state :default
      :entity/los 1
@@ -60,12 +60,14 @@
      :unit/W 1
      :unit/F 4
      :unit/R 4
-     :unit/D 0}
+     :unit/model-strength 1
+     :unit/ranks 4
+     :unit/damage 0}
 
- (gen-unit :cube-1 :player-1 :id-1 :facing-1
-           :M 3 :Ld 8)
+ (gen-infantry :cube-1 :player-1 :id-1 :facing-1
+               :M 3 :Ld 8)
  => {:entity/class :unit
-     :entity/name "unit"
+     :entity/name "infantry"
      :entity/cube :cube-1
      :entity/state :default
      :entity/los 1
@@ -78,7 +80,9 @@
      :unit/W 1
      :unit/F 4
      :unit/R 4
-     :unit/D 0})
+     :unit/model-strength 1
+     :unit/ranks 4
+     :unit/damage 0})
 
 
 (facts

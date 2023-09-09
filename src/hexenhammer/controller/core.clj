@@ -53,7 +53,7 @@
   (let [cube (:game/selected state)
         terrain (get-in state [:game/battlefield cube])
         id (inc (get-in state [:game/units player :counter]))
-        unit (-> (me/gen-unit cube player id facing :M M :Ld Ld)
+        unit (-> (me/gen-infantry cube player id facing :M M :Ld Ld)
                  (assoc :entity/state :selectable)
                  (lt/place terrain))]
     (-> (assoc-in state [:game/battlefield cube] unit)

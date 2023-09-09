@@ -2,6 +2,7 @@
   (:require [hexenhammer.view.css :refer [STYLESHEET]]
             [hexenhammer.view.svg :as svg]
             [hexenhammer.view.entity :as ve]
+            [hexenhammer.model.unit :as mu]
             [clojure.string :as str]))
 
 
@@ -25,18 +26,20 @@
 
 (defn render-profile
   [unit]
-  [:table
+  [:div
    [:h3 (str (:entity/name unit) " (" (:unit/id unit) ")")]
-   [:thead
-    [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "F"] [:th "R"] [:th "D"]]]
-   [:tbody
-    [:tr
-     [:td (:unit/M unit)]
-     [:td (:unit/Ld unit)]
-     [:td (:unit/W unit)]
-     [:td (:unit/F unit)]
-     [:td (:unit/R unit)]
-     [:td (:unit/D unit)]]]])
+   [:table.profile
+    [:thead
+     [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "Formation"] [:th "Damage"] [:th "Models"] [:th "Unit Strength"]]]
+    [:tbody
+     [:tr
+      [:td (:unit/M unit)]
+      [:td (:unit/Ld unit)]
+      [:td (:unit/W unit)]
+      [:td (format "%d x %d" (:unit/F unit) (:unit/ranks unit))]
+      [:td (:unit/damage unit)]
+      [:td (mu/models unit)]
+      [:td (mu/unit-strength unit)]]]]])
 
 
 (defn render-events

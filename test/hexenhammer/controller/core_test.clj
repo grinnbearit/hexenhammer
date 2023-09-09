@@ -112,7 +112,7 @@
  => :unselect
 
  (provided
-  (me/gen-unit :cube-1 1 1 :facing-1 :M 3 :Ld 7)
+  (me/gen-infantry :cube-1 1 1 :facing-1 :M 3 :Ld 7)
   => {:entity/class :unit}
 
   (lt/place {:entity/class :unit

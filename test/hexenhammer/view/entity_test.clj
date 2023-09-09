@@ -102,7 +102,8 @@
              :unit/player 1
 
              :unit/F 4
-             :unit/R 3}]
+             :unit/ranks 3
+             :unit/damage 0}]
 
    (render unit) => :if-selectable
 
@@ -124,6 +125,55 @@
                 [:chevron :facing-1]
                 [:text "unit" -1]
                 [:text "4 x 3" 0]
+                nil
+                [:text "i" 2]]
+               9/10)
+    => :scale
+
+    (svg/translate [:g {}
+                    :terrain-1
+                    :scale]
+                   :cube-1)
+    => :translate
+
+    (if-selectable :translate unit) => :if-selectable))
+
+
+ (let [unit {:entity/class :unit
+             :entity/cube :cube-1
+             :entity/name "unit"
+
+             :unit/facing :facing-1
+             :unit/id 1
+             :unit/player 1
+
+             :unit/F 4
+             :unit/ranks 3
+             :unit/damage 2}]
+
+   (render unit) => :if-selectable
+
+   (provided
+    (render-floor unit) => :terrain-1
+
+    (svg/hexagon) => [:hexagon {}]
+
+    (svg/chevron :facing-1) => [:chevron :facing-1]
+
+    (svg/text "unit" -1) => [:text "unit" -1]
+
+    (svg/text "4 x 3" 0) => [:text "4 x 3" 0]
+
+    (svg/text "[2]" 1) => [:text "[2]" 1]
+
+    (svg/text "i" 2) => [:text "i" 2]
+
+    (svg/scale [:g {}
+                [:hexagon {:class "unit player-1"}]
+                [:chevron :facing-1]
+                [:text "unit" -1]
+                [:text "4 x 3" 0]
+                [:text "[2]" 1]
                 [:text "i" 2]]
                9/10)
     => :scale
