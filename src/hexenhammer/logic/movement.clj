@@ -166,18 +166,18 @@
 
 (defn path-events
   "Returns a list of events for the passed path"
-  [battlefield path]
+  [battlefield unit path]
   (let [num-dangerous (->> (map #(battlefield (:cube %)) path)
                            (filter #(lt/dangerous? %))
                            (count))]
-    (repeat num-dangerous (mv/dangerous))))
+    (repeat num-dangerous (mv/dangerous (:unit/player unit) (:unit/id unit)))))
 
 
 (defn show-events
   "Returns a map of pointer->events for all paths"
-  [battlefield paths]
+  [battlefield unit paths]
   (->> (for [path paths]
-         [(peek path) (path-events battlefield path)])
+         [(peek path) (path-events battlefield unit path)])
        (into {})))
 
 
@@ -191,7 +191,7 @@
         paths (path-fn battlefield start hexes)
         battlemap (show-battlemap battlefield (:unit/player unit) paths)
         breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) paths)
-        pointer->events (show-events battlefield paths)]
+        pointer->events (show-events battlefield unit paths)]
     {:battlemap battlemap
      :breadcrumbs breadcrumbs
      :pointer->events pointer->events}))

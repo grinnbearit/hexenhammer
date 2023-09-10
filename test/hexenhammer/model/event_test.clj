@@ -6,5 +6,7 @@
 (facts
  "dangerous"
 
- (dangerous)
- => {:event/class :dangerous})
+ (dangerous 1 2)
+ => {:event/class :dangerous
+     :unit/player 1
+     :unit/id 2})

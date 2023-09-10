@@ -323,12 +323,15 @@
 
  (let [battlefield {:cube-1 :terrain-1
                     :cube-2 :terrain-2
-                    :cube-3 :unit-1}]
+                    :cube-3 :unit-1}
 
-   (path-events battlefield [(mc/->Pointer :cube-1 :n)
-                             (mc/->Pointer :cube-2 :n)
-                             (mc/->Pointer :cube-3 :n)])
-   => [(mv/dangerous)]
+       unit {:unit/player 1
+             :unit/id 2}]
+
+   (path-events battlefield unit [(mc/->Pointer :cube-1 :n)
+                                  (mc/->Pointer :cube-2 :n)
+                                  (mc/->Pointer :cube-3 :n)])
+   => [(mv/dangerous 1 2)]
 
    (provided
     (lt/dangerous? :terrain-1) => true
@@ -339,21 +342,23 @@
 (facts
  "show events"
 
- (show-events :battlefield [[:pointer-1] [:pointer-1 :pointer-2]])
+ (show-events :battlefield :unit-1 [[:pointer-1] [:pointer-1 :pointer-2]])
  => {:pointer-1 :events-1
      :pointer-2 :events-2}
 
  (provided
-  (path-events :battlefield [:pointer-1]) => :events-1
-  (path-events :battlefield [:pointer-1 :pointer-2]) => :events-2))
+  (path-events :battlefield :unit-1 [:pointer-1]) => :events-1
+  (path-events :battlefield :unit-1 [:pointer-1 :pointer-2]) => :events-2))
 
 
 (facts
  "show moves"
 
- (let [battlefield {:cube-1 {:unit/facing :n
-                             :unit/M 5
-                             :unit/player 1}}
+ (let [unit {:unit/facing :n
+             :unit/M 5
+             :unit/player 1}
+
+       battlefield {:cube-1 unit}
 
        path-fn (constantly :paths-1)]
 
@@ -367,7 +372,7 @@
 
     (show-breadcrumbs battlefield :battlemap-1 1 :paths-1) => :breadcrumbs-1
 
-    (show-events battlefield :paths-1) => :p->e-1)))
+    (show-events battlefield unit :paths-1) => :p->e-1)))
 
 
 (facts

@@ -6,6 +6,7 @@
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.dice :as cd]))
 
 
@@ -85,6 +86,28 @@
     (-> (assoc-in state [:game/battlefield cube] new-entity)
         (unselect)
         (select cube))))
+
+
+(defmulti trigger-event (fn [state event] (:game/phase state)))
+
+
+(defn trigger
+  "pops the next event in the queue, returns to the current main phase and sub phase if empty"
+  [state]
+  (if-let [event (peek (:game/events state))]
+    (-> (ce/push-phase state)
+        (update :game/events pop)
+        (update :game/battlefield l/set-state :default)
+        (ce/event-transition event)
+        (trigger-event event))
+    (ce/pop-phase state)))
+
+
+(defmethod trigger-event :dangerous
+  [state event]
+  (let [{:keys [unit/player unit/id]} event
+        cube (get-in state [:game/units player :cubes id])]
+    (update state :game/battlefield l/set-state [cube] :marked)))
 
 
 (defn to-charge
@@ -215,6 +238,7 @@
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
         pointer (get-in state [:game/movement :pointer])
+        events (get-in state [:game/movement :pointer->events pointer])
         old-terrain (lt/pickup unit)
         new-terrain (get-in state [:game/battlefield (:cube pointer)])
         updated-unit (-> (assoc unit
@@ -225,7 +249,9 @@
     (-> (assoc-in state [:game/battlefield cube] old-terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
         (assoc-in [:game/units (:unit/player unit) :cubes (:unit/id unit)] (:cube pointer))
-        (unselect))))
+        (update :game/events into events)
+        (unselect)
+        (trigger))))
 
 
 (defn movement-transition

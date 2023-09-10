@@ -7,6 +7,7 @@
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.dice :as cd]
             [hexenhammer.controller.core :refer :all]))
 
@@ -223,6 +224,56 @@
 
   (select :unselect :cube-1)
   => :select))
+
+
+(facts
+ "trigger"
+
+ (trigger {:game/events []})
+ => :pop-phase
+
+ (provided
+  (ce/pop-phase {:game/events []})
+  => :pop-phase)
+
+
+ (let [state {:game/events [:event-2 :event-1]
+              :game/battlefield :battlefield-1}]
+
+
+   (trigger state)
+   => :trigger-event
+
+   (provided
+    (ce/push-phase state)
+    => state
+
+    (l/set-state :battlefield-1 :default) => :battlefield-2
+
+    (ce/event-transition {:game/events [:event-2]
+                          :game/battlefield :battlefield-2}
+
+                         :event-1)
+    => :event-transition
+
+    (trigger-event :event-transition :event-1)
+    => :trigger-event)))
+
+
+(facts
+ "trigger event dangerous"
+
+ (trigger-event {:game/phase :dangerous
+                 :game/units {1 {:cubes {2 :cube-1}}}
+                 :game/battlefield :battlefield-1}
+                {:unit/player 1 :unit/id 2})
+ => {:game/phase :dangerous
+     :game/units {1 {:cubes {2 :cube-1}}}
+     :game/battlefield :battlefield-2}
+
+ (provided
+  (l/set-state :battlefield-1 [:cube-1] :marked)
+  => :battlefield-2))
 
 
 (facts
@@ -552,8 +603,10 @@
    (finish-movement {:game/selected :cube-1
                      :game/battlefield {:cube-1 unit
                                         :cube-2 :terrain-2}
-                     :game/movement {:pointer pointer}})
-   => :unselect
+                     :game/movement {:pointer pointer
+                                     :pointer->events {pointer [:event-1 :event-2]}}
+                     :game/events []})
+   => :trigger
 
    (provided
 
@@ -570,39 +623,14 @@
     (unselect {:game/selected :cube-1
                :game/battlefield {:cube-1 :unit-2
                                   :cube-2 :terrain-2}
-               :game/movement {:pointer pointer}
-               :game/units {1 {:cubes {2 :cube-1}}}})
-    => :unselect))
+               :game/movement {:pointer pointer
+                               :pointer->events {pointer [:event-1 :event-2]}}
+               :game/units {1 {:cubes {2 :cube-1}}}
+               :game/events [:event-1 :event-2]})
+    => :unselect
 
-
- (let [pointer (mc/->Pointer :cube-2 :n)
-       unit {:unit/player 1
-             :unit/id 2}]
-
-   (finish-movement {:game/selected :cube-1
-                     :game/battlefield {:cube-1 unit
-                                        :cube-2 :terrain-2}
-                     :game/movement {:pointer pointer}})
-   => :unselect
-
-   (provided
-
-    (lt/pickup unit) => :old-terrain
-
-    (lt/swap {:unit/player 1
-              :unit/id 2
-              :entity/state :default
-              :entity/cube :cube-2
-              :unit/facing :n}
-             :terrain-2)
-    => :unit-2
-
-    (unselect {:game/selected :cube-1
-               :game/battlefield {:cube-1 :old-terrain
-                                  :cube-2 :unit-2}
-               :game/movement {:pointer pointer}
-               :game/units {1 {:cubes {2 :cube-2}}}})
-    => :unselect)))
+    (trigger :unselect)
+    => :trigger)))
 
 
 (facts

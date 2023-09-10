@@ -2,5 +2,7 @@
 
 
 (defn dangerous
-  []
-  {:event/class :dangerous})
+  [player id]
+  {:event/class :dangerous
+   :unit/player player
+   :unit/id id})

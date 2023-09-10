@@ -29,7 +29,8 @@
    :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
                             [cube (assoc (entity/gen-open-ground cube)
                                          :entity/state :silent-selectable)])
-                          (into {}))})
+                          (into {}))
+   :game/events (clojure.lang.PersistentQueue/EMPTY)})
 
 
 (defn M->hexes

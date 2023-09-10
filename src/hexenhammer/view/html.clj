@@ -131,6 +131,20 @@
         [:input {:type "submit" :value "Swap Terrain"}]]]])))
 
 
+(defmethod render [:dangerous :start]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Dangerous Terrain"]
+     [:style STYLESHEET]
+     [:body
+      (vw/render-battlefield state) [:br] [:br]
+      [:form {:action "/trigger/next" :method "post"}
+       [:input {:type "submit" :value "Next"}]]]]]))
+
+
 (defmethod render [:charge :select-hex]
   [state]
   (html
