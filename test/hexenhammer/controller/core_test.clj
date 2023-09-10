@@ -230,11 +230,11 @@
  "trigger"
 
  (trigger {:game/events []})
- => :pop-phase
+ => {}
 
  (provided
   (ce/pop-phase {:game/events []})
-  => :pop-phase)
+  => {:game/battlemap :battlemap-1})
 
 
  (let [state {:game/events [:event-2 :event-1]
@@ -251,8 +251,8 @@
     (l/set-state :battlefield-1 :default) => :battlefield-2
 
     (ce/event-transition {:game/events [:event-2]
-                          :game/battlefield :battlefield-2}
-
+                          :game/battlefield :battlefield-1
+                          :game/battlemap :battlefield-2}
                          :event-1)
     => :event-transition
 
@@ -265,15 +265,15 @@
 
  (trigger-event {:game/phase :dangerous
                  :game/units {1 {:cubes {2 :cube-1}}}
-                 :game/battlefield :battlefield-1}
+                 :game/battlemap :battlemap-1}
                 {:unit/player 1 :unit/id 2})
  => {:game/phase :dangerous
      :game/units {1 {:cubes {2 :cube-1}}}
-     :game/battlefield :battlefield-2}
+     :game/battlemap :battlemap-2}
 
  (provided
-  (l/set-state :battlefield-1 [:cube-1] :marked)
-  => :battlefield-2))
+  (l/set-state :battlemap-1 [:cube-1] :marked)
+  => :battlemap-2))
 
 
 (facts

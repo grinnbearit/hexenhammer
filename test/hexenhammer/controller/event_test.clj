@@ -11,14 +11,11 @@
 
 
  (push-phase {:game/phase :main
-              :game/subphase :sub
-              :game/battlefield :battlefield-1})
+              :game/subphase :sub})
  => {:game/phase :main
      :game/subphase :sub
-     :game/battlefield :battlefield-1
      :game/trigger {:game/phase :main
-                    :game/subphase :sub
-                    :game/battlefield :battlefield-1}})
+                    :game/subphase :sub}})
 
 
 (facts
@@ -38,9 +35,6 @@
  (pop-phase {}) => {}
 
  (pop-phase {:game/trigger {:game/phase :main
-                            :game/subphase :sub
-                            :game/battlefield :battlefield-1
-                            :event/class :ec-1}})
+                            :game/subphase :sub}})
  => {:game/phase :main
-     :game/subphase :sub
-     :game/battlefield :battlefield-1})
+     :game/subphase :sub})

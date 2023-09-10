@@ -97,17 +97,18 @@
   (if-let [event (peek (:game/events state))]
     (-> (ce/push-phase state)
         (update :game/events pop)
-        (update :game/battlefield l/set-state :default)
+        (assoc :game/battlemap (l/set-state (:game/battlefield state) :default))
         (ce/event-transition event)
         (trigger-event event))
-    (ce/pop-phase state)))
+    (-> (ce/pop-phase state)
+        (dissoc :game/battlemap))))
 
 
 (defmethod trigger-event :dangerous
   [state event]
   (let [{:keys [unit/player unit/id]} event
         cube (get-in state [:game/units player :cubes id])]
-    (update state :game/battlefield l/set-state [cube] :marked)))
+    (update state :game/battlemap l/set-state [cube] :marked)))
 
 
 (defn to-charge
