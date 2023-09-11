@@ -1,13 +1,17 @@
 (ns hexenhammer.controller.core
   (:require [hexenhammer.model.cube :as mc]
+            [hexenhammer.model.unit :as mu]
             [hexenhammer.model.entity :as me]
             [hexenhammer.logic.core :as l]
+            [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
-            [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.event :as ce]
-            [hexenhammer.controller.dice :as cd]))
+            [hexenhammer.controller.dice :as cd]
+            [hexenhammer.controller.unit :as cu]
+            [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.battlemap :as cb]))
 
 
 (defmulti select (fn [state cube] [(:game/phase state) (:game/subphase state)]))
@@ -106,9 +110,23 @@
 
 (defmethod trigger-event :dangerous
   [state event]
-  (let [{:keys [unit/player unit/id]} event
-        cube (get-in state [:game/units player :cubes id])]
-    (update state :game/battlemap l/set-state [cube] :marked)))
+  (let [{:keys [unit/player unit/id]} event]
+    (if-let [cube (get-in state [:game/units player :cubes id])]
+      (let [unit (get-in state [:game/battlefield cube])
+            models (mu/models unit)
+            roll (cd/roll! models)
+            models-destroyed (cd/matches roll 1)
+            unit-destroyed? (<= models models-destroyed)]
+        (-> (if unit-destroyed?
+              (cu/destroy-unit state unit)
+              (cu/destroy-models state unit models-destroyed))
+            (update :game/trigger assoc
+                    :models-destroyed models-destroyed
+                    :unit-destroyed? unit-destroyed?
+                    :roll roll)
+            (cb/refresh-battlemap [cube])
+            (update :game/battlemap l/set-state [cube] :marked)))
+      (trigger state))))
 
 
 (defn to-charge

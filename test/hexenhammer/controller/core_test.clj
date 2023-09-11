@@ -1,14 +1,17 @@
 (ns hexenhammer.controller.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as mc]
+            [hexenhammer.model.unit :as mu]
             [hexenhammer.model.entity :as me]
             [hexenhammer.logic.core :as l]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
-            [hexenhammer.controller.movement :as cm]
-            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.dice :as cd]
+            [hexenhammer.controller.unit :as cu]
+            [hexenhammer.controller.event :as ce]
+            [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.battlemap :as cb]
             [hexenhammer.controller.core :refer :all]))
 
 
@@ -263,17 +266,66 @@
 (facts
  "trigger event dangerous"
 
- (trigger-event {:game/phase :dangerous
-                 :game/units {1 {:cubes {2 :cube-1}}}
-                 :game/battlemap :battlemap-1}
-                {:unit/player 1 :unit/id 2})
- => {:game/phase :dangerous
-     :game/units {1 {:cubes {2 :cube-1}}}
-     :game/battlemap :battlemap-2}
+ (let [state {:game/phase :dangerous
+              :game/units 1 :cubes {}}
 
- (provided
-  (l/set-state :battlemap-1 [:cube-1] :marked)
-  => :battlemap-2))
+       unit {:unit/player 1 :unit/id 2}]
+
+   (trigger-event state unit)
+   => :trigger
+
+   (provided
+    (trigger state) => :trigger))
+
+
+ (let [unit {:unit/player 1 :unit/id 2}
+
+       state {:game/phase :dangerous
+              :game/units {1 {:cubes {2 :cube-1}}}
+              :game/battlefield {:cube-1 unit}}]
+
+   (trigger-event state {:unit/player 1 :unit/id 2})
+   => {:game/battlemap :set-state}
+
+   (provided
+    (mu/models unit) => 3
+    (cd/roll! 3) => :roll
+    (cd/matches :roll 1) => 3
+
+    (cu/destroy-unit state unit) => {}
+
+    (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
+                                          :unit-destroyed? true
+                                          :roll :roll}}
+                          [:cube-1])
+    => {:game/battlemap :battlemap}
+
+    (l/set-state :battlemap [:cube-1] :marked) => :set-state))
+
+
+ (let [unit {:unit/player 1 :unit/id 2}
+
+       state {:game/phase :dangerous
+              :game/units {1 {:cubes {2 :cube-1}}}
+              :game/battlefield {:cube-1 unit}}]
+
+   (trigger-event state {:unit/player 1 :unit/id 2})
+   => {:game/battlemap :set-state}
+
+   (provided
+    (mu/models unit) => 4
+    (cd/roll! 4) => :roll
+    (cd/matches :roll 1) => 3
+
+    (cu/destroy-models state unit 3) => {}
+
+    (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
+                                          :unit-destroyed? false
+                                          :roll :roll}}
+                          [:cube-1])
+    => {:game/battlemap :battlemap}
+
+    (l/set-state :battlemap [:cube-1] :marked) => :set-state)))
 
 
 (facts

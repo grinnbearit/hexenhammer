@@ -133,16 +133,21 @@
 
 (defmethod render [:dangerous :start]
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 "Hexenhammer"]
-     [:h2 "Dangerous Terrain"]
-     [:style STYLESHEET]
-     [:body
-      (vw/render-battlefield state) [:br] [:br]
-      [:form {:action "/trigger/next" :method "post"}
-       [:input {:type "submit" :value "Next"}]]]]]))
+  (let [{:keys [unit-destroyed? models-destroyed roll]} (:game/trigger state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Dangerous Terrain"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state) [:br] [:br]
+        (if unit-destroyed?
+          [:h3 "Unit Destroyed!"]
+          [:h3 (format "%d Models Destroyed" models-destroyed)])
+        (svg/dice roll 2)
+        [:form {:action "/trigger/next" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
 
 
 (defmethod render [:charge :select-hex]
