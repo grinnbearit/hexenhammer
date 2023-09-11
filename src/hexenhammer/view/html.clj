@@ -196,6 +196,7 @@
   (let [cube (:game/selected state)
         unit (get-in state [:game/battlefield cube])
         pointer (get-in state [:game/charge :pointer])
+        events (get-in state [:game/charge :pointer->events pointer])
         charge-range (get-in state [:game/charge :ranges pointer])
         charge-prob (mp/charge (:unit/M unit) charge-range)
         charge-perc (Math/round (float (* 100 charge-prob)))]
@@ -209,6 +210,7 @@
       [:body
        (vw/render-battlefield state) [:br] [:br]
        (vw/render-profile unit) [:br]
+       (vw/render-events events) [:br]
        [:input {:type "button" :disabled true
                 :value (format "Charge! (~%d%%)" charge-perc)}]]])))
 

@@ -401,11 +401,13 @@
      :game/battlemap :battlemap-1
      :game/charge {:battlemap :battlemap-1
                    :breadcrumbs :breadcrumbs-1
+                   :pointer->events :pointer->events-1
                    :ranges :ranges-1}}
 
  (provided
   (lm/show-charge :battlefield-1 :cube-1) => {:battlemap :battlemap-1
                                               :breadcrumbs :breadcrumbs-1
+                                              :pointer->events :pointer->events-1
                                               :ranges :ranges-1}))
 
 

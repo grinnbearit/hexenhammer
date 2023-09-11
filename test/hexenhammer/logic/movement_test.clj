@@ -670,8 +670,10 @@
 (facts
  "show charge"
 
- (let [battlefield {:cube-1 {:unit/facing :n
-                             :unit/player 1}}
+ (let [unit {:unit/facing :n
+             :unit/player 1}
+
+       battlefield {:cube-1 unit}
        start (mc/->Pointer :cube-1 :n)]
 
    (show-charge battlefield :cube-1)
@@ -679,6 +681,7 @@
                    :cube-2 :battlemap-entry-1}
        :breadcrumbs {:cube-3 :breadcrumbs-entry-1
                      :cube-4 :target-map-entry-1}
+       :pointer->events {:cube-3 :events-1}
        :ranges :target-ranges}
 
    (provided
@@ -693,6 +696,8 @@
 
     (show-breadcrumbs battlefield {:cube-2 :battlemap-entry-1} 1 [:path-1])
     => {:cube-3 :breadcrumbs-entry-1}
+
+    (show-events battlefield unit [:path-1]) => {:cube-3 :events-1}
 
     (l/show-cubes battlefield [:cube-1] :selected)
     => {:cube-1 :unit-map-entry-1}

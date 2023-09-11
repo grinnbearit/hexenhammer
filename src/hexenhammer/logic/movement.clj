@@ -361,9 +361,11 @@
         paths (charge-paths battlefield start targets)
         battlemap (show-battlemap battlefield (:unit/player unit) (keys paths))
         breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) (keys paths))
+        pointer->events (show-events battlefield unit (keys paths))
         unit-map (l/show-cubes battlefield [cube] :selected)
         target-map (show-targets battlefield paths)
         ranges (target-ranges paths cube)]
     {:battlemap (merge battlemap unit-map)
      :breadcrumbs (merge-with merge breadcrumbs target-map)
+     :pointer->events pointer->events
      :ranges ranges}))
