@@ -138,7 +138,7 @@
      [:html
       [:head
        [:h1 "Hexenhammer"]
-       [:h2 "Dangerous Terrain"]
+       [:h2 "Event - Dangerous Terrain"]
        [:style STYLESHEET]
        [:body
         (vw/render-battlefield state) [:br] [:br]
