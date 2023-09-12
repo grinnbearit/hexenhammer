@@ -170,7 +170,7 @@
   (let [num-dangerous (->> (map #(battlefield (:cube %)) path)
                            (filter #(lt/dangerous? %))
                            (count))]
-    (repeat num-dangerous (mv/dangerous (:unit/player unit) (:unit/id unit)))))
+    (repeat num-dangerous (mv/dangerous (:unit/player unit) (:entity/name unit) (:unit/id unit)))))
 
 
 (defn show-events

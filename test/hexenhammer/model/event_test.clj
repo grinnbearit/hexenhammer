@@ -6,7 +6,8 @@
 (facts
  "dangerous"
 
- (dangerous 1 2)
+ (dangerous 1 "unit" 2)
  => {:event/class :dangerous
      :unit/player 1
+     :entity/name "unit"
      :unit/id 2})

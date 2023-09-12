@@ -326,12 +326,13 @@
                     :cube-3 :unit-1}
 
        unit {:unit/player 1
+             :entity/name "unit"
              :unit/id 2}]
 
    (path-events battlefield unit [(mc/->Pointer :cube-1 :n)
                                   (mc/->Pointer :cube-2 :n)
                                   (mc/->Pointer :cube-3 :n)])
-   => [(mv/dangerous 1 2)]
+   => [(mv/dangerous 1 "unit" 2)]
 
    (provided
     (lt/dangerous? :terrain-1) => true

@@ -6,16 +6,27 @@
 
 
 (facts
+ "unit cubes"
+
+ (unit-cubes {:game/units {1 {"unit-1" {:cubes {1 :cube-1
+                                                2 :cube-2}}
+                              "unit-2" {:cubes {1 :cube-3}}}}}
+             1)
+ => [:cube-1 :cube-2 :cube-3])
+
+
+(facts
  "destroy unit"
 
  (let [unit {:entity/cube :cube-1
+             :entity/name "unit"
              :unit/player 1
              :unit/id 2}]
 
-   (destroy-unit {:game/units {1 {:cubes {2 :cube-1}}}
+   (destroy-unit {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                   :game/battlefield {:cube-1 unit}}
                  unit)
-   => {:game/units {1 {:cubes {}}}
+   => {:game/units {1 {"unit" {:cubes {}}}}
        :game/battlefield {:cube-1 :terrain}}
 
    (provided

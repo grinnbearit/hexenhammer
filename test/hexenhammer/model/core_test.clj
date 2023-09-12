@@ -36,8 +36,6 @@
      :game/player 1
      :game/rows 3
      :game/columns 4
-     :game/units {1 {:counter 0 :cubes {}}
-                  2 {:counter 0 :cubes {}}}
      :game/battlefield {:cube-1 {:entity/state :silent-selectable}
                         :cube-2 {:entity/state :silent-selectable}}
      :game/events []}

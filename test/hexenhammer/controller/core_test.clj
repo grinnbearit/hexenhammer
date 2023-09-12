@@ -108,8 +108,7 @@
  "add unit"
 
  (add-unit {:game/selected :cube-1
-            :game/battlefield {:cube-1 :terrain-1}
-            :game/units {1 {:counter 0 :cubes {}}}}
+            :game/battlefield {:cube-1 :terrain-1}}
            1
            :facing-1
            {:M 3 :Ld 7})
@@ -126,7 +125,7 @@
 
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 :place}
-             :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
+             :game/units {1 {"infantry" {:counter 1 :cubes {1 :cube-1}}}}})
   => :unselect))
 
 
@@ -134,11 +133,12 @@
  "remove unit"
 
  (let [unit {:unit/player 1
+             :entity/name "unit"
              :unit/id 1}]
 
    (remove-unit {:game/selected :cube-1
                  :game/battlefield {:cube-1 unit}
-                 :game/units {1 {:counter 1 :cubes {1 :cube-1}}}})
+                 :game/units {1 {"unit" {:counter 1 :cubes {1 :cube-1}}}}})
    => :unselect
 
    (provided
@@ -148,7 +148,7 @@
     (unselect {:game/selected :cube-1
                :game/battlefield {:cube-1 {:entity/class :terrain
                                            :entity/state :selectable}}
-               :game/units {1 {:counter 1 :cubes {}}}})
+               :game/units {1 {"unit" {:counter 1 :cubes {}}}}})
     => :unselect)))
 
 
@@ -269,7 +269,9 @@
  (let [state {:game/phase :dangerous
               :game/units 1 :cubes {}}
 
-       unit {:unit/player 1 :unit/id 2}]
+       unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}]
 
    (trigger-event state unit)
    => :trigger
@@ -278,13 +280,17 @@
     (trigger state) => :trigger))
 
 
- (let [unit {:unit/player 1 :unit/id 2}
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}
 
        state {:game/phase :dangerous
-              :game/units {1 {:cubes {2 :cube-1}}}
+              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
               :game/battlefield {:cube-1 unit}}]
 
-   (trigger-event state {:unit/player 1 :unit/id 2})
+   (trigger-event state {:unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
    => {:game/battlemap :set-state}
 
    (provided
@@ -303,13 +309,17 @@
     (l/set-state :battlemap [:cube-1] :marked) => :set-state))
 
 
- (let [unit {:unit/player 1 :unit/id 2}
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}
 
        state {:game/phase :dangerous
-              :game/units {1 {:cubes {2 :cube-1}}}
+              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
               :game/battlefield {:cube-1 unit}}]
 
-   (trigger-event state {:unit/player 1 :unit/id 2})
+   (trigger-event state {:unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
    => {:game/battlemap :set-state}
 
    (provided
@@ -331,22 +341,23 @@
 (facts
  "to charge"
 
- (to-charge {:game/player 1
-             :game/battlefield :battlefield-1
-             :game/units {1 {:cubes {:id-1 :cube-1
-                                     :id-2 :cube-2}}}})
- => {:game/player 1
-     :game/phase :charge
-     :game/subphase :select-hex
-     :game/battlefield :battlefield-3
-     :game/units {1 {:cubes {:id-1 :cube-1
-                             :id-2 :cube-2}}}}
+ (let [state {:game/player 1
+              :game/battlefield :battlefield-1
+              :game/units :units-1}]
 
- (provided
-  (lm/charger? :battlefield-1 :cube-1) => true
-  (lm/charger? :battlefield-1 :cube-2) => false
-  (l/set-state :battlefield-1 :default) => :battlefield-2
-  (l/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3))
+   (to-charge state)
+   => {:game/player 1
+       :game/phase :charge
+       :game/subphase :select-hex
+       :game/battlefield :battlefield-3
+       :game/units :units-1}
+
+   (provided
+    (cu/unit-cubes state 1) => [:cube-1 :cube-2]
+    (lm/charger? :battlefield-1 :cube-1) => true
+    (lm/charger? :battlefield-1 :cube-2) => false
+    (l/set-state :battlefield-1 :default) => :battlefield-2
+    (l/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3)))
 
 
 (facts
@@ -446,29 +457,31 @@
 (facts
  "to movement"
 
- (to-movement {:game/player 1
-               :game/battlefield :battlefield-1
-               :game/units {1 {:cubes {1 :unit-cube-1
-                                       2 :unit-cube-2}}}})
- => {:game/player 1
-     :game/units {1 {:cubes {1 :unit-cube-1
-                             2 :unit-cube-2}}}
-     :game/phase :movement
-     :game/subphase :select-hex
-     :game/battlefield :battlefield-3}
+ (let [state {:game/player 1
+              :game/battlefield :battlefield-1
+              :game/units :units-1}]
 
- (provided
-  (l/battlefield-engaged? :battlefield-1 :unit-cube-1)
-  => false
+   (to-movement state)
+   => {:game/player 1
+       :game/units :units-1
+       :game/phase :movement
+       :game/subphase :select-hex
+       :game/battlefield :battlefield-3}
 
-  (l/battlefield-engaged? :battlefield-1 :unit-cube-2)
-  => true
+   (provided
+    (cu/unit-cubes state 1) => [:unit-cube-1 :unit-cube-2]
 
-  (l/set-state :battlefield-1 :default)
-  => :battlefield-2
+    (l/battlefield-engaged? :battlefield-1 :unit-cube-1)
+    => false
 
-  (l/set-state :battlefield-2 [:unit-cube-1] :selectable)
-  => :battlefield-3))
+    (l/battlefield-engaged? :battlefield-1 :unit-cube-2)
+    => true
+
+    (l/set-state :battlefield-1 :default)
+    => :battlefield-2
+
+    (l/set-state :battlefield-2 [:unit-cube-1] :selectable)
+    => :battlefield-3)))
 
 
 (facts
@@ -652,6 +665,7 @@
 
  (let [pointer (mc/->Pointer :cube-1 :n)
        unit {:unit/player 1
+             :entity/name "unit"
              :unit/id 2}]
 
    (finish-movement {:game/selected :cube-1
@@ -667,6 +681,7 @@
     (lt/pickup unit) => :old-terrain
 
     (lt/swap {:unit/player 1
+              :entity/name "unit"
               :unit/id 2
               :entity/state :default
               :entity/cube :cube-1
@@ -679,7 +694,7 @@
                                   :cube-2 :terrain-2}
                :game/movement {:pointer pointer
                                :pointer->events {pointer [:event-1 :event-2]}}
-               :game/units {1 {:cubes {2 :cube-1}}}
+               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                :game/events [:event-1 :event-2]})
     => :unselect
 

@@ -3,9 +3,18 @@
             [hexenhammer.logic.terrain :as lt]))
 
 
+(defn unit-cubes
+  "Returns all unit cubes for the passed player"
+  [state player]
+  (->> (get-in state [:game/units player])
+       (vals)
+       (mapcat (comp vals :cubes))))
+
+
 (defn destroy-unit
   [state unit]
-  (-> (update-in state [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
+  (-> (update-in state [:game/units (:unit/player unit) (:entity/name unit) :cubes] dissoc
+                 (:unit/id unit))
       (update-in [:game/battlefield (:entity/cube unit)] lt/pickup)))
 
 

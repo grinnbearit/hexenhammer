@@ -24,8 +24,6 @@
    :game/player 1
    :game/rows rows
    :game/columns columns
-   :game/units {1 {:counter 0 :cubes {}}
-                2 {:counter 0 :cubes {}}}
    :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
                             [cube (assoc (entity/gen-open-ground cube)
                                          :entity/state :silent-selectable)])

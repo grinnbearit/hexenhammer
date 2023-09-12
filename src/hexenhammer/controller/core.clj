@@ -57,13 +57,14 @@
   [state player facing {:keys [M Ld]}]
   (let [cube (:game/selected state)
         terrain (get-in state [:game/battlefield cube])
-        id (inc (get-in state [:game/units player :counter]))
-        unit (-> (me/gen-infantry cube player id facing :M M :Ld Ld)
+        prev-id (or (get-in state [:game/units player "infantry" :counter]) 0)
+        next-id (inc prev-id)
+        unit (-> (me/gen-infantry cube player next-id facing :M M :Ld Ld)
                  (assoc :entity/state :selectable)
                  (lt/place terrain))]
     (-> (assoc-in state [:game/battlefield cube] unit)
-        (assoc-in [:game/units player :cubes id] cube)
-        (assoc-in [:game/units player :counter] id)
+        (assoc-in [:game/units player "infantry" :cubes next-id] cube)
+        (assoc-in [:game/units player "infantry" :counter] next-id)
         (unselect))))
 
 
@@ -74,7 +75,7 @@
         terrain (-> (lt/pickup unit)
                     (assoc :entity/state :selectable))]
     (-> (assoc-in state [:game/battlefield cube] terrain)
-        (update-in [:game/units (:unit/player unit) :cubes] dissoc (:unit/id unit))
+        (update-in [:game/units (:unit/player unit) (:entity/name unit) :cubes] dissoc (:unit/id unit))
         (unselect))))
 
 
@@ -110,8 +111,8 @@
 
 (defmethod trigger-event :dangerous
   [state event]
-  (let [{:keys [unit/player unit/id]} event]
-    (if-let [cube (get-in state [:game/units player :cubes id])]
+  (let [{:keys [unit/player entity/name unit/id]} event]
+    (if-let [cube (get-in state [:game/units player name :cubes id])]
       (let [unit (get-in state [:game/battlefield cube])
             models (mu/models unit)
             roll (cd/roll! models)
@@ -131,7 +132,7 @@
 
 (defn to-charge
   [{:keys [game/player] :as state}]
-  (let [player-cubes (vals (get-in state [:game/units player :cubes]))
+  (let [player-cubes (cu/unit-cubes state player)
         charger-cubes (filter #(lm/charger? (:game/battlefield state) %) player-cubes)]
     (-> (assoc state
                :game/phase :charge
@@ -179,7 +180,7 @@
 
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
-  (let [player-cubes (vals (get-in state [:game/units player :cubes]))
+  (let [player-cubes (cu/unit-cubes state player)
         movable-cubes (remove #(l/battlefield-engaged? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
@@ -268,7 +269,8 @@
                          (lt/swap new-terrain))]
     (-> (assoc-in state [:game/battlefield cube] old-terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
-        (assoc-in [:game/units (:unit/player unit) :cubes (:unit/id unit)] (:cube pointer))
+        (assoc-in [:game/units (:unit/player unit) (:entity/name unit) :cubes (:unit/id unit)]
+                  (:cube pointer))
         (update :game/events into events)
         (unselect)
         (trigger))))
