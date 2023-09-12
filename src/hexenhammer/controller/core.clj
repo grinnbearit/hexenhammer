@@ -89,8 +89,7 @@
                       :impassable (me/gen-impassable-terrain cube))
         new-entity (if (le/terrain? entity) new-terrain (lt/place entity new-terrain))]
     (-> (assoc-in state [:game/battlefield cube] new-entity)
-        (unselect)
-        (select cube))))
+        (unselect))))
 
 
 (defmulti trigger-event (fn [state event] (:game/phase state)))

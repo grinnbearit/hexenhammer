@@ -158,7 +158,7 @@
  (swap-terrain {:game/selected :cube-1
                 :game/battlefield {:cube-1 :entity-1}}
                :open)
- => :select
+ => :unselect
 
  (provided
   (me/gen-open-ground :cube-1) => :open-terrain
@@ -167,16 +167,13 @@
 
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 :open-terrain}})
-  => :unselect
-
-  (select :unselect :cube-1)
-  => :select)
+  => :unselect)
 
 
  (swap-terrain {:game/selected :cube-1
                 :game/battlefield {:cube-1 :entity-1}}
                :dangerous)
- => :select
+ => :unselect
 
  (provided
   (me/gen-dangerous-terrain :cube-1) => :dangerous-terrain
@@ -185,16 +182,13 @@
 
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 :dangerous-terrain}})
-  => :unselect
-
-  (select :unselect :cube-1)
-  => :select)
+  => :unselect)
 
 
  (swap-terrain {:game/selected :cube-1
                 :game/battlefield {:cube-1 :entity-1}}
                :impassable)
- => :select
+ => :unselect
 
  (provided
   (me/gen-impassable-terrain :cube-1) => :impassable-terrain
@@ -203,16 +197,13 @@
 
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 :impassable-terrain}})
-  => :unselect
-
-  (select :unselect :cube-1)
-  => :select)
+  => :unselect)
 
 
  (swap-terrain {:game/selected :cube-1
                 :game/battlefield {:cube-1 :entity-1}}
                :open)
- => :select
+ => :unselect
 
  (provided
   (me/gen-open-ground :cube-1) => :open-terrain
@@ -223,10 +214,7 @@
 
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 :entity-2}})
-  => :unselect
-
-  (select :unselect :cube-1)
-  => :select))
+  => :unselect))
 
 
 (facts
