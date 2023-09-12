@@ -121,6 +121,7 @@
               (cu/destroy-unit state unit)
               (cu/destroy-models state unit models-destroyed))
             (update :game/trigger assoc
+                    :unit unit
                     :models-destroyed models-destroyed
                     :unit-destroyed? unit-destroyed?
                     :roll roll)

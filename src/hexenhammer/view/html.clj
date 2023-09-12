@@ -133,7 +133,7 @@
 
 (defmethod render [:dangerous :start]
   [state]
-  (let [{:keys [unit-destroyed? models-destroyed roll]} (:game/trigger state)]
+  (let [{:keys [unit-destroyed? models-destroyed roll unit]} (:game/trigger state)]
     (html
      [:html
       [:head
@@ -142,6 +142,8 @@
        [:style STYLESHEET]
        [:body
         (vw/render-battlefield state) [:br] [:br]
+        (vw/render-profile unit) [:br]
+        (vw/render-events (:game/events state)) [:br]
         (if unit-destroyed?
           [:h3 "Unit Destroyed!"]
           [:h3 (format "%d Models Destroyed" models-destroyed)])
