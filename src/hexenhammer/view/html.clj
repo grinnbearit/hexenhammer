@@ -3,8 +3,8 @@
             [hexenhammer.view.css :refer [STYLESHEET]]
             [hexenhammer.model.probability :as mp]
             [hexenhammer.logic.terrain :as lt]
-            [hexenhammer.view.widget :as vw]
             [hexenhammer.view.svg :as svg]
+            [hexenhammer.view.widget :as vw]
             [clojure.string :as str]))
 
 

@@ -1,5 +1,6 @@
 (ns hexenhammer.view.entity
-  (:require [hexenhammer.view.svg :as svg]))
+  (:require [hexenhammer.view.svg :as svg]
+            [hexenhammer.view.unit :as vu]))
 
 
 (defmulti render :entity/class)
@@ -48,22 +49,21 @@
 
 (defmethod render :unit
   [unit]
-  (let [int->roman ["0" "i" "ii" "iii" "iv" "v" "vi" "vii" "viii" "ix" "x"]]
-    (-> [:g {}
-         (render-floor unit)
-         (-> [:g {}
-              (-> (svg/hexagon)
-                  (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
-              (svg/chevron (:unit/facing unit))
-              (svg/text (:entity/name unit) -1)
-              (svg/text (format "%d x %d" (:unit/F unit) (:unit/ranks unit)) 0)
-              (when (pos? (:unit/damage unit))
-                (svg/text (format "[%d]" (:unit/damage unit)) 1))
-              (svg/text (int->roman (:unit/id unit)) 2)]
-             (svg/scale 9/10))]
+  (-> [:g {}
+       (render-floor unit)
+       (-> [:g {}
+            (-> (svg/hexagon)
+                (svg/add-classes ["unit" (str "player-" (:unit/player unit))]))
+            (svg/chevron (:unit/facing unit))
+            (svg/text (:entity/name unit) -1)
+            (svg/text (format "%d x %d" (:unit/F unit) (:unit/ranks unit)) 0)
+            (when (pos? (:unit/damage unit))
+              (svg/text (format "[%d]" (:unit/damage unit)) 1))
+            (svg/text (vu/int->roman (:unit/id unit)) 2)]
+           (svg/scale 9/10))]
 
-        (svg/translate (:entity/cube unit))
-        (if-selectable unit))))
+      (svg/translate (:entity/cube unit))
+      (if-selectable unit)))
 
 
 (defmethod render :mover

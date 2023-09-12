@@ -1,10 +1,10 @@
 (ns hexenhammer.view.widget
   (:require [hexenhammer.view.css :refer [STYLESHEET]]
-            [hexenhammer.view.svg :as svg]
-            [hexenhammer.view.entity :as ve]
             [hexenhammer.model.unit :as mu]
+            [hexenhammer.view.svg :as svg]
+            [hexenhammer.view.unit :as vu]
+            [hexenhammer.view.entity :as ve]
             [clojure.string :as str]))
-
 
 
 (defn entity->z
@@ -27,7 +27,7 @@
 (defn render-profile
   [unit]
   [:div
-   [:h3 (str (:entity/name unit) " (" (:unit/id unit) ")")]
+   [:h3 (format "%s (%s)" (:entity/name unit) (vu/int->roman (:unit/id unit)))]
    [:table.profile
     [:thead
      [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "Formation"] [:th "Damage"] [:th "Models"] [:th "Unit Strength"]]]
@@ -47,11 +47,13 @@
   (when (seq events)
     [:table
      [:thead
-      [:tr [:th "Order"] [:th "Event"]]]
-     (for [[index event] (zipmap (range) events)]
+      [:tr [:th "Order"] [:th "Event"] [:th "Unit"]]]
+     (for [[index event] (zipmap (range) events)
+           :let [{:keys [unit/player entity/name unit/id]} event
+                 unit-str (format "Player %d, %s (%s)" player name (vu/int->roman id))]]
        (case (:event/class event)
          :dangerous
-         [:tr [:td (inc index)] [:td "Dangerous Terrain"]]))]))
+         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td unit-str]]))]))
 
 
 (defn render-movement

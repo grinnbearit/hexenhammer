@@ -1,6 +1,7 @@
 (ns hexenhammer.view.entity
   (:require [midje.sweet :refer :all]
             [hexenhammer.view.svg :as svg]
+            [hexenhammer.view.unit :as su]
             [hexenhammer.view.entity :refer :all]))
 
 
@@ -117,6 +118,8 @@
     (svg/text "unit" -1) => [:text "unit" -1]
 
     (svg/text "4 x 3" 0) => [:text "4 x 3" 0]
+
+    (vu/int->roman 1) => "i"
 
     (svg/text "i" 2) => [:text "i" 2]
 
