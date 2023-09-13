@@ -25,9 +25,9 @@
 (defn engaged-cubes
   "Returns a list of cubes engaged to the passed cube
   assumes the cube is on the battlefield and a unit"
-  [battlefield cube]
-  (let [unit (battlefield cube)]
-    (for [neighbour (mc/neighbours cube)
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (for [neighbour (mc/neighbours unit-cube)
           :when (contains? battlefield neighbour)
           :let [entity (battlefield neighbour)]
           :when (and (le/unit? entity)
@@ -38,8 +38,8 @@
 (defn battlefield-engaged?
   "Returns true if the passed cube is currently engaged on the battlefield
   assumes the cube is on the battlefield and a unit"
-  [battlefield cube]
-  (not (empty? (engaged-cubes battlefield cube))))
+  [battlefield unit-cube]
+  (not (empty? (engaged-cubes battlefield unit-cube))))
 
 
 (defn battlefield-visible?
@@ -56,12 +56,12 @@
 
 (defn field-of-view
   "Returns the list of cubes in the unit's forward cone, visible to it"
-  [battlefield cube]
-  (let [unit (battlefield cube)]
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
     (letfn [(reducer [acc d]
-              (let [slice (->> (mc/forward-slice cube (:unit/facing unit) d)
+              (let [slice (->> (mc/forward-slice unit-cube (:unit/facing unit) d)
                                (filter #(and (contains? battlefield %)
-                                             (battlefield-visible? battlefield cube %))))]
+                                             (battlefield-visible? battlefield unit-cube %))))]
                 (if (empty? slice)
                   (reduced acc)
                   (concat acc slice))))]
@@ -72,9 +72,9 @@
 (defn remove-unit
   "Returns a new battlefield with the unit removed from the old cube
   assumes the cube points to a unit"
-  [battlefield cube]
-  (let [unit (battlefield cube)]
-    (assoc battlefield cube (lt/pickup unit))))
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (assoc battlefield unit-cube (lt/pickup unit))))
 
 
 (defn move-unit
@@ -82,8 +82,8 @@
   assumes the cube points to a unit and the pointer points to passable terrain
 
   this function is useful in testing if new battlefield states are valid"
-  [battlefield cube pointer]
-  (let [unit (battlefield cube)
+  [battlefield unit-cube pointer]
+  (let [unit (battlefield unit-cube)
         old-terrain (lt/pickup unit)
         new-terrain (battlefield (:cube pointer))
         new-unit (-> (assoc unit
@@ -92,7 +92,7 @@
                      (lt/place new-terrain))]
 
     (assoc battlefield
-           cube old-terrain
+           unit-cube old-terrain
            (:cube pointer) new-unit)))
 
 
