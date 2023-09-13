@@ -678,7 +678,8 @@
               :unit/id 2
               :entity/state :default
               :entity/cube :cube-1
-              :unit/facing :n}
+              :unit/facing :n
+              :unit/flags {:marched? false}}
              unit)
     => :unit-2
 
@@ -687,6 +688,48 @@
                                   :cube-2 :terrain-2}
                :game/movement {:pointer pointer
                                :pointer->events {pointer [:event-1 :event-2]}}
+               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+               :game/events [:event-1 :event-2]})
+    => :unselect
+
+    (trigger :unselect)
+    => :trigger))
+
+
+ (let [pointer (mc/->Pointer :cube-1 :n)
+       unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}]
+
+   (finish-movement {:game/selected :cube-1
+                     :game/battlefield {:cube-1 unit
+                                        :cube-2 :terrain-2}
+                     :game/movement {:pointer pointer
+                                     :pointer->events {pointer [:event-1 :event-2]}
+                                     :marched? true}
+                     :game/events []})
+   => :trigger
+
+   (provided
+
+    (lt/pickup unit) => :old-terrain
+
+    (lt/swap {:unit/player 1
+              :entity/name "unit"
+              :unit/id 2
+              :entity/state :default
+              :entity/cube :cube-1
+              :unit/facing :n
+              :unit/flags {:marched? true}}
+             unit)
+    => :unit-2
+
+    (unselect {:game/selected :cube-1
+               :game/battlefield {:cube-1 :unit-2
+                                  :cube-2 :terrain-2}
+               :game/movement {:pointer pointer
+                               :pointer->events {pointer [:event-1 :event-2]}
+                               :marched? true}
                :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                :game/events [:event-1 :event-2]})
     => :unselect

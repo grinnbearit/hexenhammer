@@ -262,12 +262,14 @@
         unit (get-in state [:game/battlefield cube])
         pointer (get-in state [:game/movement :pointer])
         events (get-in state [:game/movement :pointer->events pointer])
+        marched? (or (get-in state [:game/movement :marched?]) false)
         old-terrain (lt/pickup unit)
         new-terrain (get-in state [:game/battlefield (:cube pointer)])
         updated-unit (-> (assoc unit
                                 :entity/state :default
                                 :entity/cube (:cube pointer)
                                 :unit/facing (:facing pointer))
+                         (update :unit/flags assoc :marched? marched?)
                          (lt/swap new-terrain))]
     (-> (assoc-in state [:game/battlefield cube] old-terrain)
         (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
