@@ -1,6 +1,7 @@
 (ns hexenhammer.logic.movement-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.core :as l]
+            [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.cube :as mc]
@@ -43,7 +44,7 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 pointer) => :battlefield-2
 
-    (l/battlefield-engaged? :battlefield-2 :cube-2) => true)
+    (lu/battlefield-engaged? :battlefield-2 :cube-2) => true)
 
 
    (valid-end? :battlefield-1 :cube-1 {:cube :cube-2})
@@ -52,7 +53,7 @@
    (provided
     (l/move-unit :battlefield-1 :cube-1 pointer) => :battlefield-2
 
-    (l/battlefield-engaged? :battlefield-2 :cube-2) => false)))
+    (lu/battlefield-engaged? :battlefield-2 :cube-2) => false)))
 
 
 (facts
@@ -445,7 +446,7 @@
   (le/unit? :unit-2)
   => true
 
-  (l/enemies? :unit-1 :unit-2)
+  (lu/enemies? :unit-1 :unit-2)
   => false)
 
 
@@ -461,7 +462,7 @@
   (le/unit? :unit-2)
   => true
 
-  (l/enemies? :unit-1 :unit-2)
+  (lu/enemies? :unit-1 :unit-2)
   => true))
 
 
@@ -535,7 +536,7 @@
 
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
-    (l/engaged-cubes :battlefield-2 :cube-1) => []
+    (lu/engaged-cubes :battlefield-2 :cube-1) => []
     (charge-step start :n) => []))
 
 
@@ -546,7 +547,7 @@
 
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
-    (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-2]
+    (lu/engaged-cubes :battlefield-2 :cube-1) => [:cube-2]
     (charge-step start :n) => []))
 
 
@@ -557,7 +558,7 @@
 
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
-    (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-2]
+    (lu/engaged-cubes :battlefield-2 :cube-1) => [:cube-2]
     (charge-step start :n) => []))
 
 
@@ -569,12 +570,12 @@
 
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
-    (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-3]
+    (lu/engaged-cubes :battlefield-2 :cube-1) => [:cube-3]
     (charge-step start :n) => [pointer-1]
     (valid-move? :battlefield-1 :cube-1 pointer-1) => true
 
     (l/move-unit :battlefield-1 :cube-1 pointer-1) => :battlefield-3
-    (l/engaged-cubes :battlefield-3 :cube-2) => [:cube-3]
+    (lu/engaged-cubes :battlefield-3 :cube-2) => [:cube-3]
     (charge-step pointer-1 :n) => []))
 
 
@@ -585,7 +586,7 @@
 
    (provided
     (l/move-unit :battlefield-1 :cube-1 start) => :battlefield-2
-    (l/engaged-cubes :battlefield-2 :cube-1) => [:cube-2 :cube-3]
+    (lu/engaged-cubes :battlefield-2 :cube-1) => [:cube-2 :cube-3]
     (charge-step start :n) => [])))
 
 
@@ -607,14 +608,14 @@
     (le/unit? :terrain-1) => false
 
     (le/unit? :unit-2) => true
-    (l/enemies? unit-1 :unit-2) => false
+    (lu/enemies? unit-1 :unit-2) => false
 
     (le/unit? :unit-3) => true
-    (l/enemies? unit-1 :unit-3) => true
+    (lu/enemies? unit-1 :unit-3) => true
     (mc/distance :cube-1 :cube-4) => 4
 
     (le/unit? :unit-4) => true
-    (l/enemies? unit-1 :unit-4) => true
+    (lu/enemies? unit-1 :unit-4) => true
     (mc/distance :cube-1 :cube-5) => 3)))
 
 

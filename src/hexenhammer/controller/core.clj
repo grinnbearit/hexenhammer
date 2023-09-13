@@ -183,7 +183,7 @@
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (cu/unit-cubes state player)
-        movable-cubes (remove #(l/battlefield-engaged? battlefield %) player-cubes)]
+        movable-cubes (remove #(lu/battlefield-engaged? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)

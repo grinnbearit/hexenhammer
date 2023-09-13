@@ -5,43 +5,6 @@
             [hexenhammer.logic.terrain :as lt]))
 
 
-(defn enemies?
-  "Returns true if the two units have different owners"
-  [unit-1 unit-2]
-  (not= (:unit/player unit-1)
-        (:unit/player unit-2)))
-
-
-(defn engaged?
-  "Returns true if the two units are engaged to each other"
-  [unit-1 unit-2]
-  (and (enemies? unit-1 unit-2)
-       (or (contains? (set (mc/forward-arc (:entity/cube unit-1) (:unit/facing unit-1)))
-                      (:entity/cube unit-2))
-           (contains? (set (mc/forward-arc (:entity/cube unit-2) (:unit/facing unit-2)))
-                      (:entity/cube unit-1)))))
-
-
-(defn engaged-cubes
-  "Returns a list of cubes engaged to the passed cube
-  assumes the cube is on the battlefield and a unit"
-  [battlefield cube]
-  (let [unit (battlefield cube)]
-    (for [neighbour (mc/neighbours cube)
-          :when (contains? battlefield neighbour)
-          :let [entity (battlefield neighbour)]
-          :when (and (le/unit? entity)
-                     (engaged? unit entity))]
-      neighbour)))
-
-
-(defn battlefield-engaged?
-  "Returns true if the passed cube is currently engaged on the battlefield
-  assumes the cube is on the battlefield and a unit"
-  [battlefield cube]
-  (not (empty? (engaged-cubes battlefield cube))))
-
-
 (defn battlefield-visible?
   "Returns true if every cube between cx and cy has an los value
   less than either of their los"

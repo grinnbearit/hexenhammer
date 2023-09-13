@@ -1,5 +1,6 @@
 (ns hexenhammer.logic.movement
   (:require [hexenhammer.logic.core :as l]
+            [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.entity :as me]
@@ -20,7 +21,7 @@
   "Returns true if this pointer can be the end step in a move"
   [battlefield cube pointer]
   (let [shadow-battlefield (l/move-unit battlefield cube pointer)]
-    (not (l/battlefield-engaged? shadow-battlefield (:cube pointer)))))
+    (not (lu/battlefield-engaged? shadow-battlefield (:cube pointer)))))
 
 
 (defn reform-facings
@@ -227,7 +228,7 @@
           :when (contains? battlefield neighbour)
           :let [entity (battlefield neighbour)]
           :when (and (le/unit? entity)
-                     (l/enemies? unit entity))]
+                     (lu/enemies? unit entity))]
       neighbour)))
 
 
@@ -291,7 +292,7 @@
       (let [path (peek queue)
             pointer (peek path)
             engaged (-> (l/move-unit battlefield (:cube start) pointer)
-                        (l/engaged-cubes (:cube pointer))
+                        (lu/engaged-cubes (:cube pointer))
                         (set))
             steps (->> (charge-step pointer (:facing start))
                        (filter #(valid-move? battlefield (:cube start) %))
@@ -320,7 +321,7 @@
     (->> (for [viewed (l/field-of-view battlefield cube)
                :let [entity (battlefield viewed)]
                :when (and (le/unit? entity)
-                          (l/enemies? unit entity)
+                          (lu/enemies? unit entity)
                           (<= (mc/distance cube viewed) max-charge))]
            viewed)
          set)))
