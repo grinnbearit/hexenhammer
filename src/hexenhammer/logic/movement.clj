@@ -13,14 +13,14 @@
 (defn valid-move?
   "Returns true if this pointer can be moved to"
   [battlefield cube pointer]
-  (let [shadow-battlefield (l/remove-unit battlefield cube)]
+  (let [shadow-battlefield (lu/remove-unit battlefield cube)]
     (lt/passable? (shadow-battlefield (:cube pointer)))))
 
 
 (defn valid-end?
   "Returns true if this pointer can be the end step in a move"
   [battlefield cube pointer]
-  (let [shadow-battlefield (l/move-unit battlefield cube pointer)]
+  (let [shadow-battlefield (lu/move-unit battlefield cube pointer)]
     (not (lu/battlefield-engaged? shadow-battlefield (:cube pointer)))))
 
 
@@ -291,7 +291,7 @@
 
       (let [path (peek queue)
             pointer (peek path)
-            engaged (-> (l/move-unit battlefield (:cube start) pointer)
+            engaged (-> (lu/move-unit battlefield (:cube start) pointer)
                         (lu/engaged-cubes (:cube pointer))
                         (set))
             steps (->> (charge-step pointer (:facing start))
@@ -318,7 +318,7 @@
   [battlefield cube]
   (let [unit (battlefield cube)
         max-charge (m/M->hexes (+ 6 (:unit/M unit)))]
-    (->> (for [viewed (l/field-of-view battlefield cube)
+    (->> (for [viewed (lu/field-of-view battlefield cube)
                :let [entity (battlefield viewed)]
                :when (and (le/unit? entity)
                           (lu/enemies? unit entity)
