@@ -4,11 +4,13 @@
 
 
 (defn unit-cubes
-  "Returns all unit cubes for the passed player"
-  [state player]
-  (->> (get-in state [:game/units player])
-       (vals)
-       (mapcat (comp vals :cubes))))
+  "Returns all unit cubes for the passed player, if no player is passed returns all unit cubes"
+  ([state]
+   (concat (unit-cubes state 1) (unit-cubes state 2)))
+  ([state player]
+   (->> (get-in state [:game/units player])
+        (vals)
+        (mapcat (comp vals :cubes)))))
 
 
 (defn destroy-unit

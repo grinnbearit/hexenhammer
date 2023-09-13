@@ -20,3 +20,14 @@
   destroyed models removed, assumes the unit has sufficient models"
   [unit models]
   (mu/set-models unit (- (mu/models unit) models)))
+
+
+(defn phase-reset
+  "Resets different statuses that happen on a phase transition"
+  [battlefield unit-cubes]
+  (letfn [(reducer [battlefield cube]
+            (let [unit (battlefield cube)]
+              (update battlefield cube assoc
+                      :unit/phase-strength (mu/unit-strength unit))))]
+
+    (reduce reducer battlefield unit-cubes)))

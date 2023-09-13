@@ -4,6 +4,7 @@
             [hexenhammer.model.unit :as mu]
             [hexenhammer.model.entity :as me]
             [hexenhammer.logic.core :as l]
+            [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
@@ -290,7 +291,8 @@
 
     (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
                                           :unit-destroyed? true
-                                          :roll :roll}}
+                                          :roll :roll
+                                          :unit unit}}
                           [:cube-1])
     => {:game/battlemap :battlemap}
 
@@ -319,7 +321,8 @@
 
     (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
                                           :unit-destroyed? false
-                                          :roll :roll}}
+                                          :roll :roll
+                                          :unit unit}}
                           [:cube-1])
     => {:game/battlemap :battlemap}
 
@@ -337,15 +340,17 @@
    => {:game/player 1
        :game/phase :charge
        :game/subphase :select-hex
-       :game/battlefield :battlefield-3
+       :game/battlefield :battlefield-4
        :game/units :units-1}
 
    (provided
+    (cu/unit-cubes state) => [:cube-1 :cube-2 :cube-3]
     (cu/unit-cubes state 1) => [:cube-1 :cube-2]
+    (lu/phase-reset :battlefield-1 [:cube-1 :cube-2 :cube-3]) => :battlefield-2
     (lm/charger? :battlefield-1 :cube-1) => true
     (lm/charger? :battlefield-1 :cube-2) => false
-    (l/set-state :battlefield-1 :default) => :battlefield-2
-    (l/set-state :battlefield-2 [:cube-1] :selectable) => :battlefield-3)))
+    (l/set-state :battlefield-2 :default) => :battlefield-3
+    (l/set-state :battlefield-3 [:cube-1] :selectable) => :battlefield-4)))
 
 
 (facts

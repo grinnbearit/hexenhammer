@@ -132,11 +132,13 @@
 
 (defn to-charge
   [{:keys [game/player] :as state}]
-  (let [player-cubes (cu/unit-cubes state player)
+  (let [unit-cubes (cu/unit-cubes state)
+        player-cubes (cu/unit-cubes state player)
         charger-cubes (filter #(lm/charger? (:game/battlefield state) %) player-cubes)]
     (-> (assoc state
                :game/phase :charge
                :game/subphase :select-hex)
+        (update :game/battlefield lu/phase-reset unit-cubes)
         (update :game/battlefield l/set-state :default)
         (update :game/battlefield l/set-state charger-cubes :selectable))))
 
