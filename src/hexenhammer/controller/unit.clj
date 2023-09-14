@@ -22,7 +22,7 @@
 
 
 (defn damage-unit
-  [state unit damage]
+  [state source unit damage]
   (let [unit-cube (:entity/cube unit)
         damaged-unit (lu/damage-unit unit damage)
         damaged-bf (assoc (:game/battlefield state) unit-cube damaged-unit)]
@@ -30,11 +30,11 @@
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/panic (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/panic source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
 
 
 (defn destroy-models
-  [state unit models]
+  [state source unit models]
   (let [unit-cube (:entity/cube unit)
         damaged-unit (lu/destroy-models unit models)
         damaged-bf (assoc (:game/battlefield state) unit-cube damaged-unit)]
@@ -42,4 +42,4 @@
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/panic (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/panic source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))

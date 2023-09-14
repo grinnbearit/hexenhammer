@@ -168,10 +168,11 @@
 (defn path-events
   "Returns a list of events for the passed path"
   [battlefield unit path]
-  (let [num-dangerous (->> (map #(battlefield (:cube %)) path)
-                           (filter #(lt/dangerous? %))
-                           (count))]
-    (repeat num-dangerous (mv/dangerous (:unit/player unit) (:entity/name unit) (:unit/id unit)))))
+  (for [pointer path
+        :let [cube (:cube pointer)
+              entity (battlefield cube)]
+        :when (lt/dangerous? entity)]
+    (mv/dangerous cube (:unit/player unit) (:entity/name unit) (:unit/id unit))))
 
 
 (defn show-events

@@ -333,7 +333,7 @@
    (path-events battlefield unit [(mc/->Pointer :cube-1 :n)
                                   (mc/->Pointer :cube-2 :n)
                                   (mc/->Pointer :cube-3 :n)])
-   => [(mv/dangerous 1 "unit" 2)]
+   => [(mv/dangerous :cube-1 1 "unit" 2)]
 
    (provided
     (lt/dangerous? :terrain-1) => true

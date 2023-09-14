@@ -110,39 +110,40 @@
 
 (defmethod trigger-event :dangerous
   [state event]
-  (let [{:keys [unit/player entity/name unit/id]} event]
-    (if-let [cube (get-in state [:game/units player name :cubes id])]
-      (let [unit (get-in state [:game/battlefield cube])
+  (let [{:keys [event/cube unit/player entity/name unit/id]} event]
+    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+      (let [unit (get-in state [:game/battlefield unit-cube])
             models (mu/models unit)
             roll (cd/roll! models)
             models-destroyed (cd/matches roll 1)
             unit-destroyed? (<= models models-destroyed)]
         (-> (if unit-destroyed?
               (cu/destroy-unit state unit)
-              (cu/destroy-models state unit models-destroyed))
+              (cu/destroy-models state cube unit models-destroyed))
             (update :game/trigger assoc
                     :unit unit
                     :models-destroyed models-destroyed
                     :unit-destroyed? unit-destroyed?
                     :roll roll)
-            (cb/refresh-battlemap [cube])
-            (update :game/battlemap l/set-state [cube] :marked)))
+            (cb/refresh-battlemap [unit-cube])
+            (update :game/battlemap l/set-state [unit-cube] :marked)))
       (trigger state))))
 
 
 (defmethod trigger-event :panic
   [state event]
-  (let [{:keys [unit/player entity/name unit/id]} event]
-    (if-let [cube (get-in state [:game/units player name :cubes id])]
-      (if-let [panickable? (lu/panickable? (:game/battlefield state) cube)]
-        (let [unit (get-in state [:game/battlefield cube])
+  (let [{:keys [event/cube unit/player entity/name unit/id]} event]
+    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+      (if-let [panickable? (lu/panickable? (:game/battlefield state) unit-cube)]
+        (let [unit (get-in state [:game/battlefield unit-cube])
               roll (cd/roll! 2)
               passed? (<= (apply + roll) (:unit/Ld unit))]
           (-> (if passed?
                 (assoc state :game/subphase :passed)
                 (assoc state :game/subphase :failed))
-              (assoc-in [:game/battlefield cube :unit/flags :panicked?] true)
+              (assoc-in [:game/battlefield unit-cube :unit/flags :panicked?] true)
               (update :game/trigger assoc
+                      :cube cube
                       :unit unit
                       :roll roll)))
         (trigger state))

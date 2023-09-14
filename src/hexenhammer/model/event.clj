@@ -2,16 +2,18 @@
 
 
 (defn dangerous
-  [player name id]
+  [cube player name id]
   {:event/class :dangerous
+   :event/cube cube
    :unit/player player
    :entity/name name
    :unit/id id})
 
 
 (defn panic
-  [player name id]
+  [cube player name id]
   {:event/class :panic
+   :event/cube cube
    :unit/player player
    :entity/name name
    :unit/id id})

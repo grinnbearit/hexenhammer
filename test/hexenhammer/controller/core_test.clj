@@ -307,7 +307,8 @@
               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
               :game/battlefield {:cube-1 unit}}]
 
-   (trigger-event state {:unit/player 1
+   (trigger-event state {:event/cube :cube-2
+                         :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
    => {:game/battlemap :set-state}
@@ -317,7 +318,7 @@
     (cd/roll! 4) => :roll
     (cd/matches :roll 1) => 3
 
-    (cu/destroy-models state unit 3) => {}
+    (cu/destroy-models state :cube-2 unit 3) => {}
 
     (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
                                           :unit-destroyed? false
@@ -373,7 +374,8 @@
               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
               :game/battlefield battlefield}]
 
-   (trigger-event state {:unit/player 1
+   (trigger-event state {:event/cube :cube-2
+                         :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
    => {:game/phase :panic
@@ -384,7 +386,8 @@
                                    :unit/Ld 3
                                    :unit/flags {:panicked? true}}}
        :game/subphase :passed
-       :game/trigger {:unit unit
+       :game/trigger {:cube :cube-2
+                      :unit unit
                       :roll [1 1]}}
 
    (provided
@@ -403,7 +406,8 @@
               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
               :game/battlefield battlefield}]
 
-   (trigger-event state {:unit/player 1
+   (trigger-event state {:event/cube :cube-2
+                         :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
    => {:game/phase :panic
@@ -414,7 +418,8 @@
                                    :unit/Ld 3
                                    :unit/flags {:panicked? true}}}
        :game/subphase :failed
-       :game/trigger {:unit unit
+       :game/trigger {:cube :cube-2
+                      :unit unit
                       :roll [1 3]}}
 
    (provided

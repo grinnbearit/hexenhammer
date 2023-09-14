@@ -6,8 +6,9 @@
 (facts
  "dangerous"
 
- (dangerous 1 "unit" 2)
+ (dangerous :cube-1 1 "unit" 2)
  => {:event/class :dangerous
+     :event/cube :cube-1
      :unit/player 1
      :entity/name "unit"
      :unit/id 2})
@@ -16,8 +17,9 @@
 (facts
  "panic"
 
- (panic 1 "unit" 2)
+ (panic :cube-1 1 "unit" 2)
  => {:event/class :panic
+     :event/cube :cube-1
      :unit/player 1
      :entity/name "unit"
      :unit/id 2})

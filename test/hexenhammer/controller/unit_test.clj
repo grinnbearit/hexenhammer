@@ -46,7 +46,7 @@
 
  (let [unit {:entity/cube :cube-1}]
 
-   (damage-unit {:game/battlefield {:cube-1 unit}} unit 2)
+   (damage-unit {:game/battlefield {:cube-1 unit}} :cube-2 unit 2)
    => {:game/battlefield {:cube-1 :unit-2}}
 
    (provided
@@ -59,14 +59,14 @@
              :entity/name "unit"
              :unit/id 2}]
 
-   (damage-unit {:game/battlefield {:cube-1 unit} :game/events []} unit 2)
+   (damage-unit {:game/battlefield {:cube-1 unit} :game/events []} :cube-2 unit 2)
    => {:game/battlefield {:cube-1 :unit-2}
        :game/events [:panic]}
 
    (provided
     (lu/damage-unit unit 2) => :unit-2
     (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
-    (mv/panic 1 "unit" 2) => :panic)))
+    (mv/panic :cube-2 1 "unit" 2) => :panic)))
 
 
 (facts
@@ -74,7 +74,7 @@
 
  (let [unit {:entity/cube :cube-1}]
 
-   (destroy-models {:game/battlefield {:cube-1 unit}} unit 2)
+   (destroy-models {:game/battlefield {:cube-1 unit}} :cube-2 unit 2)
    => {:game/battlefield {:cube-1 :unit-2}}
 
    (provided
@@ -87,11 +87,11 @@
              :entity/name "unit"
              :unit/id 2}]
 
-   (destroy-models {:game/battlefield {:cube-1 unit} :game/events []} unit 2)
+   (destroy-models {:game/battlefield {:cube-1 unit} :game/events []} :cube-2 unit 2)
    => {:game/battlefield {:cube-1 :unit-2}
        :game/events [:panic]}
 
    (provided
     (lu/destroy-models unit 2) => :unit-2
     (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
-    (mv/panic 1 "unit" 2) => :panic)))
+    (mv/panic :cube-2 1 "unit" 2) => :panic)))
