@@ -152,6 +152,44 @@
          [:input {:type "submit" :value "Next"}]]]]])))
 
 
+(defmethod render [:panic :passed]
+  [state]
+  (let [{:keys [roll unit]} (:game/trigger state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Panic!"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state) [:br] [:br]
+        (vw/render-profile unit) [:br]
+        (vw/render-events (:game/events state)) [:br]
+        [:h3 "Passed!"]
+        (svg/dice roll 7)
+        [:form {:action "/trigger/next" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
+
+
+(defmethod render [:panic :failed]
+  [state]
+  (let [{:keys [roll unit]} (:game/trigger state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Panic!"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state) [:br] [:br]
+        (vw/render-profile unit) [:br]
+        (vw/render-events (:game/events state)) [:br]
+        [:h3 "Passed!"]
+        (svg/dice roll 1)
+        [:form {:action "/trigger/next" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
+
+
 (defmethod render [:charge :select-hex]
   [state]
   (html

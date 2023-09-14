@@ -130,6 +130,25 @@
       (trigger state))))
 
 
+(defmethod trigger-event :panic
+  [state event]
+  (let [{:keys [unit/player entity/name unit/id]} event]
+    (if-let [cube (get-in state [:game/units player name :cubes id])]
+      (if-let [panickable? (lu/panickable? (:game/battlefield state) cube)]
+        (let [unit (get-in state [:game/battlefield cube])
+              roll (cd/roll! 2)
+              passed? (<= (apply + roll) (:unit/Ld unit))]
+          (-> (if passed?
+                (assoc state :game/subphase :passed)
+                (assoc state :game/subphase :failed))
+              (assoc-in [:game/battlefield cube :unit/flags :panicked?] true)
+              (update :game/trigger assoc
+                      :unit unit
+                      :roll roll)))
+        (trigger state))
+      (trigger state))))
+
+
 (defn to-charge
   [{:keys [game/player] :as state}]
   (let [unit-cubes (cu/unit-cubes state)

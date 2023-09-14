@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.unit-test
   (:require [midje.sweet :refer :all]
+            [hexenhammer.model.event :as mv]
             [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.controller.unit :refer :all]))
@@ -49,7 +50,23 @@
    => {:game/battlefield {:cube-1 :unit-2}}
 
    (provided
-    (lu/damage-unit unit 2) => :unit-2)))
+    (lu/damage-unit unit 2) => :unit-2
+    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => false))
+
+
+ (let [unit {:entity/cube :cube-1
+             :unit/player 1
+             :entity/name "unit"
+             :unit/id 2}]
+
+   (damage-unit {:game/battlefield {:cube-1 unit} :game/events []} unit 2)
+   => {:game/battlefield {:cube-1 :unit-2}
+       :game/events [:panic]}
+
+   (provided
+    (lu/damage-unit unit 2) => :unit-2
+    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
+    (mv/panic 1 "unit" 2) => :panic)))
 
 
 (facts
@@ -61,4 +78,20 @@
    => {:game/battlefield {:cube-1 :unit-2}}
 
    (provided
-    (lu/destroy-models unit 2) => :unit-2)))
+    (lu/destroy-models unit 2) => :unit-2
+    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => false))
+
+
+ (let [unit {:entity/cube :cube-1
+             :unit/player 1
+             :entity/name "unit"
+             :unit/id 2}]
+
+   (destroy-models {:game/battlefield {:cube-1 unit} :game/events []} unit 2)
+   => {:game/battlefield {:cube-1 :unit-2}
+       :game/events [:panic]}
+
+   (provided
+    (lu/destroy-models unit 2) => :unit-2
+    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
+    (mv/panic 1 "unit" 2) => :panic)))

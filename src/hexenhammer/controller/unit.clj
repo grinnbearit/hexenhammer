@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.unit
-  (:require [hexenhammer.logic.unit :as lu]
+  (:require [hexenhammer.model.event :as mv]
+            [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.terrain :as lt]))
 
 
@@ -22,9 +23,23 @@
 
 (defn damage-unit
   [state unit damage]
-  (assoc-in state [:game/battlefield (:entity/cube unit)] (lu/damage-unit unit damage)))
+  (let [unit-cube (:entity/cube unit)
+        damaged-unit (lu/damage-unit unit damage)
+        damaged-bf (assoc (:game/battlefield state) unit-cube damaged-unit)]
+    (cond-> (assoc state :game/battlefield damaged-bf)
+
+      (lu/heavy-casualties? damaged-bf unit-cube)
+      (update :game/events conj
+              (mv/panic (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
 
 
 (defn destroy-models
   [state unit models]
-  (assoc-in state [:game/battlefield (:entity/cube unit)] (lu/destroy-models unit models)))
+  (let [unit-cube (:entity/cube unit)
+        damaged-unit (lu/destroy-models unit models)
+        damaged-bf (assoc (:game/battlefield state) unit-cube damaged-unit)]
+    (cond-> (assoc state :game/battlefield damaged-bf)
+
+      (lu/heavy-casualties? damaged-bf unit-cube)
+      (update :game/events conj
+              (mv/panic (:unit/player unit) (:entity/name unit) (:unit/id unit))))))

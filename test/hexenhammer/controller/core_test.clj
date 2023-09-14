@@ -330,6 +330,99 @@
 
 
 (facts
+ "trigger event panic"
+
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}
+
+       state {:game/phase :panic
+              :game/units {1 {"unit" {:cubes {}}}}}]
+
+   (trigger-event state unit)
+   => :trigger
+
+   (provided
+    (trigger state) => :trigger))
+
+
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}
+
+       state {:game/phase :panic
+              :game/battlefield :battlefield
+              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}}]
+
+   (trigger-event state unit)
+   => :trigger
+
+   (provided
+    (lu/panickable? :battlefield :cube-1) => false
+    (trigger state) => :trigger))
+
+
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2
+             :unit/Ld 3}
+
+       battlefield {:cube-1 unit}
+
+       state {:game/phase :panic
+              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+              :game/battlefield battlefield}]
+
+   (trigger-event state {:unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
+   => {:game/phase :panic
+       :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+       :game/battlefield {:cube-1 {:unit/player 1
+                                   :entity/name "unit"
+                                   :unit/id 2
+                                   :unit/Ld 3
+                                   :unit/flags {:panicked? true}}}
+       :game/subphase :passed
+       :game/trigger {:unit unit
+                      :roll [1 1]}}
+
+   (provided
+    (lu/panickable? battlefield :cube-1) => true
+    (cd/roll! 2) => [1 1]))
+
+
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2
+             :unit/Ld 3}
+
+       battlefield {:cube-1 unit}
+
+       state {:game/phase :panic
+              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+              :game/battlefield battlefield}]
+
+   (trigger-event state {:unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
+   => {:game/phase :panic
+       :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+       :game/battlefield {:cube-1 {:unit/player 1
+                                   :entity/name "unit"
+                                   :unit/id 2
+                                   :unit/Ld 3
+                                   :unit/flags {:panicked? true}}}
+       :game/subphase :failed
+       :game/trigger {:unit unit
+                      :roll [1 3]}}
+
+   (provided
+    (lu/panickable? battlefield :cube-1) => true
+    (cd/roll! 2) => [1 3])))
+
+
+(facts
  "to charge"
 
  (let [state {:game/player 1

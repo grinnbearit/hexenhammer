@@ -7,3 +7,11 @@
    :unit/player player
    :entity/name name
    :unit/id id})
+
+
+(defn panic
+  [player name id]
+  {:event/class :panic
+   :unit/player player
+   :entity/name name
+   :unit/id id})

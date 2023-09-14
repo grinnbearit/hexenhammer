@@ -53,7 +53,10 @@
                  unit-str (format "Player %d, %s (%s)" player name (vu/int->roman id))]]
        (case (:event/class event)
          :dangerous
-         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td unit-str]]))]))
+         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td unit-str]]
+
+         :panic
+         [:tr [:td (inc index)] [:td "Panic!"] [:td unit-str]]))]))
 
 
 (defn render-movement
