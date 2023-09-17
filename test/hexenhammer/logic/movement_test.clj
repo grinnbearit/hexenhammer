@@ -622,12 +622,27 @@
 (facts
  "charger?"
 
+ (charger? :battlefield :cube) => false
+
+ (provided
+  (lu/battlefield-engaged? :battlefield :cube) => true)
+
+
+ (let [battlefield {:cube-1 {:unit/flags {:fleeing? true}}}]
+
+   (charger? battlefield :cube-1) => false
+
+   (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false))
+
+
  (let [battlefield {:cube-1 {:unit/facing :n}}
        pointer (mc/->Pointer :cube-1 :n)]
 
    (charger? battlefield :cube-1) => false
 
    (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false
     (list-targets battlefield :cube-1) => :targets
     (charge-paths battlefield pointer :targets) => {}))
 
@@ -638,6 +653,7 @@
    (charger? battlefield :cube-1) => true
 
    (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false
     (list-targets battlefield :cube-1) => :targets
     (charge-paths battlefield pointer :targets) => {:path-1 :targets-1})))
 
