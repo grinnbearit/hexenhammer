@@ -166,7 +166,7 @@
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
         [:h3 "Passed!"]
-        (svg/dice roll 7)
+        (svg/dice roll 1)
         [:form {:action "/trigger/next" :method "post"}
          [:input {:type "submit" :value "Next"}]]]]])))
 
@@ -184,10 +184,10 @@
         (vw/render-battlefield state) [:br] [:br]
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
-        [:h3 "Passed!"]
-        (svg/dice roll 1)
-        [:form {:action "/trigger/next" :method "post"}
-         [:input {:type "submit" :value "Next"}]]]]])))
+        [:h3 "Failed!"]
+        (svg/dice roll 7)
+        [:form {:action "/flee" :method "post"}
+         [:input {:type "submit" :value "Flee!"}]]]]])))
 
 
 (defmethod render [:charge :select-hex]
