@@ -151,10 +151,10 @@
 
 
 (defn to-charge
-  [{:keys [game/player] :as state}]
+  [{:keys [game/player game/battlefield] :as state}]
   (let [unit-cubes (cu/unit-cubes state)
         player-cubes (cu/unit-cubes state player)
-        charger-cubes (filter #(lm/charger? (:game/battlefield state) %) player-cubes)]
+        charger-cubes (filter #(lm/charger? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :charge
                :game/subphase :select-hex)
@@ -203,7 +203,7 @@
 (defn to-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (cu/unit-cubes state player)
-        movable-cubes (remove #(lu/battlefield-engaged? battlefield %) player-cubes)]
+        movable-cubes (filter #(lm/movable? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
                :game/subphase :select-hex)

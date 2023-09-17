@@ -562,11 +562,11 @@
    (provided
     (cu/unit-cubes state 1) => [:unit-cube-1 :unit-cube-2]
 
-    (lu/battlefield-engaged? :battlefield-1 :unit-cube-1)
-    => false
-
-    (lu/battlefield-engaged? :battlefield-1 :unit-cube-2)
+    (lm/movable? :battlefield-1 :unit-cube-1)
     => true
+
+    (lm/movable? :battlefield-1 :unit-cube-2)
+    => false
 
     (l/set-state :battlefield-1 :default)
     => :battlefield-2

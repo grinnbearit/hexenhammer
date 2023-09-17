@@ -10,6 +10,13 @@
             [clojure.set :as set]))
 
 
+(defn movable?
+  [battlefield cube]
+  (let [unit (battlefield cube)]
+    (not (or (lu/battlefield-engaged? battlefield cube)
+             (get-in unit [:unit/flags :fleeing?])))))
+
+
 (defn valid-move?
   "Returns true if this pointer can be moved to"
   [battlefield cube pointer]
@@ -329,16 +336,14 @@
 
 
 (defn charger?
-  "Returns true if this unit can charge and has any viable charge targets"
+  "Returns true if this unit is movable and has any viable charge targets"
   [battlefield cube]
-  (let [unit (battlefield cube)]
-    (if (or (lu/battlefield-engaged? battlefield cube)
-            (get-in unit [:unit/flags :fleeing?]))
-      false
-      (let [start (mc/->Pointer cube (:unit/facing unit))
-            targets (list-targets battlefield cube)
-            paths (charge-paths battlefield start targets)]
-        (not (empty? paths))))))
+  (and (movable? battlefield cube)
+       (let [unit (battlefield cube)
+             start (mc/->Pointer cube (:unit/facing unit))
+             targets (list-targets battlefield cube)
+             paths (charge-paths battlefield start targets)]
+         (not (empty? paths)))))
 
 
 (defn show-targets
