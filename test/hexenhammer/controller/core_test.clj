@@ -378,53 +378,65 @@
                          :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
-   => {:game/phase :panic
-       :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-       :game/battlefield {:cube-1 {:unit/player 1
-                                   :entity/name "unit"
-                                   :unit/id 2
-                                   :unit/Ld 3
-                                   :unit/flags {:panicked? true}}}
-       :game/subphase :passed
-       :game/trigger {:cube :cube-2
-                      :unit unit
-                      :roll [1 1]}}
+   => {:game/battlemap :set-state}
 
    (provided
     (lu/panickable? battlefield :cube-1) => true
-    (cd/roll! 2) => [1 1]))
+    (cd/roll! 2) => [1 1]
+
+    (cb/refresh-battlemap {:game/phase :panic
+                           :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+                           :game/battlefield {:cube-1 {:unit/player 1
+                                                       :entity/name "unit"
+                                                       :unit/id 2
+                                                       :unit/Ld 3
+                                                       :unit/flags {:panicked? true}}}
+                           :game/subphase :passed
+                           :game/trigger {:cube :cube-2
+                                          :unit unit
+                                          :roll [1 1]}}
+                          [:cube-1])
+    => {:game/battlemap :battlemap}
+
+    (l/set-state :battlemap [:cube-1] :marked) => :set-state)
 
 
- (let [unit {:unit/player 1
-             :entity/name "unit"
-             :unit/id 2
-             :unit/Ld 3}
+   (let [unit {:unit/player 1
+               :entity/name "unit"
+               :unit/id 2
+               :unit/Ld 3}
 
-       battlefield {:cube-1 unit}
+         battlefield {:cube-1 unit}
 
-       state {:game/phase :panic
-              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-              :game/battlefield battlefield}]
+         state {:game/phase :panic
+                :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+                :game/battlefield battlefield}]
 
-   (trigger-event state {:event/cube :cube-2
-                         :unit/player 1
-                         :entity/name "unit"
-                         :unit/id 2})
-   => {:game/phase :panic
-       :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-       :game/battlefield {:cube-1 {:unit/player 1
-                                   :entity/name "unit"
-                                   :unit/id 2
-                                   :unit/Ld 3
-                                   :unit/flags {:panicked? true}}}
-       :game/subphase :failed
-       :game/trigger {:cube :cube-2
-                      :unit unit
-                      :roll [1 3]}}
+     (trigger-event state {:event/cube :cube-2
+                           :unit/player 1
+                           :entity/name "unit"
+                           :unit/id 2})
+     => {:game/battlemap :set-state}
 
-   (provided
-    (lu/panickable? battlefield :cube-1) => true
-    (cd/roll! 2) => [1 3])))
+     (provided
+      (lu/panickable? battlefield :cube-1) => true
+      (cd/roll! 2) => [1 3]
+
+      (cb/refresh-battlemap {:game/phase :panic
+                             :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+                             :game/battlefield {:cube-1 {:unit/player 1
+                                                         :entity/name "unit"
+                                                         :unit/id 2
+                                                         :unit/Ld 3
+                                                         :unit/flags {:panicked? true}}}
+                             :game/subphase :failed
+                             :game/trigger {:cube :cube-2
+                                            :unit unit
+                                            :roll [1 3]}}
+                            [:cube-1])
+      => {:game/battlemap :battlemap}
+
+      (l/set-state :battlemap [:cube-1] :marked) => :set-state))))
 
 
 (facts

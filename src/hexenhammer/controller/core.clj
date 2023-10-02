@@ -145,7 +145,9 @@
               (update :game/trigger assoc
                       :cube cube
                       :unit unit
-                      :roll roll)))
+                      :roll roll)
+              (cb/refresh-battlemap [unit-cube])
+              (update :game/battlemap l/set-state [unit-cube] :marked)))
         (trigger state))
       (trigger state))))
 
