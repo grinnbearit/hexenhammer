@@ -130,7 +130,7 @@
       (trigger state))))
 
 
-(defmethod trigger-event :panic
+(defmethod trigger-event :heavy-casualties
   [state event]
   (let [{:keys [event/cube unit/player entity/name unit/id]} event]
     (if-let [unit-cube (get-in state [:game/units player name :cubes id])]

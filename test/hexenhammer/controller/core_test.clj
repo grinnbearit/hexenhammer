@@ -331,13 +331,13 @@
 
 
 (facts
- "trigger event panic"
+ "trigger event heavy casualties"
 
  (let [unit {:unit/player 1
              :entity/name "unit"
              :unit/id 2}
 
-       state {:game/phase :panic
+       state {:game/phase :heavy-casualties
               :game/units {1 {"unit" {:cubes {}}}}}]
 
    (trigger-event state unit)
@@ -351,7 +351,7 @@
              :entity/name "unit"
              :unit/id 2}
 
-       state {:game/phase :panic
+       state {:game/phase :heavy-casualties
               :game/battlefield :battlefield
               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}}]
 
@@ -370,7 +370,7 @@
 
        battlefield {:cube-1 unit}
 
-       state {:game/phase :panic
+       state {:game/phase :heavy-casualties
               :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
               :game/battlefield battlefield}]
 
@@ -384,7 +384,7 @@
     (lu/panickable? battlefield :cube-1) => true
     (cd/roll! 2) => [1 1]
 
-    (cb/refresh-battlemap {:game/phase :panic
+    (cb/refresh-battlemap {:game/phase :heavy-casualties
                            :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                            :game/battlefield {:cube-1 {:unit/player 1
                                                        :entity/name "unit"
@@ -408,7 +408,7 @@
 
          battlefield {:cube-1 unit}
 
-         state {:game/phase :panic
+         state {:game/phase :heavy-casualties
                 :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                 :game/battlefield battlefield}]
 
@@ -422,7 +422,7 @@
       (lu/panickable? battlefield :cube-1) => true
       (cd/roll! 2) => [1 3]
 
-      (cb/refresh-battlemap {:game/phase :panic
+      (cb/refresh-battlemap {:game/phase :heavy-casualties
                              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                              :game/battlefield {:cube-1 {:unit/player 1
                                                          :entity/name "unit"

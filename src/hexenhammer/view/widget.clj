@@ -55,8 +55,8 @@
          :dangerous
          [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td unit-str]]
 
-         :panic
-         [:tr [:td (inc index)] [:td "Panic!"] [:td unit-str]]))]))
+         :heavy-casualties
+         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td unit-str]]))]))
 
 
 (defn render-movement

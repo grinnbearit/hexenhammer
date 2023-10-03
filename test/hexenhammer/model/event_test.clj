@@ -15,6 +15,17 @@
 
 
 (facts
+ "heavy casualties"
+
+ (heavy-casualties :cube-1 1 "unit" 2)
+ => {:event/class :heavy-casualties
+     :event/cube :cube-1
+     :unit/player 1
+     :entity/name "unit"
+     :unit/id 2})
+
+
+(facts
  "panic"
 
  (panic :cube-1 1 "unit" 2)

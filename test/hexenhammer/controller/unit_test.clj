@@ -66,7 +66,7 @@
    (provided
     (lu/damage-unit unit 2) => :unit-2
     (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
-    (mv/panic :cube-2 1 "unit" 2) => :panic)))
+    (mv/heavy-casualties :cube-2 1 "unit" 2) => :panic)))
 
 
 (facts
@@ -94,4 +94,4 @@
    (provided
     (lu/destroy-models unit 2) => :unit-2
     (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
-    (mv/panic :cube-2 1 "unit" 2) => :panic)))
+    (mv/heavy-casualties :cube-2 1 "unit" 2) => :panic)))

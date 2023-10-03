@@ -10,6 +10,15 @@
    :unit/id id})
 
 
+(defn heavy-casualties
+  [cube player name id]
+  {:event/class :heavy-casualties
+   :event/cube cube
+   :unit/player player
+   :entity/name name
+   :unit/id id})
+
+
 (defn panic
   [cube player name id]
   {:event/class :panic

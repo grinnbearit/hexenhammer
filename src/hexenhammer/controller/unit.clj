@@ -30,7 +30,7 @@
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/panic source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/heavy-casualties source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
 
 
 (defn destroy-models
@@ -42,4 +42,4 @@
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/panic source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/heavy-casualties source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
