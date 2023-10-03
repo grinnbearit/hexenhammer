@@ -23,3 +23,18 @@
      :unit/player 1
      :entity/name "unit"
      :unit/id 2})
+
+
+(facts
+ "opportunity attack"
+
+ (opportunity-attack :cube-1 1 "unit" 2 2 "unit" 2 3)
+ => {:event/class :opportunity-attack
+     :event/cube :cube-1
+     :unit/player 1
+     :entity/name "unit"
+     :unit/id 2
+     :event/source {:unit/player 2
+                    :entity/name "unit"
+                    :unit/id 2}
+     :event/wounds 3})

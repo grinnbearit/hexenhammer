@@ -63,7 +63,8 @@
   (POST "/charge/to-movement" [] (swap! hexenhammer-state controller/to-movement))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state controller/skip-movement))
   (POST "/movement/finish-movement" [] (swap! hexenhammer-state controller/finish-movement))
-  (POST "/movement/test-leadership" [] (swap! hexenhammer-state controller/test-march!)))
+  (POST "/movement/test-leadership" [] (swap! hexenhammer-state controller/test-march!))
+  (POST "/flee" [] (swap! hexenhammer-state controller/flee)))
 
 
 (def hexenhammer-app

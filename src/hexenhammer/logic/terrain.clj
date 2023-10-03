@@ -32,5 +32,6 @@
 
 
 (defn dangerous?
+  "Returns true if the passed terrain triggers a dangerous terrain test when moved through"
   [entity]
-  (= :dangerous (:terrain/type entity)))
+  (contains? #{:dangerous :impassable} (:terrain/type entity)))

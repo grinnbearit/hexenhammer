@@ -1167,3 +1167,61 @@
 
   (move :movement-transition :pointer-1)
   => :move))
+
+
+(facts
+ "flee"
+
+ (let [unit {:entity/cube :cube-1}
+       state {:game/trigger {:unit unit
+                             :cube :cube-2}
+              :game/battlefield :battlefield}]
+
+   (flee state)
+   => {:game/events [:event-1]
+       :game/battlemap :battlemap
+       :game/subphase :flee
+       :game/trigger {:edge? true
+                      :roll [2 3]}}
+
+   (provided
+    (cd/roll! 2) => [2 3]
+
+    (lm/show-flee :battlefield :cube-1 :cube-2 5)
+    => {:battlemap :battlemap
+        :end nil
+        :edge? true
+        :events [:event-1]}
+
+    (cu/destroy-unit state unit)
+    => {:game/events []}))
+
+
+ (let [unit {:entity/cube :cube-1}
+       battlefield {:cube-1 {}}
+       state {:game/trigger {:unit unit
+                             :cube :cube-2}
+              :game/battlefield battlefield
+              :game/events []}]
+
+   (flee state)
+   => {:game/trigger {:unit unit
+                      :cube :cube-2
+                      :edge? false
+                      :roll [2 3]}
+       :game/battlefield {}
+       :game/events [:event-1]
+       :game/battlemap :battlemap
+       :game/subphase :flee}
+
+   (provided
+    (cd/roll! 2) => [2 3]
+
+    (lm/show-flee battlefield :cube-1 :cube-2 5)
+    => {:battlemap :battlemap
+        :end :end
+        :edge? false
+        :events [:event-1]}
+
+    (lu/move-unit {:cube-1 {:unit/flags {:fleeing? true}}} :cube-1 :end)
+    => {})))

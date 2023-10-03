@@ -12,6 +12,13 @@
         (:unit/player unit-2)))
 
 
+(defn allies?
+  "Returns true if the two units have the same owner"
+  [unit-1 unit-2]
+  (= (:unit/player unit-1)
+     (:unit/player unit-2)))
+
+
 (defn engaged?
   "Returns true if the two units are engaged to each other"
   [unit-1 unit-2]

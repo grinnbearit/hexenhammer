@@ -190,6 +190,24 @@
          [:input {:type "submit" :value "Flee!"}]]]]])))
 
 
+(defmethod render [:panic :flee]
+  [state]
+  (let [{:keys [roll unit]} (:game/trigger state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Panic! - Flee"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state) [:br] [:br]
+        (vw/render-profile unit) [:br]
+        (vw/render-events (:game/events state)) [:br]
+        (svg/dice roll)
+        [:form {:action "/trigger/next" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
+
+
 (defmethod render [:charge :select-hex]
   [state]
   (html

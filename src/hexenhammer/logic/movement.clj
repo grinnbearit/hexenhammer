@@ -7,6 +7,7 @@
             [hexenhammer.model.event :as mv]
             [hexenhammer.model.core :as m]
             [hexenhammer.model.cube :as mc]
+            [hexenhammer.model.unit :as mu]
             [clojure.set :as set]))
 
 
@@ -175,11 +176,42 @@
 (defn path-events
   "Returns a list of events for the passed path"
   [battlefield unit path]
-  (for [pointer path
-        :let [cube (:cube pointer)
-              entity (battlefield cube)]
-        :when (lt/dangerous? entity)]
-    (mv/dangerous cube (:unit/player unit) (:entity/name unit) (:unit/id unit))))
+  (let [shadow-battlefield (lu/remove-unit battlefield (:entity/cube unit))]
+
+    (letfn [(reducer [events pointer]
+              (let [cube (:cube pointer)
+                    entity (shadow-battlefield cube)]
+                (cond (lt/dangerous? entity)
+                      (conj events (mv/dangerous cube
+                                                 (:unit/player unit)
+                                                 (:entity/name unit)
+                                                 (:unit/id unit)))
+
+                      (and (le/unit? entity)
+                           (lu/enemies? unit entity)
+                           (not (get-in entity [:unit/flags :fleeing?])))
+                      (conj events (mv/opportunity-attack cube
+                                                          (:unit/player unit)
+                                                          (:entity/name unit)
+                                                          (:unit/id unit)
+                                                          (:unit/player entity)
+                                                          (:entity/name entity)
+                                                          (:unit/id entity)
+                                                          (mu/unit-strength entity)))
+
+                      (and (le/unit? entity)
+                           (lu/allies? unit entity)
+                           (<= 8 (mu/unit-strength unit))
+                           (lu/panickable? shadow-battlefield cube))
+                      (conj events (mv/panic cube
+                                             (:unit/player entity)
+                                             (:entity/name entity)
+                                             (:unit/id entity)))
+
+                      :else
+                      events)))]
+
+      (reduce reducer [] (drop 1 path)))))
 
 
 (defn show-events
@@ -379,3 +411,55 @@
      :breadcrumbs (merge-with merge breadcrumbs target-map)
      :pointer->events pointer->events
      :ranges ranges}))
+
+
+(defn flee-direction
+  [pointer trigger]
+  (if (= (:cube pointer) trigger)
+    (:facing pointer)
+    ({:n :s :ne :sw :se :nw :s :n :sw :ne :nw :se}
+     (mc/direction (:cube pointer) trigger))))
+
+
+(defn flee-path
+  "Given a start pointer and a number of hexes, returns {:path :edge?}
+  path contains the pointers the unit moves through
+  edge? is true if the unit runs off the battlefield edge"
+  [battlefield start hexes]
+  (loop [path [start]]
+    (let [pointer (peek path)]
+      (if (and (<= (inc hexes) (count path))
+               (valid-move? battlefield (:cube start) pointer)
+               (valid-end? battlefield (:cube start) pointer))
+        {:path path :edge? false}
+        (let [next-step (mc/pointer-step pointer)]
+          (if (contains? battlefield (:cube next-step))
+            (recur (conj path next-step))
+            {:path path :edge? true}))))))
+
+
+(defn show-flee-map
+  "Given a player and a starting point returns the start mover on a battlemap"
+  [battlefield player start]
+  (let [cube (:cube start)]
+    {cube (-> (me/gen-mover cube player
+                            :highlighted (:facing start)
+                            :state :past)
+              (lt/swap (battlefield cube)))}))
+
+
+(defn show-flee
+  [battlefield unit-cube trigger-cube roll]
+  (let [unit (battlefield unit-cube)
+        pointer (mc/->Pointer unit-cube (:unit/facing unit))
+        hexes (m/M->hexes roll)
+        direction (flee-direction pointer trigger-cube)
+        start (mc/->Pointer unit-cube direction)
+        {:keys [path edge?]} (flee-path battlefield start hexes)
+        end (last path)
+        battlemap (show-flee-map battlefield (:unit/player unit) start)
+        events (path-events battlefield unit path)]
+    {:battlemap battlemap
+     :end end
+     :edge? edge?
+     :events events}))

@@ -133,3 +133,34 @@
  => [(->Cube 1 0 -1)
      (->Cube 0 0 0)
      (->Cube -1 0 1)])
+
+
+(facts
+ "direction"
+
+ (direction :cube-1 :cube-2)
+ => :ne
+
+ (provided
+  (cubes-between :cube-1 :cube-2) => []
+  (step :cube-1 :n) => :cube-3
+  (step :cube-1 :ne) => :cube-2)
+
+
+ (direction :cube-1 :cube-3)
+ => :ne
+
+ (provided
+  (cubes-between :cube-1 :cube-3) => [:cube-2]
+  (step :cube-1 :n) => :cube-4
+  (step :cube-1 :ne) => :cube-2))
+
+
+(facts
+ "pointer step"
+
+ (pointer-step (->Pointer :cube-1 :n))
+ => (->Pointer :cube-2 :n)
+
+ (provided
+  (step :cube-1 :n) => :cube-2))

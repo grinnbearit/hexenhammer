@@ -19,6 +19,19 @@
  => true)
 
 
+
+(facts
+ "allies?"
+
+ (allies? {:unit/player 1}
+          {:unit/player 1})
+ => true
+
+ (allies? {:unit/player 1}
+          {:unit/player 2})
+ => false)
+
+
 (facts
  "units engaged?"
 

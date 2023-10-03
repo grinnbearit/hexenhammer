@@ -63,5 +63,6 @@
 (facts
  "dangerous?"
 
- (dangerous? {:terrain/type :impassable}) => false
+ (dangerous? {:terrain/type :open}) => false
+ (dangerous? {:terrain/type :impassable}) => true
  (dangerous? {:terrain/type :dangerous}) => true)

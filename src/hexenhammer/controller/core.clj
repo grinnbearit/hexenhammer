@@ -392,3 +392,25 @@
         (select cube)
         (movement-transition :march)
         (move pointer))))
+
+
+(defn flee
+  [state]
+  (let [unit (get-in state [:game/trigger :unit])
+        unit-cube (:entity/cube unit)
+        trigger-cube (get-in state [:game/trigger :cube])
+        roll (cd/roll! 2)
+        {:keys [battlemap end edge? events]} (lm/show-flee (:game/battlefield state)
+                                                           unit-cube
+                                                           trigger-cube
+                                                           (apply + roll))]
+    (-> (if edge?
+          (cu/destroy-unit state unit)
+          (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :fleeing?] true)
+              (update :game/battlefield lu/move-unit unit-cube end)))
+        (update :game/events into events)
+        (assoc :game/battlemap battlemap
+               :game/subphase :flee)
+        (update :game/trigger assoc
+                :edge? edge?
+                :roll roll))))

@@ -5,8 +5,9 @@
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.model.cube :as mc]
-            [hexenhammer.model.entity :as me]
+            [hexenhammer.model.unit :as mu]
             [hexenhammer.model.event :as mv]
+            [hexenhammer.model.entity :as me]
             [hexenhammer.logic.movement :refer :all]))
 
 
@@ -347,23 +348,93 @@
 (facts
  "path events"
 
- (let [battlefield {:cube-1 :terrain-1
-                    :cube-2 :terrain-2
-                    :cube-3 :unit-1}
+ (let [pointer-0 (mc/->Pointer :cube-0 :n)
+       pointer-1 (mc/->Pointer :cube-1 :n)
+       pointer-2 (mc/->Pointer :cube-2 :n)
+       pointer-3 (mc/->Pointer :cube-3 :n)
+       pointer-4 (mc/->Pointer :cube-4 :n)
+       pointer-5 (mc/->Pointer :cube-5 :n)
+       pointer-6 (mc/->Pointer :cube-6 :n)
+       pointer-7 (mc/->Pointer :cube-7 :n)
 
-       unit {:unit/player 1
-             :entity/name "unit"
-             :unit/id 2}]
+       unit-2 {:unit/flags {:fleeing? true}}
 
-   (path-events battlefield unit [(mc/->Pointer :cube-1 :n)
-                                  (mc/->Pointer :cube-2 :n)
-                                  (mc/->Pointer :cube-3 :n)])
-   => [(mv/dangerous :cube-1 1 "unit" 2)]
+       unit-3 {:unit/player 2
+               :entity/name "unit-3"
+               :unit/id 3}
+
+       unit-5 {:unit/player 1
+               :entity/name "unit-5"
+               :unit/id 5}
+
+       unit-1 {:entity/cube :cube-1
+               :unit/player 1
+               :entity/name "unit-1"
+               :unit/id 2}
+
+       battlefield {:cube-1 :entity-1
+                    :cube-2 :entity-2
+                    :cube-3 unit-2
+                    :cube-4 unit-3
+                    :cube-5 :unit-4
+                    :cube-6 unit-5}]
+
+   (path-events :battlefield unit-1 [pointer-0 pointer-1 pointer-2 pointer-3 pointer-4 pointer-5 pointer-6])
+   => [:dangerous :opportunity-attack :panic]
 
    (provided
-    (lt/dangerous? :terrain-1) => true
-    (lt/dangerous? :terrain-2) => false
-    (lt/dangerous? :unit-1) => false)))
+    (lu/remove-unit :battlefield :cube-1)
+    => battlefield
+
+    (lt/dangerous? :entity-1) => false
+    (le/unit? :entity-1) => false
+
+    (lt/dangerous? :entity-2) => true
+    (mv/dangerous :cube-2 1 "unit-1" 2) => :dangerous
+
+    (lt/dangerous? unit-2) => false
+    (le/unit? unit-2) => true
+    (lu/enemies? unit-1 unit-2) => true
+    (lu/allies? unit-1 unit-2) => false
+
+    (lt/dangerous? unit-3) => false
+    (le/unit? unit-3) => true
+    (lu/enemies? unit-1 unit-3) => true
+    (mu/unit-strength unit-3) => 4
+    (mv/opportunity-attack :cube-4 1 "unit-1" 2 2 "unit-3" 3 4) => :opportunity-attack
+
+    (mu/unit-strength unit-1) => 9
+
+    (lt/dangerous? :unit-4) => false
+    (le/unit? :unit-4) => true
+    (lu/enemies? unit-1 :unit-4) => false
+    (lu/allies? unit-1 :unit-4) => true
+    (lu/panickable? battlefield :cube-5) => false
+
+    (lt/dangerous? unit-5) => false
+    (le/unit? unit-5) => true
+    (lu/enemies? unit-1 unit-5) => false
+    (lu/allies? unit-1 unit-5) => true
+    (lu/panickable? battlefield :cube-6) => true
+    (mv/panic :cube-6 1 "unit-5" 5) => :panic))
+
+
+ (let [pointer-1 (mc/->Pointer :cube-1 :n)
+       pointer-2 (mc/->Pointer :cube-2 :n)
+       unit-1 {:entity/cube :cube-1}]
+
+   (path-events :battlefield unit-1 [pointer-1 pointer-2])
+   => []
+
+   (provided
+    (lu/remove-unit :battlefield :cube-1)
+    => {:cube-2 :unit-2}
+
+    (lt/dangerous? :unit-2) => false
+    (le/unit? :unit-2) => true
+    (lu/enemies? unit-1 :unit-2) => false
+    (lu/allies? unit-1 :unit-2) => true
+    (mu/unit-strength unit-1) => 7)))
 
 
 (facts
@@ -741,3 +812,118 @@
     => {:cube-4 :target-map-entry-1}
 
     (target-ranges {:path-1 :target-1} :cube-1) => :target-ranges)))
+
+
+(facts
+ "flee direction"
+
+ (let [pointer (mc/->Pointer :cube-1 :n)]
+
+   (flee-direction pointer :cube-1) => :n
+
+
+   (flee-direction pointer :cube-2) => :s
+
+   (provided
+    (mc/direction :cube-1 :cube-2) => :n)))
+
+
+(facts
+ "flee path"
+
+ (let [pointer-1 (mc/->Pointer :cube-1 :n)]
+
+   (flee-path :battlefield pointer-1 0)
+   => {:path [pointer-1] :edge? false}
+
+   (provided
+    (valid-move? :battlefield :cube-1 pointer-1) => true
+    (valid-end? :battlefield :cube-1 pointer-1) => true))
+
+
+ (let [battlefield {:cube-2 :entity-1}
+       pointer-1 (mc/->Pointer :cube-1 :n)
+       pointer-2 (mc/->Pointer :cube-2 :n)]
+
+   (flee-path battlefield pointer-1 1)
+   => {:path [pointer-1 pointer-2] :edge? false}
+
+   (provided
+    (mc/pointer-step pointer-1) => pointer-2
+    (valid-move? battlefield :cube-1 pointer-2) => true
+    (valid-end? battlefield :cube-1 pointer-2) => true))
+
+
+ (let [battlefield {:cube-2 :entity-1}
+       pointer-1 (mc/->Pointer :cube-1 :n)
+       pointer-2 (mc/->Pointer :cube-2 :n)]
+
+   (flee-path battlefield pointer-1 0)
+   => {:path [pointer-1 pointer-2] :edge? false}
+
+   (provided
+    (valid-move? battlefield :cube-1 pointer-1) => false
+    (mc/pointer-step pointer-1) => pointer-2
+    (valid-move? battlefield :cube-1 pointer-2) => true
+    (valid-end? battlefield :cube-1 pointer-2) => true))
+
+
+ (let [battlefield {:cube-2 :entity-1}
+       pointer-1 (mc/->Pointer :cube-1 :n)
+       pointer-2 (mc/->Pointer :cube-2 :n)]
+
+   (flee-path battlefield pointer-1 0)
+   => {:path [pointer-1 pointer-2] :edge? false}
+
+   (provided
+    (valid-move? battlefield :cube-1 pointer-1) => true
+    (valid-end? battlefield :cube-1 pointer-1) => false
+    (mc/pointer-step pointer-1) => pointer-2
+    (valid-move? battlefield :cube-1 pointer-2) => true
+    (valid-end? battlefield :cube-1 pointer-2) => true))
+
+
+ (let [pointer-1 (mc/->Pointer :cube-1 :n)
+       pointer-2 (mc/->Pointer :cube-2 :n)]
+
+   (flee-path {} pointer-1 1)
+   => {:path [pointer-1] :edge? true}
+
+   (provided
+    (mc/pointer-step pointer-1) => pointer-2)))
+
+
+(facts
+ "show flee map"
+
+ (let [start (mc/->Pointer :cube-1 :n)]
+
+   (show-flee-map {:cube-1 :unit-1} 1 start)
+   => {:cube-1 :swapped-1}
+
+   (provided
+    (me/gen-mover :cube-1 1 :highlighted :n :state :past) => :mover-1
+    (lt/swap :mover-1 :unit-1) => :swapped-1)))
+
+
+(facts
+ "show flee"
+
+ (let [unit {:unit/player 1
+             :unit/facing :n}
+       battlefield {:cube-1 unit}
+       pointer (mc/->Pointer :cube-1 :n)
+       start (mc/->Pointer :cube-1 :s)
+       end (mc/->Pointer :cube-3 :s)]
+
+   (show-flee battlefield :cube-1 :cube-2 10)
+   => {:battlemap :battlemap-1
+       :end end
+       :edge? false
+       :events :events-1}
+
+   (provided
+    (flee-direction pointer :cube-2) => :s
+    (flee-path battlefield start 3) => {:path [start end] :edge? false}
+    (show-flee-map battlefield 1 start) => :battlemap-1
+    (path-events battlefield unit [start end]) => :events-1)))

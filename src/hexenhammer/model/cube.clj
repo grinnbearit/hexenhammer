@@ -119,3 +119,19 @@
          (map round)
          (remove #{cx cy})
          (distinct))))
+
+
+(defn direction
+  "Given a source and a target cube, returns the facing that a line drawn
+  from the centres of the two cubes would pass, oriented around the source cube"
+  [cx cy]
+  (let [closest-cube (or (first (cubes-between cx cy)) cy)]
+    (->> (drop-while #(not= (step cx %) closest-cube) [:n :ne :se :s :sw :nw])
+         (first))))
+
+
+(defn pointer-step
+  "Given a pointer, returns the next pointer moving in the same facing"
+  [pointer]
+  (->Pointer (step (:cube pointer) (:facing pointer))
+             (:facing pointer)))
