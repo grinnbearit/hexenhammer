@@ -83,37 +83,25 @@
 
 
 (facts
- "reform facings"
+ "reform paths"
 
- (reform-facings :battlefield-1 :cube-1)
- => #{:n :sw :nw}
+ (let [start (mc/->Pointer :cube-1 :n)
+       pointer-ne (mc/->Pointer :cube-1 :ne)
+       pointer-se (mc/->Pointer :cube-1 :se)
+       pointer-s (mc/->Pointer :cube-1 :s)
+       pointer-sw (mc/->Pointer :cube-1 :sw)
+       pointer-nw (mc/->Pointer :cube-1 :nw)]
 
- (provided
-  (valid-end? :battlefield-1 :cube-1 (mc/->Pointer :cube-1 :n)) => true
-  (valid-end? :battlefield-1 :cube-1 (mc/->Pointer :cube-1 :ne)) => false
-  (valid-end? :battlefield-1 :cube-1 (mc/->Pointer :cube-1 :se)) => false
-  (valid-end? :battlefield-1 :cube-1 (mc/->Pointer :cube-1 :s)) => false
-  (valid-end? :battlefield-1 :cube-1 (mc/->Pointer :cube-1 :sw)) => true
-  (valid-end? :battlefield-1 :cube-1 (mc/->Pointer :cube-1 :nw)) => true))
-
-
-(facts
- "show reform"
-
- (let [unit {:unit/player 1 :unit/facing :n}
-       battlefield {:cube-1 unit}]
-
-   (show-reform battlefield :cube-1)
-   => {:cube-1 :swap-1}
+   (reform-paths :battlefield start)
+   => [[start pointer-se]
+       [start pointer-sw]]
 
    (provided
-    (reform-facings battlefield :cube-1) => :facings-1
-
-    (me/gen-mover :cube-1 1 :options :facings-1)
-    => :mover-1
-
-    (lt/swap :mover-1 unit)
-    => :swap-1)))
+    (valid-end? :battlefield :cube-1 pointer-ne) => false
+    (valid-end? :battlefield :cube-1 pointer-se) => true
+    (valid-end? :battlefield :cube-1 pointer-s) => false
+    (valid-end? :battlefield :cube-1 pointer-sw) => true
+    (valid-end? :battlefield :cube-1 pointer-nw) => false)))
 
 
 (facts
@@ -447,6 +435,28 @@
  (provided
   (path-events :battlefield :unit-1 [:pointer-1]) => :events-1
   (path-events :battlefield :unit-1 [:pointer-1 :pointer-2]) => :events-2))
+
+
+(facts
+ "show reform"
+
+ (let [unit {:unit/facing :n
+             :unit/player 1}
+
+       battlefield {:cube-1 unit}
+
+       start (mc/->Pointer :cube-1 :n)]
+
+   (show-reform battlefield :cube-1)
+   => {:battlemap :battlemap
+       :pointer->events :events}
+
+   (provided
+    (reform-paths battlefield start) => :paths
+
+    (show-battlemap battlefield 1 :paths) => :battlemap
+
+    (show-events battlefield unit :paths) => :events)))
 
 
 (facts

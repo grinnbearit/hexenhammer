@@ -597,16 +597,20 @@
             :game/subphase :select-hex
             :game/battlefield battlefield}
            :cube-1)
-   => {:game/phase :movement
-       :game/subphase :reform
-       :game/battlefield battlefield
-       :game/selected :cube-1
-       :game/battlemap :battlemap-2
-       :game/movement {:pointer pointer}}
+   => :move
 
    (provided
-    (lm/show-reform battlefield :cube-1) => :battlemap-1
-    (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2)))
+    (lm/show-reform battlefield :cube-1) => {:battlemap :battlemap-1 :pointer->events :events-1}
+
+    (move {:game/phase :movement
+           :game/subphase :reform
+           :game/battlefield battlefield
+           :game/selected :cube-1
+           :game/battlemap :battlemap-1
+           :game/movement {:battlemap :battlemap-1
+                           :pointer->events :events-1}}
+          pointer)
+    => :move)))
 
 
 (facts
@@ -689,14 +693,18 @@
 
    (move {:game/phase :movement
           :game/subphase :reform
+          :game/selected :cube-1
           :game/battlefield {:cube-1 {:unit/facing :n}}
-          :game/battlemap :battlemap-1}
+          :game/movement {:battlemap :battlemap-1
+                          :moved? true}}
          pointer)
    => {:game/phase :movement
        :game/subphase :reform
+       :game/selected :cube-1
        :game/battlefield {:cube-1 {:unit/facing :n}}
        :game/battlemap :battlemap-2
-       :game/movement {:pointer pointer}}
+       :game/movement {:battlemap :battlemap-1
+                       :pointer pointer}}
 
    (provided
     (cm/set-mover-selected :battlemap-1 pointer) => :battlemap-2))
@@ -706,16 +714,18 @@
 
    (move {:game/phase :movement
           :game/subphase :reform
+          :game/selected :cube-1
           :game/battlefield {:cube-1 {:unit/facing :n}}
-          :game/battlemap :battlemap-1
-          :game/movement {:moved? true
+          :game/movement {:battlemap :battlemap-1
                           :pointer pointer}}
          pointer)
    => {:game/phase :movement
        :game/subphase :reform
+       :game/selected :cube-1
        :game/battlefield {:cube-1 {:unit/facing :n}}
        :game/battlemap :battlemap-2
-       :game/movement {:moved? true
+       :game/movement {:battlemap :battlemap-1
+                       :moved? true
                        :pointer pointer}}
 
    (provided
@@ -888,13 +898,15 @@
 
    (provided
     (lm/show-reform battlefield :cube-1)
-    => :battlemap
+    => {:battlemap :battlemap-1 :pointer->events :events-1}
 
     (move {:game/phase :movement
            :game/subphase :reform
            :game/battlefield battlefield
            :game/selected :cube-1
-           :game/battlemap :battlemap}
+           :game/battlemap :battlemap-1
+           :game/movement {:battlemap :battlemap-1
+                           :pointer->events :events-1}}
           pointer)
     => :move)))
 

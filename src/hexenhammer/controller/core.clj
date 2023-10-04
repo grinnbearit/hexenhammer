@@ -255,12 +255,17 @@
 
 (defmethod move [:movement :reform]
   [state pointer]
-  (let [unit (get-in state [:game/battlefield (:cube pointer)])]
+  (let [cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])
+        battlemap (get-in state [:game/movement :battlemap])]
+
     (-> (if (= (:facing pointer) (:unit/facing unit))
-          (dissoc state :game/movement)
-          (assoc state :game/movement {:moved? true}))
-        (update :game/battlemap cm/set-mover-selected pointer)
-        (assoc-in [:game/movement :pointer] pointer))))
+          (update state :game/movement dissoc :moved?)
+          (assoc-in state [:game/movement :moved?] true))
+
+        (assoc :game/battlemap battlemap)
+        (assoc-in [:game/movement :pointer] pointer)
+        (update :game/battlemap cm/set-mover-selected pointer))))
 
 
 (defmethod move [:movement :forward]
@@ -313,12 +318,14 @@
   [state cube]
   (if (= cube (get-in state [:game/movement :pointer :cube]))
     (unselect state)
-    (let [unit (get-in state [:game/battlefield cube])
-          pointer (mc/->Pointer cube (:unit/facing unit))
-          battlemap (lm/show-reform (:game/battlefield state) cube)]
+    (let [{:keys [battlemap pointer->events]} (lm/show-reform (:game/battlefield state) cube)
+          pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/selected cube
                  :game/battlemap battlemap)
+          (update :game/movement assoc
+                  :battlemap battlemap
+                  :pointer->events pointer->events)
           (move pointer)))))
 
 

@@ -32,24 +32,13 @@
     (not (lu/battlefield-engaged? shadow-battlefield (:cube pointer)))))
 
 
-(defn reform-facings
-  "Given a cube, returns a set of allowed facings after a reform,
-  includes the original facing"
-  [battlefield cube]
-  (set
-   (for [facing #{:n :ne :se :s :sw :nw}
-         :let [pointer (mc/->Pointer cube facing)]
-         :when (valid-end? battlefield cube pointer)]
-     facing)))
-
-
-(defn show-reform
-  "Given a cube, returns a battlemap with the set of allowed facings"
-  [battlefield cube]
-  (let [unit (battlefield cube)]
-    {cube (-> (me/gen-mover cube (:unit/player unit)
-                            :options (reform-facings battlefield cube))
-              (lt/swap unit))}))
+(defn reform-paths
+  "Returns all reform paths, each consisting of two steps"
+  [battlefield start]
+  (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing start))
+        :let [end (mc/->Pointer (:cube start) facing)]
+        :when (valid-end? battlefield (:cube start) end)]
+    [start end]))
 
 
 (defn forward-step
@@ -222,6 +211,20 @@
        (into {})))
 
 
+(defn show-reform
+  "Given a battlefield and cube, returns
+  :battlemap,  cube->mover that the unit can reach when reforming
+  :pointer->events, the list of events that trigger with this move"
+  [battlefield cube]
+  (let [unit (battlefield cube)
+        start (mc/->Pointer cube (:unit/facing unit))
+        paths (reform-paths battlefield start)
+        battlemap (show-battlemap battlefield (:unit/player unit) paths)
+        pointer->events (show-events battlefield unit paths)]
+    {:battlemap battlemap
+     :pointer->events pointer->events}))
+
+
 (defn show-moves
   "Given a battlefield, cube, hexes and a path-fn returns
   :battlemap, cube->mover that the unit can reach when moving
@@ -241,7 +244,8 @@
 (defn show-forward
   "Given a battlefield and cube, returns
   :battlemap,  cube->mover that the unit can reach when moving forward
-  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer
+  :pointer->events, the list of events that trigger with this move"
   [battlefield cube]
   (let [M (get-in battlefield [cube :unit/M])
         hexes (m/M->hexes M)]
@@ -251,7 +255,8 @@
 (defn show-reposition
   "Given a battlefield and cube, returns
   :battlemap,  cube->mover that the unit can reach when repositioning
-  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer"
+  :breadcrumb, pointer->cube->mover that the unit needs to pass through to reach the pointer
+  :pointer->events, the list of events that trigger with this move"
   [battlefield cube]
   (let [M (get-in battlefield [cube :unit/M])
         hexes (m/M->hexes (/ M 2))]
