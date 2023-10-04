@@ -1,5 +1,4 @@
-(ns hexenhammer.model.cube
-  (:require [clojure.math.combinatorics :refer [permutations]]))
+(ns hexenhammer.model.cube)
 ;; inspired and sometimes directly copied from https://www.redblobgames.com/grids/hexagons/
 
 
