@@ -162,45 +162,50 @@
        (into {})))
 
 
+(defn pointer-events
+  "Returns a list of events triggered when entering the passed pointer
+  utility function for path-events, assumes battlefield is a shadow-battlefield"
+  [battlefield unit pointer]
+  (let [cube (:cube pointer)
+        entity (battlefield cube)]
+
+    (cond-> []
+
+      (lt/dangerous? (lt/pickup entity))
+      (conj (mv/dangerous cube
+                          (:unit/player unit)
+                          (:entity/name unit)
+                          (:unit/id unit)))
+
+      (and (le/unit? entity)
+           (lu/enemies? unit entity)
+           (not (get-in entity [:unit/flags :fleeing?])))
+      (conj (mv/opportunity-attack cube
+                                   (:unit/player unit)
+                                   (:entity/name unit)
+                                   (:unit/id unit)
+                                   (:unit/player entity)
+                                   (:entity/name entity)
+                                   (:unit/id entity)
+                                   (mu/unit-strength entity)))
+
+      (and (le/unit? entity)
+           (lu/allies? unit entity)
+           (<= 8 (mu/unit-strength unit))
+           (lu/panickable? battlefield cube))
+      (conj (mv/panic cube
+                      (:unit/player entity)
+                      (:entity/name entity)
+                      (:unit/id entity))))))
+
+
 (defn path-events
   "Returns a list of events for the passed path"
   [battlefield unit path]
   (let [shadow-battlefield (lu/remove-unit battlefield (:entity/cube unit))]
 
-    (letfn [(reducer [events pointer]
-              (let [cube (:cube pointer)
-                    entity (shadow-battlefield cube)]
-                (cond (lt/dangerous? entity)
-                      (conj events (mv/dangerous cube
-                                                 (:unit/player unit)
-                                                 (:entity/name unit)
-                                                 (:unit/id unit)))
-
-                      (and (le/unit? entity)
-                           (lu/enemies? unit entity)
-                           (not (get-in entity [:unit/flags :fleeing?])))
-                      (conj events (mv/opportunity-attack cube
-                                                          (:unit/player unit)
-                                                          (:entity/name unit)
-                                                          (:unit/id unit)
-                                                          (:unit/player entity)
-                                                          (:entity/name entity)
-                                                          (:unit/id entity)
-                                                          (mu/unit-strength entity)))
-
-                      (and (le/unit? entity)
-                           (lu/allies? unit entity)
-                           (<= 8 (mu/unit-strength unit))
-                           (lu/panickable? shadow-battlefield cube))
-                      (conj events (mv/panic cube
-                                             (:unit/player entity)
-                                             (:entity/name entity)
-                                             (:unit/id entity)))
-
-                      :else
-                      events)))]
-
-      (reduce reducer [] (drop 1 path)))))
+    (->> (drop 1 path)
+         (mapcat #(pointer-events shadow-battlefield unit %)))))
 
 
 (defn show-events
