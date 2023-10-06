@@ -274,10 +274,11 @@
              :unit/id 2}
 
        state {:game/phase :dangerous
-              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-              :game/battlefield {:cube-1 unit}}]
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+              :game/battlefield {:cube-2 unit}}]
 
-   (trigger-event state {:unit/player 1
+   (trigger-event state {:event/cube :cube-1
+                         :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
    => {:game/battlemap :set-state}
@@ -293,10 +294,10 @@
                                           :unit-destroyed? true
                                           :roll :roll
                                           :unit unit}}
-                          [:cube-1])
+                          [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
-    (l/set-state :battlemap [:cube-1] :marked) => :set-state))
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state))
 
 
  (let [unit {:unit/player 1
@@ -304,10 +305,10 @@
              :unit/id 2}
 
        state {:game/phase :dangerous
-              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-              :game/battlefield {:cube-1 unit}}]
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+              :game/battlefield {:cube-2 unit}}]
 
-   (trigger-event state {:event/cube :cube-2
+   (trigger-event state {:event/cube :cube-1
                          :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
@@ -318,16 +319,16 @@
     (cd/roll! 4) => :roll
     (cd/matches :roll 1) => 3
 
-    (cu/destroy-models state :cube-2 unit 3) => {}
+    (cu/destroy-models state :cube-1 unit 3) => {}
 
     (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
                                           :unit-destroyed? false
                                           :roll :roll
                                           :unit unit}}
-                          [:cube-1])
+                          [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
-    (l/set-state :battlemap [:cube-1] :marked) => :set-state)))
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state)))
 
 
 (facts
@@ -347,19 +348,18 @@
     (trigger state) => :trigger))
 
 
- (let [unit {:unit/player 1
-             :entity/name "unit"
-             :unit/id 2}
-
-       state {:game/phase :heavy-casualties
+ (let [state {:game/phase :heavy-casualties
               :game/battlefield :battlefield
-              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}}]
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}}]
 
-   (trigger-event state unit)
+   (trigger-event state {:event/cube :cube-1
+                         :unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
    => :trigger
 
    (provided
-    (lu/panickable? :battlefield :cube-1) => false
+    (lu/panickable? :battlefield :cube-2) => false
     (trigger state) => :trigger))
 
 
@@ -368,75 +368,67 @@
              :unit/id 2
              :unit/Ld 3}
 
-       battlefield {:cube-1 unit}
+       battlefield {:cube-2 unit}
 
        state {:game/phase :heavy-casualties
-              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
               :game/battlefield battlefield}]
 
-   (trigger-event state {:event/cube :cube-2
+   (trigger-event state {:event/cube :cube-1
                          :unit/player 1
                          :entity/name "unit"
                          :unit/id 2})
    => {:game/battlemap :set-state}
 
    (provided
-    (lu/panickable? battlefield :cube-1) => true
+    (lu/panickable? battlefield :cube-2) => true
     (cd/roll! 2) => [1 1]
 
     (cb/refresh-battlemap {:game/phase :heavy-casualties
-                           :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-                           :game/battlefield {:cube-1 {:unit/player 1
-                                                       :entity/name "unit"
-                                                       :unit/id 2
-                                                       :unit/Ld 3
-                                                       :unit/flags {:panicked? true}}}
+                           :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+                           :game/battlefield {:cube-2 (assoc-in unit [:unit/flags :panicked?] true)}
                            :game/subphase :passed
-                           :game/trigger {:cube :cube-2
-                                          :unit unit
+                           :game/trigger {:trigger-cube :cube-1
+                                          :unit-cube :cube-2
                                           :roll [1 1]}}
-                          [:cube-1])
+                          [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
-    (l/set-state :battlemap [:cube-1] :marked) => :set-state)
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state))
 
 
-   (let [unit {:unit/player 1
-               :entity/name "unit"
-               :unit/id 2
-               :unit/Ld 3}
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2
+             :unit/Ld 3}
 
-         battlefield {:cube-1 unit}
+       battlefield {:cube-2 unit}
 
-         state {:game/phase :heavy-casualties
-                :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-                :game/battlefield battlefield}]
+       state {:game/phase :heavy-casualties
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+              :game/battlefield battlefield}]
 
-     (trigger-event state {:event/cube :cube-2
-                           :unit/player 1
-                           :entity/name "unit"
-                           :unit/id 2})
-     => {:game/battlemap :set-state}
+   (trigger-event state {:event/cube :cube-1
+                         :unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
+   => {:game/battlemap :set-state}
 
-     (provided
-      (lu/panickable? battlefield :cube-1) => true
-      (cd/roll! 2) => [1 3]
+   (provided
+    (lu/panickable? battlefield :cube-2) => true
+    (cd/roll! 2) => [1 3]
 
-      (cb/refresh-battlemap {:game/phase :heavy-casualties
-                             :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-                             :game/battlefield {:cube-1 {:unit/player 1
-                                                         :entity/name "unit"
-                                                         :unit/id 2
-                                                         :unit/Ld 3
-                                                         :unit/flags {:panicked? true}}}
-                             :game/subphase :failed
-                             :game/trigger {:cube :cube-2
-                                            :unit unit
-                                            :roll [1 3]}}
-                            [:cube-1])
-      => {:game/battlemap :battlemap}
+    (cb/refresh-battlemap {:game/phase :heavy-casualties
+                           :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+                           :game/battlefield {:cube-2 (assoc-in unit [:unit/flags :panicked?] true)}
+                           :game/subphase :failed
+                           :game/trigger {:trigger-cube :cube-1
+                                          :unit-cube :cube-2
+                                          :roll [1 3]}}
+                          [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap}
 
-      (l/set-state :battlemap [:cube-1] :marked) => :set-state))))
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state)))
 
 
 (facts
@@ -1184,56 +1176,73 @@
 (facts
  "flee"
 
- (let [unit {:entity/cube :cube-1}
-       state {:game/trigger {:unit unit
-                             :cube :cube-2}
-              :game/battlefield :battlefield}]
+ (let [end (mc/->Pointer :cube-3 :n)
+       battlefield {:cube-2 :unit}
+       state {:game/trigger {:trigger-cube :cube-1
+                             :unit-cube :cube-2}
+              :game/battlefield battlefield}]
 
    (flee state)
-   => {:game/events [:event-1]
-       :game/battlemap :battlemap
-       :game/subphase :flee
+   => {:game/battlemap :battlemap-2
        :game/trigger {:edge? true
                       :roll [2 3]}}
 
    (provided
     (cd/roll! 2) => [2 3]
 
-    (lm/show-flee :battlefield :cube-1 :cube-2 5)
-    => {:battlemap :battlemap
-        :end nil
+    (lm/show-flee battlefield :cube-2 :cube-1 5)
+    => {:battlemap :battlemap-1
+        :end end
         :edge? true
         :events [:event-1]}
 
-    (cu/destroy-unit state unit)
-    => {:game/events []}))
+    (cu/destroy-unit state :unit)
+    => {:game/events []}
+
+    (cb/refresh-battlemap {:game/events [:event-1]
+                           :game/battlemap :battlemap-1
+                           :game/subphase :flee}
+                          [:cube-3])
+    => {:game/battlemap :battlemap-1}
+
+    (l/set-state :battlemap-1 [:cube-3] :marked)
+    => :battlemap-2))
 
 
- (let [unit {:entity/cube :cube-1}
-       battlefield {:cube-1 {}}
-       state {:game/trigger {:unit unit
-                             :cube :cube-2}
-              :game/battlefield battlefield
-              :game/events []}]
+ (let [end (mc/->Pointer :cube-3 :n)
+       unit {:entity/class :unit}
+       battlefield {:cube-2 unit}
+       state {:game/trigger {:trigger-cube :cube-1
+                             :unit-cube :cube-2}
+              :game/battlefield battlefield}]
 
    (flee state)
-   => {:game/trigger {:unit unit
-                      :cube :cube-2
-                      :edge? false
-                      :roll [2 3]}
-       :game/battlefield {}
-       :game/events [:event-1]
-       :game/battlemap :battlemap
-       :game/subphase :flee}
+   => {:game/battlemap :battlemap-2
+       :game/trigger {:edge? false
+                      :roll [2 3]}}
 
    (provided
     (cd/roll! 2) => [2 3]
 
-    (lm/show-flee battlefield :cube-1 :cube-2 5)
-    => {:battlemap :battlemap
-        :end :end
+    (lm/show-flee battlefield :cube-2 :cube-1 5)
+    => {:battlemap :battlemap-1
+        :end end
         :edge? false
         :events [:event-1]}
 
-    (lu/move-unit {:cube-1 {:unit/flags {:fleeing? true}}} :cube-1 :end)
-    => {})))
+    (lu/move-unit {:cube-2 {:entity/class :unit
+                            :unit/flags {:fleeing? true}}}
+                  :cube-2 end)
+    => {:cube-3 :unit-2}
+
+    (cb/refresh-battlemap {:game/trigger {:trigger-cube :cube-1
+                                          :unit-cube :cube-2}
+                           :game/battlefield {:cube-3 :unit-2}
+                           :game/events [:event-1]
+                           :game/battlemap :battlemap-1
+                           :game/subphase :flee}
+                          [:cube-3])
+    => {:game/battlemap :battlemap-1}
+
+    (l/set-state :battlemap-1 [:cube-3] :marked)
+    => :battlemap-2)))

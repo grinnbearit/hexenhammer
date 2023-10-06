@@ -184,9 +184,6 @@
                                    (:unit/player unit)
                                    (:entity/name unit)
                                    (:unit/id unit)
-                                   (:unit/player entity)
-                                   (:entity/name entity)
-                                   (:unit/id entity)
                                    (mu/unit-strength entity)))
 
       (and (le/unit? entity)

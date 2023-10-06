@@ -154,7 +154,8 @@
 
 (defmethod render [:heavy-casualties :passed]
   [state]
-  (let [{:keys [roll unit]} (:game/trigger state)]
+  (let [{:keys [roll unit-cube]} (:game/trigger state)
+        unit (get-in state [:game/battlefield unit-cube])]
     (html
      [:html
       [:head
@@ -173,7 +174,8 @@
 
 (defmethod render [:heavy-casualties :failed]
   [state]
-  (let [{:keys [roll unit]} (:game/trigger state)]
+  (let [{:keys [roll unit-cube]} (:game/trigger state)
+        unit (get-in state [:game/battlefield unit-cube])]
     (html
      [:html
       [:head
@@ -192,7 +194,8 @@
 
 (defmethod render [:heavy-casualties :flee]
   [state]
-  (let [{:keys [roll unit]} (:game/trigger state)]
+  (let [{:keys [roll unit-cube]} (:game/trigger state)
+        unit (get-in state [:game/battlefield unit-cube])]
     (html
      [:html
       [:head

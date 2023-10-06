@@ -125,8 +125,8 @@
                     :models-destroyed models-destroyed
                     :unit-destroyed? unit-destroyed?
                     :roll roll)
-            (cb/refresh-battlemap [unit-cube])
-            (update :game/battlemap l/set-state [unit-cube] :marked)))
+            (cb/refresh-battlemap [cube unit-cube])
+            (update :game/battlemap l/set-state [cube unit-cube] :marked)))
       (trigger state))))
 
 
@@ -143,11 +143,11 @@
                 (assoc state :game/subphase :failed))
               (assoc-in [:game/battlefield unit-cube :unit/flags :panicked?] true)
               (update :game/trigger assoc
-                      :cube cube
-                      :unit unit
+                      :trigger-cube cube
+                      :unit-cube unit-cube
                       :roll roll)
-              (cb/refresh-battlemap [unit-cube])
-              (update :game/battlemap l/set-state [unit-cube] :marked)))
+              (cb/refresh-battlemap [cube unit-cube])
+              (update :game/battlemap l/set-state [cube unit-cube] :marked)))
         (trigger state))
       (trigger state))))
 
@@ -403,9 +403,8 @@
 
 (defn flee
   [state]
-  (let [unit (get-in state [:game/trigger :unit])
-        unit-cube (:entity/cube unit)
-        trigger-cube (get-in state [:game/trigger :cube])
+  (let [{:keys [unit-cube trigger-cube]} (:game/trigger state)
+        unit (get-in state [:game/battlefield unit-cube])
         roll (cd/roll! 2)
         {:keys [battlemap end edge? events]} (lm/show-flee (:game/battlefield state)
                                                            unit-cube
@@ -418,6 +417,8 @@
         (update :game/events into events)
         (assoc :game/battlemap battlemap
                :game/subphase :flee)
+        (cb/refresh-battlemap [(:cube end)])
+        (update :game/battlemap l/set-state [(:cube end)] :marked)
         (update :game/trigger assoc
                 :edge? edge?
                 :roll roll))))

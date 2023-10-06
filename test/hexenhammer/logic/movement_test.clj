@@ -408,7 +408,7 @@
     (le/unit? entity) => true
     (lu/enemies? unit entity) => true
     (mu/unit-strength entity) => 4
-    (mv/opportunity-attack :cube-1 1 "unit" 2 2 "unit" 3 4) => :opportunity-attack
+    (mv/opportunity-attack :cube-1 1 "unit" 2 4) => :opportunity-attack
     (lu/allies? unit entity) => false))
 
 
