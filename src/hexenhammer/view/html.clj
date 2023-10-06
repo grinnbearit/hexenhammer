@@ -202,11 +202,11 @@
        [:h2 "Heavy Casualties - Flee!"]
        [:style STYLESHEET]
        [:body
-        (when edge?
-          [:h3 (str (vw/unit-str unit) " flees the Battlefield")])
         (vw/render-battlefield state) [:br] [:br]
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
+        (when edge?
+          [:h3 (str (vw/unit-str unit) " flees the Battlefield")])
         (svg/dice roll)
         [:form {:action "/trigger/next" :method "post"}
          [:input {:type "submit" :value "Next"}]]]]])))
