@@ -80,27 +80,18 @@
   "Returns a new battlefield with the unit removed from the old cube
   assumes the cube points to a unit"
   [battlefield unit-cube]
-  (let [unit (battlefield unit-cube)]
-    (assoc battlefield unit-cube (lt/pickup unit))))
+  (update battlefield unit-cube lt/pickup))
 
 
 (defn move-unit
   "Returns a new battlefield with the unit removed from the old cube and moved to the new pointer
-  assumes the cube points to a unit and the pointer points to passable terrain
-
-  this function is useful in testing if new battlefield states are valid"
+  assumes the cube points to a unit and the pointer points to passable terrain"
   [battlefield unit-cube pointer]
-  (let [unit (battlefield unit-cube)
-        old-terrain (lt/pickup unit)
-        new-terrain (battlefield (:cube pointer))
-        new-unit (-> (assoc unit
-                            :entity/cube (:cube pointer)
-                            :unit/facing (:facing pointer))
-                     (lt/place new-terrain))]
+  (let [unit (-> (battlefield unit-cube)
+                 (assoc :unit/facing (:facing pointer)))]
 
-    (assoc battlefield
-           unit-cube old-terrain
-           (:cube pointer) new-unit)))
+    (-> (remove-unit battlefield unit-cube)
+        (update (:cube pointer) lt/swap unit))))
 
 
 (defn destroyed?

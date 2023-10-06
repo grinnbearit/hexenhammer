@@ -243,7 +243,7 @@
 (facts
  "remove unit"
 
- (let [battlefield {:cube-1 {:entity/class :unit}
+ (let [battlefield {:cube-1 :unit-1
                     :cube-2 :terrain-2}]
 
    (remove-unit battlefield :cube-1)
@@ -251,7 +251,7 @@
        :cube-2 :terrain-2}
 
    (provided
-    (lt/pickup {:entity/class :unit}) => :terrain-1)))
+    (lt/pickup :unit-1) => :terrain-1)))
 
 
 (facts
@@ -265,12 +265,12 @@
        :cube-2 :unit-2}
 
    (provided
-    (lt/pickup {:entity/class :unit}) => :terrain-1
+    (remove-unit battlefield :cube-1)
+    => {:cube-1 :terrain-1
+        :cube-2 :terrain-2}
 
-    (lt/place {:entity/class :unit
-               :entity/cube :cube-2
-               :unit/facing :n}
-              :terrain-2)
+    (lt/swap :terrain-2 {:entity/class :unit
+                         :unit/facing :n})
     => :unit-2)))
 
 
