@@ -285,23 +285,12 @@
 
 (defn finish-movement
   [state]
-  (let [cube (:game/selected state)
-        unit (get-in state [:game/battlefield cube])
+  (let [unit-cube (:game/selected state)
         pointer (get-in state [:game/movement :pointer])
         events (get-in state [:game/movement :pointer->events pointer])
-        marched? (or (get-in state [:game/movement :marched?]) false)
-        old-terrain (lt/pickup unit)
-        new-terrain (get-in state [:game/battlefield (:cube pointer)])
-        updated-unit (-> (assoc unit
-                                :entity/state :default
-                                :entity/cube (:cube pointer)
-                                :unit/facing (:facing pointer))
-                         (update :unit/flags assoc :marched? marched?)
-                         (lt/swap new-terrain))]
-    (-> (assoc-in state [:game/battlefield cube] old-terrain)
-        (assoc-in [:game/battlefield (:cube pointer)] updated-unit)
-        (assoc-in [:game/units (:unit/player unit) (:entity/name unit) :cubes (:unit/id unit)]
-                  (:cube pointer))
+        marched? (or (get-in state [:game/movement :marched?]) false)]
+    (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :marched?] marched?)
+        (cu/move-unit unit-cube pointer)
         (update :game/events into events)
         (unselect)
         (trigger))))
