@@ -403,7 +403,7 @@
     (-> (if edge?
           (cu/destroy-unit state unit-cube)
           (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :fleeing?] true)
-              (update :game/battlefield cu/move-unit unit-cube end)))
+              (cu/move-unit unit-cube end)))
         (update :game/events into events)
         (assoc :game/battlemap battlemap
                :game/subphase :flee)

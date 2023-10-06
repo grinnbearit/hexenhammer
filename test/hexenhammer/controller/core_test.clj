@@ -1196,7 +1196,7 @@
               :game/battlefield battlefield}]
 
    (flee state)
-   => {:game/battlemap :battlemap-2
+   => {:game/battlemap :battlemap-3
        :game/trigger {:edge? false
                       :unit unit
                       :roll [2 3]}}
@@ -1210,19 +1210,18 @@
         :edge? false
         :events [:event-1]}
 
-    (cu/move-unit {:cube-2 {:entity/class :unit
-                            :unit/flags {:fleeing? true}}}
+    (cu/move-unit {:game/trigger {:trigger-cube :cube-1
+                                  :unit-cube :cube-2}
+                   :game/battlefield {:cube-2 {:entity/class :unit
+                                               :unit/flags {:fleeing? true}}}}
                   :cube-2 end)
-    => {:cube-3 :unit-2}
+    => {:game/events []}
 
-    (cb/refresh-battlemap {:game/trigger {:trigger-cube :cube-1
-                                          :unit-cube :cube-2}
-                           :game/battlefield {:cube-3 :unit-2}
-                           :game/events [:event-1]
+    (cb/refresh-battlemap {:game/events [:event-1]
                            :game/battlemap :battlemap-1
                            :game/subphase :flee}
                           [:cube-3])
-    => {:game/battlemap :battlemap-1}
+    => {:game/battlemap :battlemap-2}
 
-    (l/set-state :battlemap-1 [:cube-3] :marked)
-    => :battlemap-2)))
+    (l/set-state :battlemap-2 [:cube-3] :marked)
+    => :battlemap-3)))
