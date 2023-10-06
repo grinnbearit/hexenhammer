@@ -106,18 +106,18 @@
 
 (facts
  "move unit"
- (let [pointer (mc/->Pointer :cube-2 :n)]
+ (let [pointer (mc/->Pointer :cube-2 :n)
+       battlefield {:cube-1 {:unit/player 1
+                             :entity/name "unit"
+                             :unit/id 2}}]
 
    (move-unit {:units {1 {"unit" {2 :cube-1}}}
-               :game/battlefield :battlefield-1}
-              {:unit/player 1
-               :entity/cube :cube-1
-               :entity/name "unit"
-               :unit/id 2}
+               :game/battlefield battlefield}
+              :cube-1
               pointer)
    => {:units {1 {"unit" {2 :cube-2}}}
        :game/battlefield :battlefield-2}
 
    (provided
-    (lu/move-unit :battlefield-1 :cube-1 pointer)
+    (lu/move-unit battlefield :cube-1 pointer)
     => :battlefield-2)))

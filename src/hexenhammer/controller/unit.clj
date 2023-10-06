@@ -46,8 +46,8 @@
 
 
 (defn move-unit
-  [state unit pointer]
-  (let [unit-cube (:entity/cube unit)
-        dest-cube (:cube pointer)]
-    (-> (assoc-in state [:units (:unit/player unit) (:entity/name unit) (:unit/id unit)] dest-cube)
+  [state unit-cube pointer]
+  (let [target-cube (:cube pointer)
+        {:keys [unit/player entity/name unit/id]} (get-in state [:game/battlefield unit-cube])]
+    (-> (assoc-in state [:units player name id] target-cube)
         (update :game/battlefield lu/move-unit unit-cube pointer))))
