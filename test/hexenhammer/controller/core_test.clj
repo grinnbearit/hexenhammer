@@ -1232,7 +1232,7 @@
         :edge? false
         :events [:event-1]}
 
-    (lu/move-unit {:cube-2 {:entity/class :unit
+    (cu/move-unit {:cube-2 {:entity/class :unit
                             :unit/flags {:fleeing? true}}}
                   :cube-2 end)
     => {:cube-3 :unit-2}

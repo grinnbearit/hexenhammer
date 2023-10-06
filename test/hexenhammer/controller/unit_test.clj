@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.unit-test
   (:require [midje.sweet :refer :all]
+            [hexenhammer.model.cube :as mc]
             [hexenhammer.model.event :as mv]
             [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.terrain :as lt]
@@ -95,3 +96,22 @@
     (lu/destroy-models unit 2) => :unit-2
     (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
     (mv/heavy-casualties :cube-2 1 "unit" 2) => :panic)))
+
+
+(facts
+ "move unit"
+ (let [pointer (mc/->Pointer :cube-2 :n)]
+
+   (move-unit {:units {1 {"unit" {2 :cube-1}}}
+               :game/battlefield :battlefield-1}
+              {:unit/player 1
+               :entity/cube :cube-1
+               :entity/name "unit"
+               :unit/id 2}
+              pointer)
+   => {:units {1 {"unit" {2 :cube-2}}}
+       :game/battlefield :battlefield-2}
+
+   (provided
+    (lu/move-unit :battlefield-1 :cube-1 pointer)
+    => :battlefield-2)))

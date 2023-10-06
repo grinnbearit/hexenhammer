@@ -43,3 +43,11 @@
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
               (mv/heavy-casualties source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+
+
+(defn move-unit
+  [state unit pointer]
+  (let [unit-cube (:entity/cube unit)
+        dest-cube (:cube pointer)]
+    (-> (assoc-in state [:units (:unit/player unit) (:entity/name unit) (:unit/id unit)] dest-cube)
+        (update :game/battlefield lu/move-unit unit-cube pointer))))
