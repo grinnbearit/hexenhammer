@@ -780,6 +780,7 @@
    (provided
     (cu/move-unit {:game/selected :cube-1
                    :game/battlefield {:cube-1 {:entity/class :unit
+                                               :entity/state :default
                                                :unit/flags {:marched? false}}}
                    :game/movement {:pointer pointer
                                    :pointer->events {pointer [:event-1 :event-2]}}
@@ -808,6 +809,7 @@
    (provided
     (cu/move-unit {:game/selected :cube-1
                    :game/battlefield {:cube-1 {:entity/class :unit
+                                               :entity/state :default
                                                :unit/flags {:marched? true}}}
                    :game/movement {:pointer pointer
                                    :pointer->events {pointer []}

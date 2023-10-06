@@ -288,8 +288,12 @@
   (let [unit-cube (:game/selected state)
         pointer (get-in state [:game/movement :pointer])
         events (get-in state [:game/movement :pointer->events pointer])
-        marched? (or (get-in state [:game/movement :marched?]) false)]
-    (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :marched?] marched?)
+        marched? (or (get-in state [:game/movement :marched?]) false)
+        unit (-> (get-in state [:game/battlefield unit-cube])
+                 (assoc :entity/state :default)
+                 (assoc-in [:unit/flags :marched?] marched?))]
+
+    (-> (assoc-in state [:game/battlefield unit-cube] unit)
         (cu/move-unit unit-cube pointer)
         (update :game/events into events)
         (unselect)
