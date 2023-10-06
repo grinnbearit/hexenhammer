@@ -24,10 +24,15 @@
      (ve/render entity))])
 
 
+(defn unit-str
+  [unit]
+  (format "P%d - %s (%s)" (:unit/player unit) (:entity/name unit) (vu/int->roman (:unit/id unit))))
+
+
 (defn render-profile
   [unit]
   [:div
-   [:h3 (format "%s (%s)" (:entity/name unit) (vu/int->roman (:unit/id unit)))]
+   [:h3 (unit-str unit)]
    [:table.profile
     [:thead
      [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "Formation"] [:th "Damage"] [:th "Models"] [:th "Unit Strength"]]]
@@ -48,15 +53,13 @@
     [:table
      [:thead
       [:tr [:th "Order"] [:th "Event"] [:th "Unit"]]]
-     (for [[index event] (zipmap (range) events)
-           :let [{:keys [unit/player entity/name unit/id]} event
-                 unit-str (format "Player %d, %s (%s)" player name (vu/int->roman id))]]
+     (for [[index event] (zipmap (range) events)]
        (case (:event/class event)
          :dangerous
-         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td unit-str]]
+         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td (unit-str event)]]
 
          :heavy-casualties
-         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td unit-str]]))]))
+         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (unit-str event)]]))]))
 
 
 (defn render-movement

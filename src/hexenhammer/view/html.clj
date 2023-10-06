@@ -145,7 +145,7 @@
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
         (if unit-destroyed?
-          [:h3 "Unit Destroyed!"]
+          [:h3 (str (vw/unit-str unit) " destroyed")]
           [:h3 (format "%d Models Destroyed" models-destroyed)])
         (svg/dice roll 2)
         [:form {:action "/trigger/next" :method "post"}
@@ -194,8 +194,7 @@
 
 (defmethod render [:heavy-casualties :flee]
   [state]
-  (let [{:keys [roll unit-cube]} (:game/trigger state)
-        unit (get-in state [:game/battlefield unit-cube])]
+  (let [{:keys [edge? unit roll]} (:game/trigger state)]
     (html
      [:html
       [:head
@@ -203,6 +202,8 @@
        [:h2 "Heavy Casualties - Flee!"]
        [:style STYLESHEET]
        [:body
+        (when edge?
+          [:h3 (str (vw/unit-str unit) " flees the Battlefield")])
         (vw/render-battlefield state) [:br] [:br]
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]

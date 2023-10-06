@@ -421,4 +421,5 @@
         (update :game/battlemap l/set-state [(:cube end)] :marked)
         (update :game/trigger assoc
                 :edge? edge?
+                :unit unit
                 :roll roll))))

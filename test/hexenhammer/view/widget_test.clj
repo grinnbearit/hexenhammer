@@ -32,3 +32,12 @@
   (entity->z :entity-3) => 1
   (entity/render :entity-1) => [:render :entity-1]
   (entity/render :entity-3) => [:render :entity-3]))
+
+
+(facts
+ "unit-str"
+
+ (unit-str {:unit/player 1
+            :entity/name "unit"
+            :unit/id 2})
+ => "P1 - unit (ii)")

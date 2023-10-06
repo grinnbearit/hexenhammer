@@ -1185,6 +1185,7 @@
    (flee state)
    => {:game/battlemap :battlemap-2
        :game/trigger {:edge? true
+                      :unit :unit
                       :roll [2 3]}}
 
    (provided
@@ -1219,6 +1220,7 @@
    (flee state)
    => {:game/battlemap :battlemap-2
        :game/trigger {:edge? false
+                      :unit unit
                       :roll [2 3]}}
 
    (provided
