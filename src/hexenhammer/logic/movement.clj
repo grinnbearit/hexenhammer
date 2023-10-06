@@ -119,8 +119,8 @@
             (update mover-acc (:cube pointer) (fnil conj #{}) (:facing pointer)))]
 
     (->> (for [[cube options] (reduce reducer {} (map peek paths))]
-           [cube (-> (me/gen-mover cube player :options options)
-                     (lt/swap (battlefield cube)))])
+           [cube (->> (me/gen-mover cube player :options options)
+                      (lt/swap (battlefield cube)))])
          (into {}))))
 
 
@@ -147,10 +147,10 @@
             (assoc mover
                    :mover/highlighted (:facing pointer)
                    :mover/state :past)
-            (-> (me/gen-mover (:cube pointer) player
-                              :highlighted (:facing pointer)
-                              :state :past)
-                (lt/swap (battlefield cube))))])
+            (->> (me/gen-mover (:cube pointer) player
+                               :highlighted (:facing pointer)
+                               :state :past)
+                 (lt/swap (battlefield cube))))])
        (into {})))
 
 
@@ -449,10 +449,10 @@
   "Given a player and a starting point returns the start mover on a battlemap"
   [battlefield player start]
   (let [cube (:cube start)]
-    {cube (-> (me/gen-mover cube player
-                            :highlighted (:facing start)
-                            :state :past)
-              (lt/swap (battlefield cube)))}))
+    {cube (->> (me/gen-mover cube player
+                             :highlighted (:facing start)
+                             :state :past)
+               (lt/swap (battlefield cube)))}))
 
 
 (defn show-flee

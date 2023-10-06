@@ -119,9 +119,9 @@
   (me/gen-infantry :cube-1 1 1 :facing-1 :M 3 :Ld 7)
   => {:entity/class :unit}
 
-  (lt/place {:entity/class :unit
-             :entity/state :selectable}
-            :terrain-1)
+  (lt/swap :terrain-1
+           {:entity/class :unit
+            :entity/state :selectable})
   => :place
 
   (unselect {:game/selected :cube-1
@@ -135,16 +135,18 @@
 
  (let [unit {:unit/player 1
              :entity/name "unit"
-             :unit/id 1}]
+             :unit/id 1}
+
+       battlefield {:cube-1 unit}]
 
    (remove-unit {:game/selected :cube-1
-                 :game/battlefield {:cube-1 unit}
+                 :game/battlefield battlefield
                  :game/units {1 {"unit" {:counter 1 :cubes {1 :cube-1}}}}})
    => :unselect
 
    (provided
 
-    (lt/pickup unit) => {:entity/class :terrain}
+    (lu/remove-unit battlefield :cube-1) => {:cube-1 {:entity/class :terrain}}
 
     (unselect {:game/selected :cube-1
                :game/battlefield {:cube-1 {:entity/class :terrain
@@ -211,7 +213,7 @@
 
   (le/terrain? :entity-1) => false
 
-  (lt/place :entity-1 :open-terrain) => :entity-2
+  (lt/place :open-terrain :entity-1) => :entity-2
 
   (unselect {:game/selected :cube-1
              :game/battlefield {:cube-1 :entity-2}})

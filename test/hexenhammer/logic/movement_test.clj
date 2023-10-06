@@ -268,10 +268,10 @@
 
    (provided
     (me/gen-mover :cube-1 1 :options #{:n :ne}) => :mover-1
-    (lt/swap :mover-1 :entity-1) => :swap-1
+    (lt/swap :entity-1 :mover-1) => :swap-1
 
     (me/gen-mover :cube-2 1 :options #{:ne}) => :mover-2
-    (lt/swap :mover-2 :entity-2) => :swap-2)))
+    (lt/swap :entity-2 :mover-2) => :swap-2)))
 
 
 (facts
@@ -318,7 +318,7 @@
     (me/gen-mover :cube-2 1 :highlighted :ne :state :past)
     => :mover-2
 
-    (lt/swap :mover-2 :entity-2) => :swap-2)))
+    (lt/swap :entity-2 :mover-2) => :swap-2)))
 
 
 (facts
@@ -990,7 +990,7 @@
 
    (provided
     (me/gen-mover :cube-1 1 :highlighted :n :state :past) => :mover-1
-    (lt/swap :mover-1 :unit-1) => :swapped-1)))
+    (lt/swap :unit-1 :mover-1) => :swapped-1)))
 
 
 (facts

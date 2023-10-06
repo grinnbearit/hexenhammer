@@ -5,7 +5,7 @@
 (defn place
   "Places an object entity onto a terrain entity, updating the entity/cube for the placed object
   resets the entity state of the terrain but keeps all other keys"
-  [object terrain]
+  [terrain object]
   (let [cube (:entity/cube terrain)]
     (assoc object
            :entity/cube cube
@@ -22,8 +22,8 @@
 
 (defn swap
   "Places object onto the entity after picking up what's on it"
-  [object entity]
-  (place object (pickup entity)))
+  [entity object]
+  (place (pickup entity) object))
 
 
 (defn passable?

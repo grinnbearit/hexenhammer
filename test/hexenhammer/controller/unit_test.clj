@@ -30,16 +30,18 @@
  (let [unit {:entity/cube :cube-1
              :entity/name "unit"
              :unit/player 1
-             :unit/id 2}]
+             :unit/id 2}
+
+       battlefield {:cube-1 unit}]
 
    (destroy-unit {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-                  :game/battlefield {:cube-1 unit}}
+                  :game/battlefield battlefield}
                  :cube-1)
    => {:game/units {1 {"unit" {:cubes {}}}}
        :game/battlefield {:cube-1 :terrain}}
 
    (provided
-    (lt/pickup unit) => :terrain)))
+    (lu/remove-unit battlefield :cube-1) => {:cube-1 :terrain})))
 
 
 (facts

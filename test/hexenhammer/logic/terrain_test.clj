@@ -7,9 +7,10 @@
 (facts
  "place"
 
- (place {} {:entity/class :terrain
-            :entity/cube :cube-1
-            :entity/state :default})
+ (place {:entity/class :terrain
+         :entity/cube :cube-1
+         :entity/state :default}
+        {})
  => {:entity/cube :cube-1
      :object/terrain {:entity/class :terrain
                       :entity/cube :cube-1}})
@@ -34,10 +35,10 @@
 (facts
  "swap"
 
- (swap :object :entity) => :place
+ (swap :entity :object) => :place
 
  (provided
-  (place :object (pickup :entity)) => :place))
+  (place (pickup :entity) :object) => :place))
 
 
 (facts

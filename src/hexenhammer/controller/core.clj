@@ -56,13 +56,11 @@
 (defn add-unit
   [state player facing {:keys [M Ld]}]
   (let [cube (:game/selected state)
-        terrain (get-in state [:game/battlefield cube])
         prev-id (or (get-in state [:game/units player "infantry" :counter]) 0)
         next-id (inc prev-id)
         unit (-> (me/gen-infantry cube player next-id facing :M M :Ld Ld)
-                 (assoc :entity/state :selectable)
-                 (lt/place terrain))]
-    (-> (assoc-in state [:game/battlefield cube] unit)
+                 (assoc :entity/state :selectable))]
+    (-> (update-in state [:game/battlefield cube] lt/swap unit)
         (assoc-in [:game/units player "infantry" :cubes next-id] cube)
         (assoc-in [:game/units player "infantry" :counter] next-id)
         (unselect))))
@@ -70,12 +68,11 @@
 
 (defn remove-unit
   [state]
-  (let [cube (:game/selected state)
-        unit (get-in state [:game/battlefield cube])
-        terrain (-> (lt/pickup unit)
-                    (assoc :entity/state :selectable))]
-    (-> (assoc-in state [:game/battlefield cube] terrain)
-        (update-in [:game/units (:unit/player unit) (:entity/name unit) :cubes] dissoc (:unit/id unit))
+  (let [unit-cube (:game/selected state)
+        {:keys [unit/player entity/name unit/id]} (get-in state [:game/battlefield unit-cube])]
+    (-> (update state :game/battlefield lu/remove-unit unit-cube)
+        (assoc-in [:game/battlefield unit-cube :entity/state] :selectable)
+        (update-in [:game/units player name :cubes] dissoc id)
         (unselect))))
 
 
@@ -87,7 +84,7 @@
                       :open (me/gen-open-ground cube)
                       :dangerous (me/gen-dangerous-terrain cube)
                       :impassable (me/gen-impassable-terrain cube))
-        new-entity (if (le/terrain? entity) new-terrain (lt/place entity new-terrain))]
+        new-entity (if (le/terrain? entity) new-terrain (lt/place new-terrain entity))]
     (-> (assoc-in state [:game/battlefield cube] new-entity)
         (unselect))))
 

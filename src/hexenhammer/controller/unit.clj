@@ -18,7 +18,7 @@
   [state unit-cube]
   (let [{:keys [unit/player entity/name unit/id]} (get-in state [:game/battlefield unit-cube])]
     (-> (update-in state [:game/units player name :cubes] dissoc id)
-        (update-in [:game/battlefield unit-cube] lt/pickup))))
+        (update :game/battlefield lu/remove-unit unit-cube))))
 
 
 (defn damage-unit
