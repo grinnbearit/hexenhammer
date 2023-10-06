@@ -8,8 +8,11 @@
  "place"
 
  (place {} {:entity/class :terrain
+            :entity/cube :cube-1
             :entity/state :default})
- => {:object/terrain {:entity/class :terrain}})
+ => {:entity/cube :cube-1
+     :object/terrain {:entity/class :terrain
+                      :entity/cube :cube-1}})
 
 
 (facts

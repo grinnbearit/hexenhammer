@@ -3,11 +3,13 @@
 
 
 (defn place
-  "Places an object entity onto a terrain entity
-  removes it's entity/state since it's no longer relevant"
+  "Places an object entity onto a terrain entity, updating the entity/cube for the placed object
+  resets the entity state of the terrain but keeps all other keys"
   [object terrain]
-  (->> (dissoc terrain :entity/state)
-       (assoc object :object/terrain)))
+  (let [cube (:entity/cube terrain)]
+    (assoc object
+           :entity/cube cube
+           :object/terrain (dissoc terrain :entity/state))))
 
 
 (defn pickup
