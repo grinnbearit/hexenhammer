@@ -15,34 +15,34 @@
 
 
 (defn destroy-unit
-  [state unit]
-  (-> (update-in state [:game/units (:unit/player unit) (:entity/name unit) :cubes] dissoc
-                 (:unit/id unit))
-      (update-in [:game/battlefield (:entity/cube unit)] lt/pickup)))
+  [state unit-cube]
+  (let [{:keys [unit/player entity/name unit/id]} (get-in state [:game/battlefield unit-cube])]
+    (-> (update-in state [:game/units player name :cubes] dissoc id)
+        (update-in [:game/battlefield unit-cube] lt/pickup))))
 
 
 (defn damage-unit
-  [state source unit damage]
-  (let [unit-cube (:entity/cube unit)
+  [state unit-cube source-cube damage]
+  (let [unit (get-in state [:game/battlefield unit-cube])
         damaged-unit (lu/damage-unit unit damage)
         damaged-bf (assoc (:game/battlefield state) unit-cube damaged-unit)]
     (cond-> (assoc state :game/battlefield damaged-bf)
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/heavy-casualties source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/heavy-casualties source-cube (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
 
 
 (defn destroy-models
-  [state source unit models]
-  (let [unit-cube (:entity/cube unit)
+  [state unit-cube source-cube models]
+  (let [unit (get-in state [:game/battlefield unit-cube])
         damaged-unit (lu/destroy-models unit models)
         damaged-bf (assoc (:game/battlefield state) unit-cube damaged-unit)]
     (cond-> (assoc state :game/battlefield damaged-bf)
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/heavy-casualties source (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/heavy-casualties source-cube (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
 
 
 (defn move-unit

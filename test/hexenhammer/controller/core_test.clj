@@ -288,7 +288,7 @@
     (cd/roll! 3) => :roll
     (cd/matches :roll 1) => 3
 
-    (cu/destroy-unit state unit) => {}
+    (cu/destroy-unit state :cube-2) => {}
 
     (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
                                           :unit-destroyed? true
@@ -319,7 +319,7 @@
     (cd/roll! 4) => :roll
     (cd/matches :roll 1) => 3
 
-    (cu/destroy-models state :cube-1 unit 3) => {}
+    (cu/destroy-models state :cube-2 :cube-1 3) => {}
 
     (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
                                           :unit-destroyed? false
@@ -1197,7 +1197,7 @@
         :edge? true
         :events [:event-1]}
 
-    (cu/destroy-unit state :unit)
+    (cu/destroy-unit state :cube-2)
     => {:game/events []}
 
     (cb/refresh-battlemap {:game/events [:event-1]

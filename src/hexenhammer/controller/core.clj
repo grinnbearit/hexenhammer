@@ -118,8 +118,8 @@
             models-destroyed (cd/matches roll 1)
             unit-destroyed? (<= models models-destroyed)]
         (-> (if unit-destroyed?
-              (cu/destroy-unit state unit)
-              (cu/destroy-models state cube unit models-destroyed))
+              (cu/destroy-unit state unit-cube)
+              (cu/destroy-models state unit-cube cube models-destroyed))
             (update :game/trigger assoc
                     :unit unit
                     :models-destroyed models-destroyed
@@ -411,7 +411,7 @@
                                                            trigger-cube
                                                            (apply + roll))]
     (-> (if edge?
-          (cu/destroy-unit state unit)
+          (cu/destroy-unit state unit-cube)
           (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :fleeing?] true)
               (update :game/battlefield cu/move-unit unit-cube end)))
         (update :game/events into events)

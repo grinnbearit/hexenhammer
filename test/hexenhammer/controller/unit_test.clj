@@ -34,7 +34,7 @@
 
    (destroy-unit {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                   :game/battlefield {:cube-1 unit}}
-                 unit)
+                 :cube-1)
    => {:game/units {1 {"unit" {:cubes {}}}}
        :game/battlefield {:cube-1 :terrain}}
 
@@ -45,57 +45,63 @@
 (facts
  "damage unit"
 
- (let [unit {:entity/cube :cube-1}]
+ (let [state {:game/battlefield {:cube-2 :unit-1}}]
 
-   (damage-unit {:game/battlefield {:cube-1 unit}} :cube-2 unit 2)
-   => {:game/battlefield {:cube-1 :unit-2}}
+   (damage-unit state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}}
 
    (provided
-    (lu/damage-unit unit 2) => :unit-2
-    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => false))
+    (lu/damage-unit :unit-1 2) => :unit-2
+    (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => false))
 
 
- (let [unit {:entity/cube :cube-1
+ (let [unit {:entity/cube :cube-2
              :unit/player 1
              :entity/name "unit"
-             :unit/id 2}]
+             :unit/id 2}
 
-   (damage-unit {:game/battlefield {:cube-1 unit} :game/events []} :cube-2 unit 2)
-   => {:game/battlefield {:cube-1 :unit-2}
-       :game/events [:panic]}
+       state {:game/battlefield {:cube-2 unit}
+              :game/events []}]
+
+   (damage-unit state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}
+       :game/events [:heavy-casualties]}
 
    (provided
     (lu/damage-unit unit 2) => :unit-2
-    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
-    (mv/heavy-casualties :cube-2 1 "unit" 2) => :panic)))
+    (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
+    (mv/heavy-casualties :cube-1 1 "unit" 2) => :heavy-casualties)))
 
 
 (facts
  "destroy models"
 
- (let [unit {:entity/cube :cube-1}]
+ (let [state {:game/battlefield {:cube-2 :unit-1}}]
 
-   (destroy-models {:game/battlefield {:cube-1 unit}} :cube-2 unit 2)
-   => {:game/battlefield {:cube-1 :unit-2}}
+   (destroy-models state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}}
 
    (provided
-    (lu/destroy-models unit 2) => :unit-2
-    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => false))
+    (lu/destroy-models :unit-1 2) => :unit-2
+    (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => false))
 
 
- (let [unit {:entity/cube :cube-1
+ (let [unit {:entity/cube :cube-2
              :unit/player 1
              :entity/name "unit"
-             :unit/id 2}]
+             :unit/id 2}
 
-   (destroy-models {:game/battlefield {:cube-1 unit} :game/events []} :cube-2 unit 2)
-   => {:game/battlefield {:cube-1 :unit-2}
-       :game/events [:panic]}
+       state {:game/battlefield {:cube-2 unit}
+              :game/events []}]
+
+   (destroy-models state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}
+       :game/events [:heavy-casualties]}
 
    (provided
     (lu/destroy-models unit 2) => :unit-2
-    (lu/heavy-casualties? {:cube-1 :unit-2} :cube-1) => true
-    (mv/heavy-casualties :cube-2 1 "unit" 2) => :panic)))
+    (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
+    (mv/heavy-casualties :cube-1 1 "unit" 2) => :heavy-casualties)))
 
 
 (facts
