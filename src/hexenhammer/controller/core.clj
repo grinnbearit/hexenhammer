@@ -127,6 +127,25 @@
       (trigger state))))
 
 
+(defmethod trigger-event :opportunity-attack
+  [state event]
+  (let [{:keys [event/cube unit/player entity/name unit/id event/wounds]} event]
+    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+      (let [unit (get-in state [:game/battlefield unit-cube])
+            unit-wounds (mu/wounds unit)
+            unit-destroyed? (<= unit-wounds wounds)]
+        (-> (if unit-destroyed?
+              (cu/destroy-unit state unit-cube)
+              (cu/damage-unit state unit-cube cube wounds))
+            (update :game/trigger assoc
+                    :unit unit
+                    :wounds wounds
+                    :unit-destroyed? unit-destroyed?)
+            (cb/refresh-battlemap [cube unit-cube])
+            (update :game/battlemap l/set-state [cube unit-cube] :marked)))
+      (trigger state))))
+
+
 (defmethod trigger-event :heavy-casualties
   [state event]
   (let [{:keys [event/cube unit/player entity/name unit/id]} event]

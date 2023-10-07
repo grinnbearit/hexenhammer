@@ -152,6 +152,26 @@
          [:input {:type "submit" :value "Next"}]]]]])))
 
 
+(defmethod render [:opportunity-attack :start]
+  [state]
+  (let [{:keys [unit-destroyed? unit wounds]} (:game/trigger state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Opportunity Attack"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state) [:br] [:br]
+        (vw/render-profile unit) [:br]
+        (vw/render-events (:game/events state)) [:br]
+        (if unit-destroyed?
+          [:h3 (str (vw/unit-str unit) " destroyed")]
+          [:h3 (format "%d Wounds Taken" wounds)])
+        [:form {:action "/trigger/next" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
+
+
 (defmethod render [:heavy-casualties :passed]
   [state]
   (let [{:keys [roll unit-cube]} (:game/trigger state)

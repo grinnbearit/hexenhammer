@@ -58,6 +58,9 @@
          :dangerous
          [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td (unit-str event)]]
 
+         :opportunity-attack
+         [:tr [:td (inc index)] [:td "Opportunity Attack"] [:td (unit-str event)]]
+
          :heavy-casualties
          [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (unit-str event)]]))]))
 

@@ -334,6 +334,79 @@
 
 
 (facts
+ "trigger event opportunity-attack"
+
+ (let [state {:game/phase :opportunity-attack
+              :game/units 1 :cubes {}}]
+
+   (trigger-event state {:unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2})
+   => :trigger
+
+   (provided
+    (trigger state) => :trigger))
+
+
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}
+
+       state {:game/phase :opportunity-attack
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+              :game/battlefield {:cube-2 unit}}]
+
+   (trigger-event state {:event/cube :cube-1
+                         :unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2
+                         :event/wounds 4})
+   => {:game/battlemap :set-state}
+
+   (provided
+    (mu/wounds unit) => 3
+
+    (cu/destroy-unit state :cube-2) => {}
+
+    (cb/refresh-battlemap {:game/trigger {:wounds 4
+                                          :unit-destroyed? true
+                                          :unit unit}}
+                          [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap}
+
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state))
+
+
+ (let [unit {:unit/player 1
+             :entity/name "unit"
+             :unit/id 2}
+
+       state {:game/phase :opportunity-attack
+              :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
+              :game/battlefield {:cube-2 unit}}]
+
+   (trigger-event state {:event/cube :cube-1
+                         :unit/player 1
+                         :entity/name "unit"
+                         :unit/id 2
+                         :event/wounds 2})
+   => {:game/battlemap :set-state}
+
+   (provided
+    (mu/wounds unit) => 3
+
+    (cu/damage-unit state :cube-2 :cube-1 2) => {}
+
+    (cb/refresh-battlemap {:game/trigger {:wounds 2
+                                          :unit-destroyed? false
+                                          :unit unit}}
+                          [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap}
+
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state)))
+
+
+(facts
  "trigger event heavy casualties"
 
  (let [unit {:unit/player 1
