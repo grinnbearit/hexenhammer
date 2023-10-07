@@ -113,11 +113,11 @@
                              :entity/name "unit"
                              :unit/id 2}}]
 
-   (move-unit {:units {1 {"unit" {2 :cube-1}}}
+   (move-unit {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}
                :game/battlefield battlefield}
               :cube-1
               pointer)
-   => {:units {1 {"unit" {2 :cube-2}}}
+   => {:game/units {1 {"unit" {:cubes {2 :cube-2}}}}
        :game/battlefield :battlefield-2}
 
    (provided
