@@ -54,11 +54,11 @@
 
 
 (defn add-unit
-  [state player facing {:keys [M Ld]}]
+  [state player facing {:keys [M Ld R]}]
   (let [cube (:game/selected state)
         prev-id (or (get-in state [:game/units player "infantry" :counter]) 0)
         next-id (inc prev-id)
-        unit (-> (me/gen-infantry cube player next-id facing :M M :Ld Ld)
+        unit (-> (me/gen-infantry cube player next-id facing :M M :Ld Ld :R R)
                  (assoc :entity/state :selectable))]
     (-> (update-in state [:game/battlefield cube] lt/swap unit)
         (assoc-in [:game/units player "infantry" :cubes next-id] cube)

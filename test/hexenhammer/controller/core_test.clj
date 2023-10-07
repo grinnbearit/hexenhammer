@@ -112,11 +112,11 @@
             :game/battlefield {:cube-1 :terrain-1}}
            1
            :facing-1
-           {:M 3 :Ld 7})
+           {:M 3 :Ld 7 :R 4})
  => :unselect
 
  (provided
-  (me/gen-infantry :cube-1 1 1 :facing-1 :M 3 :Ld 7)
+  (me/gen-infantry :cube-1 1 1 :facing-1 :M 3 :Ld 7 :R 4)
   => {:entity/class :unit}
 
   (lt/swap :terrain-1

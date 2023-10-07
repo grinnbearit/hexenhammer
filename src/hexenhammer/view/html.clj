@@ -61,11 +61,13 @@
            [:table
             [:thead
              [:th [:label {:for "M"} "M"]]
-             [:th [:label {:for "Ld"} "Ld"]]]
+             [:th [:label {:for "Ld"} "Ld"]]
+             [:th [:label {:for "R"} "R"]]]
             [:tbody
              [:tr
               [:td [:input {:type "number" :id "M" :name "M" :min 1 :max 10 :step 1 :value 4}]]
-              [:td [:input {:type "number" :id "Ld" :name "Ld" :min 1 :max 10 :step 1 :value 7}]]]]]]]]
+              [:td [:input {:type "number" :id "Ld" :name "Ld" :min 1 :max 10 :step 1 :value 7}]]
+              [:td [:input {:type "number" :id "R" :name "R" :min 1 :max 4 :step 1 :value 4}]]]]]]]]
 
         (cond-> [:input {:type "submit" :value "Add Unit"}]
 

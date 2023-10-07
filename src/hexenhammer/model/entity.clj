@@ -31,8 +31,8 @@
 (defn gen-infantry
   "Returns a generic infantry entity"
   [cube player id facing
-   & {:keys [M Ld]
-      :or {M 4 Ld 7}}]
+   & {:keys [M Ld R]
+      :or {M 4 Ld 7 R 4}}]
   {:entity/class :unit
    :entity/name "infantry"
    :entity/cube cube
@@ -46,9 +46,9 @@
    :unit/Ld Ld
    :unit/W 1
    :unit/F 4
-   :unit/R 4
+   :unit/R R
    :unit/model-strength 1
-   :unit/ranks 4
+   :unit/ranks R
    :unit/damage 0})
 
 

@@ -65,7 +65,7 @@
      :unit/damage 0}
 
  (gen-infantry :cube-1 :player-1 :id-1 :facing-1
-               :M 3 :Ld 8)
+               :M 3 :Ld 8 :R 1)
  => {:entity/class :unit
      :entity/name "infantry"
      :entity/cube :cube-1
@@ -79,9 +79,9 @@
      :unit/Ld 8
      :unit/W 1
      :unit/F 4
-     :unit/R 4
+     :unit/R 1
      :unit/model-strength 1
-     :unit/ranks 4
+     :unit/ranks 1
      :unit/damage 0})
 
 
