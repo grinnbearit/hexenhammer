@@ -21,23 +21,31 @@
 
  (select {:game/phase :setup
           :game/subphase :select-hex
-          :game/battlefield {:cube-1 {:entity/class :terrain}}}
+          :game/battlefield {:cube-1 {:entity/class :terrain}}
+          :game/battlemap :battlemap-1}
          :cube-1)
  => {:game/phase :setup
      :game/subphase :add-unit
      :game/selected :cube-1
-     :game/battlefield {:cube-1 {:entity/class :terrain
-                                 :entity/state :selected}}}
+     :game/battlefield {:cube-1 {:entity/class :terrain}}
+     :game/battlemap :battlemap-2}
+
+ (provided
+  (l/set-state :battlemap-1 [:cube-1] :selected) => :battlemap-2)
 
  (select {:game/phase :setup
           :game/subphase :select-hex
-          :game/battlefield {:cube-1 {:entity/class :unit}}}
+          :game/battlefield {:cube-1 {:entity/class :unit}}
+          :game/battlemap :battlemap-1}
          :cube-1)
  => {:game/phase :setup
      :game/subphase :remove-unit
      :game/selected :cube-1
-     :game/battlefield {:cube-1 {:entity/class :unit
-                                 :entity/state :selected}}})
+     :game/battlefield {:cube-1 {:entity/class :unit}}
+     :game/battlemap :battlemap-2}
+
+ (provided
+  (l/set-state :battlemap-1 [:cube-1] :selected) => :battlemap-2))
 
 
 (facts
@@ -45,64 +53,67 @@
 
  (unselect {:game/phase :setup
             :game/selected :cube-1
-            :game/battlefield {:cube-1 {:entity/state :selected}}})
+            :game/battlemap :battlemap-1})
  => {:game/phase :setup
      :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/state :silent-selectable}}})
+     :game/battlemap :battlemap-2}
+
+ (provided
+  (l/set-state :battlemap-1 [:cube-1] :silent-selectable) => :battlemap-2))
 
 
 (facts
  "select setup add unit"
 
- (select {:game/phase :setup
-          :game/subphase :add-unit
-          :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/state :selected}}}
-         :cube-1)
- => {:game/phase :setup
-     :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/state :silent-selectable}}}
+ (let [state {:game/phase :setup
+              :game/subphase :add-unit
+              :game/selected :cube-1}]
 
+   (select state :cube-1)
+   => :unselect
 
- (select {:game/phase :setup
-          :game/subphase :add-unit
-          :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/state :selected}
-                             :cube-2 {:entity/class :terrain}}}
-         :cube-2)
- => {:game/phase :setup
-     :game/subphase :add-unit
-     :game/selected :cube-2
-     :game/battlefield {:cube-1 {:entity/state :silent-selectable}
-                        :cube-2 {:entity/class :terrain
-                                 :entity/state :selected}}})
+   (provided
+    (unselect state) => :unselect))
+
+ (let [state-1 {:game/phase :setup
+                :game/subphase :add-unit
+                :game/selected :cube-1}
+
+       state-2 (assoc state-1 :game/selected :cube-2)]
+
+   (select state-1 :cube-2)
+   => :unselect
+
+   (provided
+    (unselect state-1) => state-2
+    (unselect state-2) => :unselect)))
 
 
 (facts
  "select setup remove unit"
 
- (select {:game/phase :setup
-          :game/subphase :remove-unit
-          :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/state :selected}}}
-         :cube-1)
- => {:game/phase :setup
-     :game/subphase :select-hex
-     :game/battlefield {:cube-1 {:entity/state :silent-selectable}}}
+ (let [state {:game/phase :setup
+              :game/subphase :remove-unit
+              :game/selected :cube-1}]
 
+   (select state :cube-1)
+   => :unselect
 
- (select {:game/phase :setup
-          :game/subphase :remove-unit
-          :game/selected :cube-1
-          :game/battlefield {:cube-1 {:entity/state :selected}
-                             :cube-2 {:entity/class :terrain}}}
-         :cube-2)
- => {:game/phase :setup
-     :game/subphase :add-unit
-     :game/selected :cube-2
-     :game/battlefield {:cube-1 {:entity/state :silent-selectable}
-                        :cube-2 {:entity/class :terrain
-                                 :entity/state :selected}}})
+   (provided
+    (unselect state) => :unselect))
+
+ (let [state-1 {:game/phase :setup
+                :game/subphase :remove-unit
+                :game/selected :cube-1}
+
+       state-2 (assoc state-1 :game/selected :cube-2)]
+
+   (select state-1 :cube-2)
+   => :unselect
+
+   (provided
+    (unselect state-1) => state-2
+    (unselect state-2) => :unselect)))
 
 
 (facts
@@ -117,16 +128,21 @@
 
  (provided
   (me/gen-infantry :cube-1 1 1 :facing-1 :M 3 :Ld 7 :R 4)
-  => {:entity/class :unit}
+  => :unit-1
 
-  (lt/swap :terrain-1
-           {:entity/class :unit
-            :entity/state :selectable})
-  => :place
+  (lt/swap :terrain-1 :unit-1)
+  => :swap
 
-  (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :place}
-             :game/units {1 {"infantry" {:counter 1 :cubes {1 :cube-1}}}}})
+  (cb/refresh-battlemap {:game/selected :cube-1
+                         :game/battlefield {:cube-1 :swap}
+                         :game/units {1 {"infantry" {:counter 1 :cubes {1 :cube-1}}}}}
+                        [:cube-1])
+  => {:game/battlemap :battlemap-1}
+
+  (l/set-state :battlemap-1 [:cube-1] :selectable)
+  => :battlemap-2
+
+  (unselect {:game/battlemap :battlemap-2})
   => :unselect))
 
 
@@ -146,12 +162,18 @@
 
    (provided
 
-    (lu/remove-unit battlefield :cube-1) => {:cube-1 {:entity/class :terrain}}
+    (lu/remove-unit battlefield :cube-1) => {:cube-1 :terrain}
 
-    (unselect {:game/selected :cube-1
-               :game/battlefield {:cube-1 {:entity/class :terrain
-                                           :entity/state :selectable}}
-               :game/units {1 {"unit" {:counter 1 :cubes {}}}}})
+    (cb/refresh-battlemap {:game/selected :cube-1
+                           :game/battlefield {:cube-1 :terrain}
+                           :game/units {1 {"unit" {:counter 1 :cubes {}}}}}
+                          [:cube-1])
+    => {:game/battlemap :battlemap-1}
+
+    (l/set-state :battlemap-1 [:cube-1] :selectable)
+    => :battlemap-2
+
+    (unselect {:game/battlemap :battlemap-2})
     => :unselect)))
 
 
@@ -507,38 +529,64 @@
 
 
 (facts
- "to charge"
+ "reset charge"
 
  (let [state {:game/player 1
-              :game/battlefield :battlefield-1
-              :game/units :units-1}]
+              :game/battlefield :battlefield-1}]
 
-   (to-charge state)
-   => {:game/player 1
-       :game/phase :charge
-       :game/subphase :select-hex
-       :game/battlefield :battlefield-4
-       :game/units :units-1}
+   (reset-charge state)
+   => {:game/battlemap :battlemap-2}
 
    (provided
-    (cu/unit-cubes state) => [:cube-1 :cube-2 :cube-3]
     (cu/unit-cubes state 1) => [:cube-1 :cube-2]
-    (lu/phase-reset :battlefield-1 [:cube-1 :cube-2 :cube-3]) => :battlefield-2
     (lm/charger? :battlefield-1 :cube-1) => true
     (lm/charger? :battlefield-1 :cube-2) => false
-    (l/set-state :battlefield-2 :default) => :battlefield-3
-    (l/set-state :battlefield-3 [:cube-1] :selectable) => :battlefield-4)))
+
+    (cb/refresh-battlemap {:game/player 1
+                           :game/battlefield :battlefield-1
+                           :game/phase :charge
+                           :game/subphase :select-hex
+                           :game/charge {:chargers [:cube-1]}}
+                          [:cube-1])
+    => {:game/battlemap :battlemap-1}
+
+    (l/set-state :battlemap-1 [:cube-1] :selectable)
+    => :battlemap-2)))
+
+
+(facts
+ "to charge"
+
+ (let [state {:game/battlefield :battlefield-1}]
+
+   (to-charge state)
+   => :reset-charge
+
+   (provided
+    (cu/unit-cubes state) => [:cube-1]
+    (lu/phase-reset :battlefield-1 [:cube-1]) => :battlefield-2
+    (reset-charge {:game/battlefield :battlefield-2}) => :reset-charge)))
 
 
 (facts
  "unselect charge"
 
  (unselect {:game/phase :charge
+            :game/charge {:chargers [:cube-1]}
             :game/selected :cube-1
             :game/battlemap :battlemap-1})
 
- => {:game/phase :charge
-     :game/subphase :select-hex})
+ => {:game/battlemap :battlemap-3}
+
+ (provided
+  (cb/refresh-battlemap {:game/phase :charge
+                         :game/charge {:chargers [:cube-1]}
+                         :game/subphase :select-hex}
+                        [:cube-1])
+  => {:game/battlemap :battlemap-2}
+
+  (l/set-state :battlemap-2 [:cube-1] :selectable)
+  => :battlemap-3))
 
 
 (facts

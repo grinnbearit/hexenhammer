@@ -24,7 +24,7 @@
 
     (-> (assoc state :game/subphase to-subphase)
         (assoc :game/selected cube)
-        (assoc-in [:game/battlefield cube :entity/state] :selected))))
+        (update :game/battlemap l/set-state [cube] :selected))))
 
 
 (defmulti unselect (fn [state] (:game/phase state)))
@@ -32,9 +32,10 @@
 
 (defmethod unselect :setup
   [state]
-  (-> (assoc state :game/subphase :select-hex)
-      (assoc-in [:game/battlefield (:game/selected state) :entity/state] :silent-selectable)
-      (dissoc :game/selected)))
+  (let [cube (:game/selected state)]
+    (-> (assoc state :game/subphase :select-hex)
+        (update :game/battlemap l/set-state [cube] :silent-selectable)
+        (dissoc :game/selected))))
 
 
 (defmethod select [:setup :add-unit]
@@ -58,11 +59,12 @@
   (let [cube (:game/selected state)
         prev-id (or (get-in state [:game/units player "infantry" :counter]) 0)
         next-id (inc prev-id)
-        unit (-> (me/gen-infantry cube player next-id facing :M M :Ld Ld :R R)
-                 (assoc :entity/state :selectable))]
+        unit (me/gen-infantry cube player next-id facing :M M :Ld Ld :R R)]
     (-> (update-in state [:game/battlefield cube] lt/swap unit)
         (assoc-in [:game/units player "infantry" :cubes next-id] cube)
         (assoc-in [:game/units player "infantry" :counter] next-id)
+        (cb/refresh-battlemap [cube])
+        (update :game/battlemap l/set-state [cube] :selectable)
         (unselect))))
 
 
@@ -71,8 +73,9 @@
   (let [unit-cube (:game/selected state)
         {:keys [unit/player entity/name unit/id]} (get-in state [:game/battlefield unit-cube])]
     (-> (update state :game/battlefield lu/remove-unit unit-cube)
-        (assoc-in [:game/battlefield unit-cube :entity/state] :selectable)
         (update-in [:game/units player name :cubes] dissoc id)
+        (cb/refresh-battlemap [unit-cube])
+        (update :game/battlemap l/set-state [unit-cube] :selectable)
         (unselect))))
 
 
@@ -168,24 +171,33 @@
       (trigger state))))
 
 
-(defn to-charge
+(defn reset-charge
   [{:keys [game/player game/battlefield] :as state}]
-  (let [unit-cubes (cu/unit-cubes state)
-        player-cubes (cu/unit-cubes state player)
+  (let [player-cubes (cu/unit-cubes state player)
         charger-cubes (filter #(lm/charger? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :charge
-               :game/subphase :select-hex)
-        (update :game/battlefield lu/phase-reset unit-cubes)
-        (update :game/battlefield l/set-state :default)
-        (update :game/battlefield l/set-state charger-cubes :selectable))))
+               :game/subphase :select-hex
+               :game/charge {:chargers charger-cubes})
+        (cb/refresh-battlemap charger-cubes)
+        (update :game/battlemap l/set-state charger-cubes :selectable))))
+
+
+(defn to-charge
+  [state]
+  (let [unit-cubes (cu/unit-cubes state)]
+    (-> (update state :game/battlefield lu/phase-reset unit-cubes)
+        (reset-charge))))
 
 
 (defmethod unselect :charge
   [state]
-  (-> (assoc state :game/subphase :select-hex)
-      (dissoc :game/selected
-              :game/battlemap)))
+  (let [charger-cubes (get-in state [:game/charge :chargers])]
+    (-> (assoc state :game/subphase :select-hex)
+        (dissoc :game/selected
+                :game/battlemap)
+        (cb/refresh-battlemap charger-cubes)
+        (update :game/battlemap l/set-state charger-cubes :selectable))))
 
 
 (defmethod select [:charge :select-hex]

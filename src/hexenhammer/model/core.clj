@@ -19,16 +19,16 @@
 (defn gen-initial-state
   "Returns the initial hexenhammer state given a list of rows and columns"
   [rows columns]
-  {:game/phase :setup
-   :game/subphase :select-hex
-   :game/player 1
-   :game/rows rows
-   :game/columns columns
-   :game/battlefield (->> (for [cube (gen-battlefield-cubes rows columns)]
-                            [cube (assoc (entity/gen-open-ground cube)
-                                         :entity/state :silent-selectable)])
-                          (into {}))
-   :game/events (clojure.lang.PersistentQueue/EMPTY)})
+  (let [battlefield (let [cubes (gen-battlefield-cubes rows columns)]
+                      (zipmap cubes (map #(entity/gen-open-ground %) cubes)))]
+    {:game/phase :setup
+     :game/subphase :select-hex
+     :game/player 1
+     :game/rows rows
+     :game/columns columns
+     :game/battlefield battlefield
+     :game/battlemap (update-vals battlefield #(assoc % :entity/state :silent-selectable))
+     :game/events (clojure.lang.PersistentQueue/EMPTY)}))
 
 
 (defn M->hexes

@@ -36,14 +36,18 @@
      :game/player 1
      :game/rows 3
      :game/columns 4
-     :game/battlefield {:cube-1 {:entity/state :silent-selectable}
-                        :cube-2 {:entity/state :silent-selectable}}
+     :game/battlefield {:cube-1 {:entity/cube :cube-1}
+                      :cube-2 {:entity/cube :cube-2}}
+     :game/battlemap {:cube-1 {:entity/cube :cube-1
+                               :entity/state :silent-selectable}
+                      :cube-2 {:entity/cube :cube-2
+                               :entity/state :silent-selectable}}
      :game/events []}
 
  (provided
   (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]
-  (entity/gen-open-ground :cube-1) => {}
-  (entity/gen-open-ground :cube-2) => {}))
+  (entity/gen-open-ground :cube-1) => {:entity/cube :cube-1}
+  (entity/gen-open-ground :cube-2) => {:entity/cube :cube-2}))
 
 
 (facts
