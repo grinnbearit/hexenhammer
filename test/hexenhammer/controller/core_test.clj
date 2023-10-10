@@ -190,8 +190,12 @@
 
   (le/terrain? :entity-1) => true
 
-  (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :open-terrain}})
+  (cb/refresh-battlemap {:game/selected :cube-1
+                         :game/battlefield {:cube-1 :open-terrain}}
+                        [:cube-1])
+  => :refresh-battlemap
+
+  (unselect :refresh-battlemap)
   => :unselect)
 
 
@@ -205,8 +209,12 @@
 
   (le/terrain? :entity-1) => true
 
-  (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :dangerous-terrain}})
+  (cb/refresh-battlemap {:game/selected :cube-1
+                         :game/battlefield {:cube-1 :dangerous-terrain}}
+                        [:cube-1])
+  => :refresh-battlemap
+
+  (unselect :refresh-battlemap)
   => :unselect)
 
 
@@ -220,8 +228,12 @@
 
   (le/terrain? :entity-1) => true
 
-  (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :impassable-terrain}})
+  (cb/refresh-battlemap {:game/selected :cube-1
+                         :game/battlefield {:cube-1 :impassable-terrain}}
+                        [:cube-1])
+  => :refresh-battlemap
+
+  (unselect :refresh-battlemap)
   => :unselect)
 
 
@@ -237,43 +249,43 @@
 
   (lt/place :open-terrain :entity-1) => :entity-2
 
-  (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 :entity-2}})
+  (cb/refresh-battlemap {:game/selected :cube-1
+                         :game/battlefield {:cube-1 :entity-2}}
+                        [:cube-1])
+  => :refresh-battlemap
+
+  (unselect :refresh-battlemap)
   => :unselect))
 
 
 (facts
  "trigger"
 
- (trigger {:game/events []})
- => {}
+ (let [callback (fn [state] (assoc state :game/battlemap :battlemap-2))]
+
+   (trigger {:game/phase :main
+             :game/subphase :sub
+             :game/events []
+             :game/trigger {:callback callback}
+             :game/battlemap :battlemap-1}))
+ => {:game/events []
+     :game/battlemap :battlemap-2}
+
+
+ (trigger {:game/events [{:event/class :event-1}
+                         {:event/class :event-2}]
+           :game/trigger {:event {}
+                          :callback :callback}
+           :game/battlemap :battlemap})
+ => :trigger-event
 
  (provided
-  (ce/pop-phase {:game/events []})
-  => {:game/battlemap :battlemap-1})
-
-
- (let [state {:game/events [:event-2 :event-1]
-              :game/battlefield :battlefield-1}]
-
-
-   (trigger state)
-   => :trigger-event
-
-   (provided
-    (ce/push-phase state)
-    => state
-
-    (l/set-state :battlefield-1 :default) => :battlefield-2
-
-    (ce/event-transition {:game/events [:event-2]
-                          :game/battlefield :battlefield-1
-                          :game/battlemap :battlefield-2}
-                         :event-1)
-    => :event-transition
-
-    (trigger-event :event-transition :event-1)
-    => :trigger-event)))
+  (trigger-event {:game/phase :event-2
+                  :game/subphase :start
+                  :game/events [{:event/class :event-1}]
+                  :game/trigger {:callback :callback}}
+                 {:event/class :event-2})
+  => :trigger-event))
 
 
 (facts
@@ -314,10 +326,10 @@
 
     (cu/destroy-unit state :cube-2) => {}
 
-    (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
-                                          :unit-destroyed? true
-                                          :roll :roll
-                                          :unit unit}}
+    (cb/refresh-battlemap {:game/trigger {:event {:models-destroyed 3
+                                                  :unit-destroyed? true
+                                                  :roll :roll
+                                                  :unit unit}}}
                           [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
@@ -345,10 +357,10 @@
 
     (cu/destroy-models state :cube-2 :cube-1 3) => {}
 
-    (cb/refresh-battlemap {:game/trigger {:models-destroyed 3
-                                          :unit-destroyed? false
-                                          :roll :roll
-                                          :unit unit}}
+    (cb/refresh-battlemap {:game/trigger {:event {:models-destroyed 3
+                                                  :unit-destroyed? false
+                                                  :roll :roll
+                                                  :unit unit}}}
                           [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
@@ -390,9 +402,9 @@
 
     (cu/destroy-unit state :cube-2) => {}
 
-    (cb/refresh-battlemap {:game/trigger {:wounds 4
-                                          :unit-destroyed? true
-                                          :unit unit}}
+    (cb/refresh-battlemap {:game/trigger {:event {:wounds 4
+                                                  :unit-destroyed? true
+                                                  :unit unit}}}
                           [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
@@ -419,9 +431,9 @@
 
     (cu/damage-unit state :cube-2 :cube-1 2) => {}
 
-    (cb/refresh-battlemap {:game/trigger {:wounds 2
-                                          :unit-destroyed? false
-                                          :unit unit}}
+    (cb/refresh-battlemap {:game/trigger {:event {:wounds 2
+                                                  :unit-destroyed? false
+                                                  :unit unit}}}
                           [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
@@ -483,11 +495,11 @@
 
     (cb/refresh-battlemap {:game/phase :heavy-casualties
                            :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
-                           :game/battlefield {:cube-2 (assoc-in unit [:unit/flags :panicked?] true)}
+                           :game/battlefield {:cube-2 (assoc-in unit [:unit/phase :panicked?] true)}
                            :game/subphase :passed
-                           :game/trigger {:trigger-cube :cube-1
-                                          :unit-cube :cube-2
-                                          :roll [1 1]}}
+                           :game/trigger {:event {:trigger-cube :cube-1
+                                                  :unit-cube :cube-2
+                                                  :roll [1 1]}}}
                           [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
@@ -517,11 +529,11 @@
 
     (cb/refresh-battlemap {:game/phase :heavy-casualties
                            :game/units {1 {"unit" {:cubes {2 :cube-2}}}}
-                           :game/battlefield {:cube-2 (assoc-in unit [:unit/flags :panicked?] true)}
+                           :game/battlefield {:cube-2 (assoc-in unit [:unit/phase :panicked?] true)}
                            :game/subphase :failed
-                           :game/trigger {:trigger-cube :cube-1
-                                          :unit-cube :cube-2
-                                          :roll [1 3]}}
+                           :game/trigger {:event {:trigger-cube :cube-1
+                                                  :unit-cube :cube-2
+                                                  :roll [1 3]}}}
                           [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
@@ -546,7 +558,7 @@
                            :game/battlefield :battlefield-1
                            :game/phase :charge
                            :game/subphase :select-hex
-                           :game/charge {:chargers [:cube-1]}}
+                           :game/charge {:chargers #{:cube-1}}}
                           [:cube-1])
     => {:game/battlemap :battlemap-1}
 
@@ -673,18 +685,13 @@
 
 
 (facts
- "to movement"
+ "reset movement"
 
  (let [state {:game/player 1
-              :game/battlefield :battlefield-1
-              :game/units :units-1}]
+              :game/battlefield :battlefield-1}]
 
-   (to-movement state)
-   => {:game/player 1
-       :game/units :units-1
-       :game/phase :movement
-       :game/subphase :select-hex
-       :game/battlefield :battlefield-3}
+   (reset-movement state)
+   => {:game/battlemap :battlemap-2}
 
    (provided
     (cu/unit-cubes state 1) => [:unit-cube-1 :unit-cube-2]
@@ -695,11 +702,26 @@
     (lm/movable? :battlefield-1 :unit-cube-2)
     => false
 
-    (l/set-state :battlefield-1 :default)
-    => :battlefield-2
+    (cb/refresh-battlemap {:game/player 1
+                           :game/battlefield :battlefield-1
+                           :game/phase :movement
+                           :game/subphase :select-hex
+                           :game/movement {:movers #{:unit-cube-1}}}
+                          [:unit-cube-1])
+    => {:game/battlemap :battlemap-1}
 
-    (l/set-state :battlefield-2 [:unit-cube-1] :selectable)
-    => :battlefield-3)))
+    (l/set-state :battlemap-1 [:unit-cube-1] :selectable)
+    => :battlemap-2)))
+
+
+(facts
+ "to movement"
+
+ (to-movement {:game/charge :charge})
+ => :reset-movement
+
+ (provided
+  (reset-movement {}) => :reset-movement))
 
 
 (facts
@@ -732,24 +754,36 @@
  "unselect movement"
 
  (unselect {:game/phase :movement
+            :game/movement {:movers [:cube-1]}
             :game/selected :cube-1
-            :game/battlemap :battlemap-1
-            :game/movement :movement})
- => {:game/phase :movement
-     :game/subphase :select-hex})
+            :game/battlemap :battlemap-1})
+
+ => {:game/battlemap :battlemap-3}
+
+ (provided
+  (cb/refresh-battlemap {:game/phase :movement
+                         :game/movement {:movers [:cube-1]}
+                         :game/subphase :select-hex}
+                        [:cube-1])
+  => {:game/battlemap :battlemap-2}
+
+  (l/set-state :battlemap-2 [:cube-1] :selectable)
+  => :battlemap-3))
 
 
 (facts
  "skip movement"
 
  (skip-movement {:game/selected :cube-1
-                 :game/battlefield {:cube-1 {}}})
+                 :game/battlefield {:cube-1 {}}
+                 :game/movement {:movers #{:cube-1 :cube-2}}})
  => :unselect
 
  (provided
 
   (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 {:entity/state :default}}})
+             :game/battlefield {:cube-1 {:unit/flags {:unmoved? true}}}
+             :game/movement {:movers #{:cube-2}}})
   => :unselect))
 
 
@@ -903,8 +937,7 @@
    (provided
     (cu/move-unit {:game/selected :cube-1
                    :game/battlefield {:cube-1 {:entity/class :unit
-                                               :entity/state :default
-                                               :unit/flags {:marched? false}}}
+                                               :unit/movement {:marched? false}}}
                    :game/movement {:pointer pointer
                                    :pointer->events {pointer [:event-1 :event-2]}}
                    :game/events []}
@@ -915,7 +948,7 @@
     (unselect {:game/events [:event-1 :event-2]})
     => :unselect
 
-    (trigger :unselect)
+    (trigger :unselect reset-movement)
     => :trigger))
 
 
@@ -932,8 +965,7 @@
    (provided
     (cu/move-unit {:game/selected :cube-1
                    :game/battlefield {:cube-1 {:entity/class :unit
-                                               :entity/state :default
-                                               :unit/flags {:marched? true}}}
+                                               :unit/movement {:marched? true}}}
                    :game/movement {:pointer pointer
                                    :pointer->events {pointer []}
                                    :marched? true}
@@ -945,21 +977,23 @@
     (unselect {:game/events []})
     => :unselect
 
-    (trigger :unselect)
+    (trigger :unselect reset-movement)
     => :trigger)))
 
 
 (facts
  "movement transition"
 
- (movement-transition {:game/movement {:pointer :pointer-1}
+ (movement-transition {:game/movement {:pointer :pointer-1
+                                       :movers [:cube-1]}
                        :game/selected :cube-1}
                       :movement-1)
  => [:select :movement-1]
 
  (provided
   (select {:game/subphase :movement-1
-           :game/selected :cube-1}
+           :game/selected :cube-1
+           :game/movement {:movers [:cube-1]}}
           :cube-1)
   => [:select :movement-1]))
 
@@ -1277,15 +1311,15 @@
 
  (let [end (mc/->Pointer :cube-3 :n)
        battlefield {:cube-2 :unit}
-       state {:game/trigger {:trigger-cube :cube-1
-                             :unit-cube :cube-2}
+       state {:game/trigger {:event {:trigger-cube :cube-1
+                                     :unit-cube :cube-2}}
               :game/battlefield battlefield}]
 
    (flee state)
    => {:game/battlemap :battlemap-2
-       :game/trigger {:edge? true
-                      :unit :unit
-                      :roll [2 3]}}
+       :game/trigger {:event {:edge? true
+                              :unit :unit
+                              :roll [2 3]}}}
 
    (provided
     (cd/roll! 2) => [2 3]
@@ -1312,15 +1346,15 @@
  (let [end (mc/->Pointer :cube-3 :n)
        unit {:entity/class :unit}
        battlefield {:cube-2 unit}
-       state {:game/trigger {:trigger-cube :cube-1
-                             :unit-cube :cube-2}
+       state {:game/trigger {:event {:trigger-cube :cube-1
+                                     :unit-cube :cube-2}}
               :game/battlefield battlefield}]
 
    (flee state)
    => {:game/battlemap :battlemap-3
-       :game/trigger {:edge? false
-                      :unit unit
-                      :roll [2 3]}}
+       :game/trigger {:event {:edge? false
+                              :unit unit
+                              :roll [2 3]}}}
 
    (provided
     (cd/roll! 2) => [2 3]
@@ -1331,10 +1365,10 @@
         :edge? false
         :events [:event-1]}
 
-    (cu/move-unit {:game/trigger {:trigger-cube :cube-1
-                                  :unit-cube :cube-2}
+    (cu/move-unit {:game/trigger {:event {:trigger-cube :cube-1
+                                          :unit-cube :cube-2}}
                    :game/battlefield {:cube-2 {:entity/class :unit
-                                               :unit/flags {:fleeing? true}}}}
+                                               :unit/movement {:fleeing? true}}}}
                   :cube-2 end)
     => {:game/events []}
 

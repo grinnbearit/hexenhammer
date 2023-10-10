@@ -316,21 +316,17 @@
  "phase reset"
 
  (let [unit-1 {:entity/name "unit-1"
-               :unit/flags {:panicked? true}}
-       unit-2 {:entity/name "unit-2"}
-       unit-3 {:entity/name "terrain"}]
+               :unit/phase {:panicked? true}}
+       unit-2 {:entity/name "unit-2"
+               :unit/phase {}}
+       battlefield {:cube-1 unit-1
+                    :cube-2 unit-2}]
 
-   (phase-reset {:cube-1 unit-1
-                 :cube-2 unit-2
-                 :cube-3 unit-3}
-                [:cube-1 :cube-2])
+   (phase-reset battlefield [:cube-1 :cube-2])
    => {:cube-1 {:entity/name "unit-1"
-                :unit/phase-strength 10
-                :unit/flags {}}
+                :unit/phase {:strength 10}}
        :cube-2 {:entity/name "unit-2"
-                :unit/phase-strength 8
-                :unit/flags nil}
-       :cube-3 {:entity/name "terrain"}}
+                :unit/phase {:strength 8}}}
 
    (provided
     (mu/unit-strength unit-1) => 10
@@ -340,17 +336,17 @@
 (facts
  "panickable?"
 
- (let [battlefield {:cube-1 {:unit/flags {:panicked? true}}}]
+ (let [battlefield {:cube-1 {:unit/phase {:panicked? true}}}]
 
    (panickable? battlefield :cube-1) => false)
 
 
- (let [battlefield {:cube-1 {:unit/flags {:fleeing? true}}}]
+ (let [battlefield {:cube-1 {:unit/movement {:fleeing? true}}}]
 
    (panickable? battlefield :cube-1) => false)
 
 
- (let [battlefield {:cube-1 {:unit/flags {}}}]
+ (let [battlefield {:cube-1 {}}]
 
    (panickable? battlefield :cube-1) => false
 
@@ -358,7 +354,7 @@
     (battlefield-engaged? battlefield :cube-1) => true))
 
 
- (let [battlefield {:cube-1 {:unit/flags {}}}]
+ (let [battlefield {:cube-1 {}}]
 
    (panickable? battlefield :cube-1) => true
 
@@ -369,7 +365,7 @@
 (facts
  "heavy casualties?"
 
- (let [unit {:unit/phase-strength 16}
+ (let [unit {:unit/phase {:strength 16}}
        battlefield {:cube-1 unit}]
 
    (heavy-casualties? battlefield :cube-1) => false

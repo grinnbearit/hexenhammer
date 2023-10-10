@@ -119,9 +119,8 @@
   [battlefield unit-cubes]
   (letfn [(reducer [battlefield cube]
             (let [unit (battlefield cube)]
-              (-> (update battlefield cube assoc
-                          :unit/phase-strength (mu/unit-strength unit))
-                  (update-in [cube :unit/flags] dissoc :panicked?))))]
+              (assoc-in battlefield [cube :unit/phase]
+                        {:strength (mu/unit-strength unit)})))]
 
     (reduce reducer battlefield unit-cubes)))
 
@@ -129,14 +128,14 @@
 (defn panickable?
   [battlefield unit-cube]
   (let [unit (battlefield unit-cube)]
-    (not (or (get-in unit [:unit/flags :panicked?])
-             (get-in unit [:unit/flags :fleeing?])
+    (not (or (get-in unit [:unit/phase :panicked?])
+             (get-in unit [:unit/movement :fleeing?])
              (battlefield-engaged? battlefield unit-cube)))))
 
 
 (defn heavy-casualties?
   [battlefield unit-cube]
   (let [unit (battlefield unit-cube)]
-    (and (<= (/ (mu/unit-strength unit) (:unit/phase-strength unit))
+    (and (<= (/ (mu/unit-strength unit) (get-in unit [:unit/phase :strength]))
              3/4)
          (panickable? battlefield unit-cube))))

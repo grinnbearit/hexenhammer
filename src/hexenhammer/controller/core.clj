@@ -89,6 +89,7 @@
                       :impassable (me/gen-impassable-terrain cube))
         new-entity (if (le/terrain? entity) new-terrain (lt/place new-terrain entity))]
     (-> (assoc-in state [:game/battlefield cube] new-entity)
+        (cb/refresh-battlemap [cube])
         (unselect))))
 
 
@@ -96,16 +97,24 @@
 
 
 (defn trigger
-  "pops the next event in the queue, returns to the current main phase and sub phase if empty"
-  [state]
-  (if-let [event (peek (:game/events state))]
-    (-> (ce/push-phase state)
-        (update :game/events pop)
-        (assoc :game/battlemap (l/set-state (:game/battlefield state) :default))
-        (ce/event-transition event)
-        (trigger-event event))
-    (-> (ce/pop-phase state)
-        (dissoc :game/battlemap))))
+  "pops the next event in the queue, if empty triggers the stored callback
+  callback needs to set a mainphase and subphase"
+  ([state]
+   (if-let [event (peek (:game/events state))]
+     (-> (update state :game/events pop)
+         (update :game/trigger dissoc :event)
+         (dissoc :game/battlemap)
+         (assoc :game/phase (:event/class event)
+                :game/subphase :start)
+         (trigger-event event))
+     (let [callback (get-in state [:game/trigger :callback])]
+       (-> (dissoc state
+                   :game/phase :game/subphase
+                   :game/battlemap :game/trigger)
+           (callback)))))
+  ([state callback]
+   (-> (assoc-in state [:game/trigger :callback] callback)
+       (trigger))))
 
 
 (defmethod trigger-event :dangerous
@@ -120,11 +129,11 @@
         (-> (if unit-destroyed?
               (cu/destroy-unit state unit-cube)
               (cu/destroy-models state unit-cube cube models-destroyed))
-            (update :game/trigger assoc
-                    :unit unit
-                    :models-destroyed models-destroyed
-                    :unit-destroyed? unit-destroyed?
-                    :roll roll)
+            (assoc-in [:game/trigger :event]
+                      {:unit unit
+                       :models-destroyed models-destroyed
+                       :unit-destroyed? unit-destroyed?
+                       :roll roll})
             (cb/refresh-battlemap [cube unit-cube])
             (update :game/battlemap l/set-state [cube unit-cube] :marked)))
       (trigger state))))
@@ -140,10 +149,10 @@
         (-> (if unit-destroyed?
               (cu/destroy-unit state unit-cube)
               (cu/damage-unit state unit-cube cube wounds))
-            (update :game/trigger assoc
-                    :unit unit
-                    :wounds wounds
-                    :unit-destroyed? unit-destroyed?)
+            (assoc-in [:game/trigger :event]
+                      {:unit unit
+                       :wounds wounds
+                       :unit-destroyed? unit-destroyed?})
             (cb/refresh-battlemap [cube unit-cube])
             (update :game/battlemap l/set-state [cube unit-cube] :marked)))
       (trigger state))))
@@ -160,11 +169,11 @@
           (-> (if passed?
                 (assoc state :game/subphase :passed)
                 (assoc state :game/subphase :failed))
-              (assoc-in [:game/battlefield unit-cube :unit/flags :panicked?] true)
-              (update :game/trigger assoc
-                      :trigger-cube cube
-                      :unit-cube unit-cube
-                      :roll roll)
+              (assoc-in [:game/battlefield unit-cube :unit/phase :panicked?] true)
+              (assoc-in [:game/trigger :event]
+                        {:trigger-cube cube
+                         :unit-cube unit-cube
+                         :roll roll})
               (cb/refresh-battlemap [cube unit-cube])
               (update :game/battlemap l/set-state [cube unit-cube] :marked)))
         (trigger state))
@@ -178,7 +187,7 @@
     (-> (assoc state
                :game/phase :charge
                :game/subphase :select-hex
-               :game/charge {:chargers charger-cubes})
+               :game/charge {:chargers (set charger-cubes)})
         (cb/refresh-battlemap charger-cubes)
         (update :game/battlemap l/set-state charger-cubes :selectable))))
 
@@ -230,15 +239,22 @@
       (select cube)))
 
 
-(defn to-movement
+(defn reset-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (cu/unit-cubes state player)
         movable-cubes (filter #(lm/movable? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase :movement
-               :game/subphase :select-hex)
-        (update :game/battlefield l/set-state :default)
-        (update :game/battlefield l/set-state movable-cubes :selectable))))
+               :game/subphase :select-hex
+               :game/movement {:movers (set movable-cubes)})
+        (cb/refresh-battlemap movable-cubes)
+        (update :game/battlemap l/set-state movable-cubes :selectable))))
+
+
+(defn to-movement
+  [state]
+  (-> (dissoc state :game/charge)
+      (reset-movement)))
 
 
 (defmethod select [:movement :select-hex]
@@ -249,16 +265,19 @@
 
 (defmethod unselect :movement
   [state]
-  (-> (assoc state :game/subphase :select-hex)
-      (dissoc :game/selected
-              :game/battlemap
-              :game/movement)))
+  (let [movable-cubes (get-in state [:game/movement :movers])]
+    (-> (assoc state :game/subphase :select-hex)
+        (dissoc :game/selected
+                :game/battlemap)
+        (cb/refresh-battlemap movable-cubes)
+        (update :game/battlemap l/set-state movable-cubes :selectable))))
 
 
 (defn skip-movement
   [state]
-  (let [cube (:game/selected state)]
-    (-> (assoc-in state [:game/battlefield cube :entity/state] :default)
+  (let [unit-cube (:game/selected state)]
+    (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :unmoved?] true)
+        (update-in [:game/movement :movers] disj unit-cube)
         (unselect))))
 
 
@@ -316,23 +335,22 @@
   (let [unit-cube (:game/selected state)
         pointer (get-in state [:game/movement :pointer])
         events (get-in state [:game/movement :pointer->events pointer])
-        marched? (or (get-in state [:game/movement :marched?]) false)
-        unit (-> (get-in state [:game/battlefield unit-cube])
-                 (assoc :entity/state :default)
-                 (assoc-in [:unit/flags :marched?] marched?))]
+        marched? (or (get-in state [:game/movement :marched?]) false)]
 
-    (-> (assoc-in state [:game/battlefield unit-cube] unit)
+    (-> (assoc-in state [:game/battlefield unit-cube :unit/movement :marched?] marched?)
         (cu/move-unit unit-cube pointer)
         (update :game/events into events)
         (unselect)
-        (trigger))))
+        (trigger reset-movement))))
 
 
 (defn movement-transition
   [state movement]
-  (-> (assoc state :game/subphase movement)
-      (dissoc :game/movement)
-      (select (:game/selected state))))
+  (let [game-movement (select-keys (:game/movement state) [:movers])]
+    (-> (assoc state
+               :game/subphase movement
+               :game/movement game-movement)
+        (select (:game/selected state)))))
 
 
 (defmethod select [:movement :reform]
@@ -424,7 +442,7 @@
 
 (defn flee
   [state]
-  (let [{:keys [unit-cube trigger-cube]} (:game/trigger state)
+  (let [{:keys [unit-cube trigger-cube]} (get-in state [:game/trigger :event])
         unit (get-in state [:game/battlefield unit-cube])
         roll (cd/roll! 2)
         {:keys [battlemap end edge? events]} (lm/show-flee (:game/battlefield state)
@@ -433,14 +451,14 @@
                                                            (apply + roll))]
     (-> (if edge?
           (cu/destroy-unit state unit-cube)
-          (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :fleeing?] true)
+          (-> (assoc-in state [:game/battlefield unit-cube :unit/movement :fleeing?] true)
               (cu/move-unit unit-cube end)))
         (update :game/events into events)
         (assoc :game/battlemap battlemap
                :game/subphase :flee)
         (cb/refresh-battlemap [(:cube end)])
         (update :game/battlemap l/set-state [(:cube end)] :marked)
-        (update :game/trigger assoc
-                :edge? edge?
-                :unit unit
-                :roll roll))))
+        (assoc-in [:game/trigger :event]
+                  {:edge? edge?
+                   :unit unit
+                   :roll roll}))))

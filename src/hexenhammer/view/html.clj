@@ -135,7 +135,7 @@
 
 (defmethod render [:dangerous :start]
   [state]
-  (let [{:keys [unit-destroyed? models-destroyed roll unit]} (:game/trigger state)]
+  (let [{:keys [unit-destroyed? models-destroyed roll unit]} (get-in state [:game/trigger :event])]
     (html
      [:html
       [:head
@@ -156,7 +156,7 @@
 
 (defmethod render [:opportunity-attack :start]
   [state]
-  (let [{:keys [unit-destroyed? unit wounds]} (:game/trigger state)]
+  (let [{:keys [unit-destroyed? unit wounds]} (get-in state [:game/trigger :event])]
     (html
      [:html
       [:head
@@ -176,7 +176,7 @@
 
 (defmethod render [:heavy-casualties :passed]
   [state]
-  (let [{:keys [roll unit-cube]} (:game/trigger state)
+  (let [{:keys [roll unit-cube]} (get-in state [:game/trigger :event])
         unit (get-in state [:game/battlefield unit-cube])]
     (html
      [:html
@@ -196,7 +196,7 @@
 
 (defmethod render [:heavy-casualties :failed]
   [state]
-  (let [{:keys [roll unit-cube]} (:game/trigger state)
+  (let [{:keys [roll unit-cube]} (get-in state [:game/trigger :event])
         unit (get-in state [:game/battlefield unit-cube])]
     (html
      [:html
@@ -216,7 +216,7 @@
 
 (defmethod render [:heavy-casualties :flee]
   [state]
-  (let [{:keys [edge? unit roll]} (:game/trigger state)]
+  (let [{:keys [edge? unit roll]} (get-in state [:game/trigger :event])]
     (html
      [:html
       [:head

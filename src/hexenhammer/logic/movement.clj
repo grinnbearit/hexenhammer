@@ -15,7 +15,8 @@
   [battlefield cube]
   (let [unit (battlefield cube)]
     (not (or (lu/battlefield-engaged? battlefield cube)
-             (get-in unit [:unit/flags :fleeing?])))))
+             (get-in unit [:unit/movement :fleeing?])
+             (get-in unit [:unit/movement :unmoved?])))))
 
 
 (defn valid-move?
@@ -179,7 +180,7 @@
 
       (and (le/unit? entity)
            (lu/enemies? unit entity)
-           (not (get-in entity [:unit/flags :fleeing?])))
+           (not (get-in entity [:unit/movement :fleeing?])))
       (conj (mv/opportunity-attack cube
                                    (:unit/player unit)
                                    (:entity/name unit)

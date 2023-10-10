@@ -20,7 +20,7 @@
   (lu/battlefield-engaged? :battlefield :cube) => true)
 
 
- (let [battlefield {:cube-1 {:unit/flags {:fleeing? true}}}]
+ (let [battlefield {:cube-1 {:unit/movement {:fleeing? true}}}]
 
    (movable? battlefield :cube-1) => false
 
@@ -28,7 +28,15 @@
     (lu/battlefield-engaged? battlefield :cube-1) => false))
 
 
- (let [battlefield {:cube-1 {:unit/flags {}}}]
+ (let [battlefield {:cube-1 {:unit/movement {:unmoved? true}}}]
+
+   (movable? battlefield :cube-1) => false
+
+   (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false))
+
+
+ (let [battlefield {:cube-1 {}}]
 
    (movable? battlefield :cube-1) => true
 
@@ -377,7 +385,7 @@
 
 
  (let [pointer (mc/->Pointer :cube-1 :n)
-       entity {:unit/flags {:fleeing? true}}
+       entity {:unit/movement {:fleeing? true}}
        battlefield {:cube-1 entity}]
 
    (pointer-events battlefield :unit-1 pointer)
@@ -397,7 +405,7 @@
        entity {:unit/player 2
                :entity/name "unit"
                :unit/id 3
-               :unit/flags {:fleeing? false}}
+               :unit/movement {:fleeing? false}}
        battlefield {:cube-1 entity}]
 
    (pointer-events battlefield unit pointer)
