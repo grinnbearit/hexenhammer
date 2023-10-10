@@ -7,7 +7,6 @@
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.movement :as lm]
-            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.dice :as cd]
             [hexenhammer.controller.unit :as cu]
             [hexenhammer.controller.movement :as cm]

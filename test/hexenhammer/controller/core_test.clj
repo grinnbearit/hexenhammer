@@ -10,7 +10,6 @@
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.dice :as cd]
             [hexenhammer.controller.unit :as cu]
-            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.battlemap :as cb]
             [hexenhammer.controller.core :refer :all]))
