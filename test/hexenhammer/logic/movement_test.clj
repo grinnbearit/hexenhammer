@@ -36,6 +36,14 @@
     (lu/battlefield-engaged? battlefield :cube-1) => false))
 
 
+ (let [battlefield {:cube-1 {:unit/movement {:moved? true}}}]
+
+   (movable? battlefield :cube-1) => false
+
+   (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false))
+
+
  (let [battlefield {:cube-1 {}}]
 
    (movable? battlefield :cube-1) => true

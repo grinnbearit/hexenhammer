@@ -340,7 +340,9 @@
         events (get-in state [:game/movement :pointer->events pointer])
         marched? (or (get-in state [:game/movement :marched?]) false)]
 
-    (-> (assoc-in state [:game/battlefield unit-cube :unit/movement :marched?] marched?)
+    (-> (update-in state [:game/battlefield unit-cube :unit/movement] assoc
+                   :marched? marched?
+                   :moved? true)
         (cu/move-unit unit-cube pointer)
         (update :game/events into events)
         (unselect)

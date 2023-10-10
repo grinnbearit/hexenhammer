@@ -16,7 +16,8 @@
   (let [unit (battlefield cube)]
     (not (or (lu/battlefield-engaged? battlefield cube)
              (get-in unit [:unit/movement :fleeing?])
-             (get-in unit [:unit/movement :unmoved?])))))
+             (get-in unit [:unit/movement :unmoved?])
+             (get-in unit [:unit/movement :moved?])))))
 
 
 (defn valid-move?

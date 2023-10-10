@@ -938,7 +938,8 @@
    (provided
     (cu/move-unit {:game/selected :cube-1
                    :game/battlefield {:cube-1 {:entity/class :unit
-                                               :unit/movement {:marched? false}}}
+                                               :unit/movement {:marched? false
+                                                               :moved? true}}}
                    :game/movement {:pointer pointer
                                    :pointer->events {pointer [:event-1 :event-2]}}
                    :game/events []}
@@ -966,7 +967,8 @@
    (provided
     (cu/move-unit {:game/selected :cube-1
                    :game/battlefield {:cube-1 {:entity/class :unit
-                                               :unit/movement {:marched? true}}}
+                                               :unit/movement {:marched? true
+                                                               :moved? true}}}
                    :game/movement {:pointer pointer
                                    :pointer->events {pointer []}
                                    :marched? true}
