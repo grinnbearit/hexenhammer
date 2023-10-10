@@ -583,7 +583,8 @@
  "unselect charge"
 
  (unselect {:game/phase :charge
-            :game/charge {:chargers [:cube-1]}
+            :game/charge {:chargers [:cube-1]
+                          :pointer :pointer}
             :game/selected :cube-1
             :game/battlemap :battlemap-1})
 
@@ -753,7 +754,8 @@
  "unselect movement"
 
  (unselect {:game/phase :movement
-            :game/movement {:movers [:cube-1]}
+            :game/movement {:movers [:cube-1]
+                            :pointer :pointer}
             :game/selected :cube-1
             :game/battlemap :battlemap-1})
 

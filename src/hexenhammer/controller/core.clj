@@ -201,7 +201,9 @@
 (defmethod unselect :charge
   [state]
   (let [charger-cubes (get-in state [:game/charge :chargers])]
-    (-> (assoc state :game/subphase :select-hex)
+    (-> (assoc state
+               :game/subphase :select-hex
+               :game/charge {:chargers charger-cubes})
         (dissoc :game/selected
                 :game/battlemap)
         (cb/refresh-battlemap charger-cubes)
@@ -265,7 +267,9 @@
 (defmethod unselect :movement
   [state]
   (let [movable-cubes (get-in state [:game/movement :movers])]
-    (-> (assoc state :game/subphase :select-hex)
+    (-> (assoc state
+               :game/subphase :select-hex
+               :game/movement {:movers movable-cubes})
         (dissoc :game/selected
                 :game/battlemap)
         (cb/refresh-battlemap movable-cubes)
