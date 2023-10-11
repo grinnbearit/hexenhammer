@@ -599,10 +599,10 @@
                            :game/subphase :passed
                            :game/trigger {:event {:unit-cube :cube-2
                                                   :roll [1 1]}}}
-                          [:cube-2])
+                          [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
-    (l/set-state :battlemap [:cube-2] :marked) => :set-state))
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state))
 
 
  (let [unit {:unit/player 1
@@ -632,10 +632,10 @@
                            :game/subphase :failed
                            :game/trigger {:event {:unit-cube :cube-2
                                                   :roll [1 3]}}}
-                          [:cube-2])
+                          [:cube-1 :cube-2])
     => {:game/battlemap :battlemap}
 
-    (l/set-state :battlemap [:cube-2] :marked) => :set-state)))
+    (l/set-state :battlemap [:cube-1 :cube-2] :marked) => :set-state)))
 
 
 (facts
@@ -1514,7 +1514,7 @@
         :edge? true
         :events [:event-1]}
 
-    (cu/destroy-unit state :cube-2)
+    (cu/escape-unit state :cube-2 :cube-3)
     => {:game/events []}
 
     (cb/refresh-battlemap {:game/events [:event-1]

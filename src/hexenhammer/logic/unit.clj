@@ -1,6 +1,7 @@
 (ns hexenhammer.logic.unit
   (:require [hexenhammer.model.cube :as mc]
             [hexenhammer.model.unit :as mu]
+            [hexenhammer.model.event :as mv]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]))
 
@@ -151,3 +152,18 @@
 
     (->> (sort-by keyfn enemy-cubes)
          (first))))
+
+
+(defn nearby-friend-annihilated-events
+  "Returns a list of panic events for all units within 2 hexes of source"
+  [battlefield source player]
+  (for [cube (conj (mc/neighbours-within source 2) source)
+        :when (contains? battlefield cube)
+        :let [entity (battlefield cube)]
+        :when (and (le/unit? entity)
+                   (= player (:unit/player entity))
+                   (panickable? battlefield cube))]
+    (mv/panic source
+              (:unit/player entity)
+              (:entity/name entity)
+              (:unit/id entity))))

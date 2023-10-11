@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.unit
-  (:require [hexenhammer.model.event :as mv]
+  (:require [hexenhammer.model.unit :as mu]
+            [hexenhammer.model.event :as mv]
             [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.terrain :as lt]))
 
@@ -14,11 +15,36 @@
         (mapcat (comp vals :cubes)))))
 
 
-(defn destroy-unit
+(defn remove-unit
+  "Removes the unit at `unit-cube`"
   [state unit-cube]
-  (let [{:keys [unit/player entity/name unit/id]} (get-in state [:game/battlefield unit-cube])]
+  (let [{:keys [unit/player entity/name unit/id] :as unit} (get-in state [:game/battlefield unit-cube])]
     (-> (update-in state [:game/units player name :cubes] dissoc id)
         (update :game/battlefield lu/remove-unit unit-cube))))
+
+
+(defn destroy-unit
+  "Destroys the unit at `unit-cube`"
+  [state unit-cube]
+  (let [unit (get-in state [:game/battlefield unit-cube])
+        new-state (remove-unit state unit-cube)]
+    (cond-> new-state
+
+      (<= 8 (get-in unit [:unit/phase :strength]))
+      (update :game/events into
+              (lu/nearby-friend-annihilated-events (:game/battlefield new-state) unit-cube (:unit/player unit))))))
+
+
+(defn escape-unit
+  "Destroys the unit at `unit-cube`, the unit escapes the battlfield at `end-cube`"
+  [state unit-cube end-cube]
+  (let [unit (get-in state [:game/battlefield unit-cube])
+        new-state (remove-unit state unit-cube)]
+    (cond-> new-state
+
+      (<= 8 (get-in unit [:unit/phase :strength]))
+      (update :game/events into
+              (lu/nearby-friend-annihilated-events (:game/battlefield new-state) end-cube (:unit/player unit))))))
 
 
 (defn damage-unit

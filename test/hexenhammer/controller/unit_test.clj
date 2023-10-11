@@ -25,7 +25,7 @@
 
 
 (facts
- "destroy unit"
+ "remove unit"
 
  (let [unit {:entity/cube :cube-1
              :entity/name "unit"
@@ -34,14 +34,74 @@
 
        battlefield {:cube-1 unit}]
 
-   (destroy-unit {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}
-                  :game/battlefield battlefield}
-                 :cube-1)
+   (remove-unit {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+                 :game/battlefield battlefield}
+                :cube-1)
    => {:game/units {1 {"unit" {:cubes {}}}}
        :game/battlefield {:cube-1 :terrain}}
 
    (provided
     (lu/remove-unit battlefield :cube-1) => {:cube-1 :terrain})))
+
+
+(facts
+ "destroy unit"
+
+ (let [state {:game/battlefield {:cube-1 {:unit/phase {:strength 7}}}}]
+
+   (destroy-unit state :cube-1)
+   => state
+
+   (provided
+    (remove-unit state :cube-1)
+    => state))
+
+
+ (let [battlefield {:cube-1 {:unit/phase {:strength 8}
+                             :unit/player 1}}
+       state {:game/battlefield battlefield
+              :game/events []}]
+
+   (destroy-unit state :cube-1)
+   => (assoc state
+             :game/events [:event-1])
+
+   (provided
+    (remove-unit state :cube-1)
+    => state
+
+    (lu/nearby-friend-annihilated-events battlefield :cube-1 1)
+    => [:event-1])))
+
+
+(facts
+ "escape unit"
+
+ (let [state {:game/battlefield {:cube-1 {:unit/phase {:strength 7}}}}]
+
+   (escape-unit state :cube-1 :cube-2)
+   => state
+
+   (provided
+    (remove-unit state :cube-1)
+    => state))
+
+
+ (let [battlefield {:cube-1 {:unit/phase {:strength 8}
+                             :unit/player 1}}
+       state {:game/battlefield battlefield
+              :game/events []}]
+
+   (escape-unit state :cube-1 :cube-2)
+   => (assoc state
+             :game/events [:event-1])
+
+   (provided
+    (remove-unit state :cube-1)
+    => state
+
+    (lu/nearby-friend-annihilated-events battlefield :cube-2 1)
+    => [:event-1])))
 
 
 (facts

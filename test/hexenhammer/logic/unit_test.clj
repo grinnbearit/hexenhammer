@@ -2,6 +2,7 @@
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as mc]
             [hexenhammer.model.unit :as mu]
+            [hexenhammer.model.event :as mv]
             [hexenhammer.logic.entity :as le]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.logic.unit :refer :all]))
@@ -410,3 +411,35 @@
     (mu/unit-strength :unit-3) => 6
     (mu/unit-strength :unit-4) => 8
     (mu/unit-strength :unit-5) => 8)))
+
+
+(facts
+ "nearby friend annihilated events"
+
+ (let [unit-1 {:unit/player 1}
+       unit-2 {:unit/player 2}
+       unit-3 {:unit/player 2
+               :entity/name "unit"
+               :unit/id 3}
+       battlefield {:cube-1 :terrain
+                    :cube-2 unit-1
+                    :cube-3 unit-2
+                    :cube-4 unit-3}]
+
+   (nearby-friend-annihilated-events battlefield :cube-1 2)
+   => [:panic]
+
+   (provided
+    (mc/neighbours-within :cube-1 2)
+    => [:cube-2 :cube-3 :cube-4 :cube-5]
+
+    (le/unit? :terrain) => false
+    (le/unit? unit-1) => true
+    (le/unit? unit-2) => true
+    (le/unit? unit-3) => true
+
+    (panickable? battlefield :cube-3) => false
+    (panickable? battlefield :cube-4) => true
+
+    (mv/panic :cube-1 2 "unit" 3)
+    => :panic)))
