@@ -9,6 +9,7 @@
             [hexenhammer.logic.movement :as lm]
             [hexenhammer.controller.dice :as cd]
             [hexenhammer.controller.unit :as cu]
+            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.battlemap :as cb]))
 
@@ -26,7 +27,7 @@
         (update :game/battlemap l/set-state [cube] :selected))))
 
 
-(defmulti unselect (fn [state] (:game/phase state)))
+(defmulti unselect :game/phase)
 
 
 (defmethod unselect :setup
@@ -175,6 +176,27 @@
                          :roll roll})
               (cb/refresh-battlemap [cube unit-cube])
               (update :game/battlemap l/set-state [cube unit-cube] :marked)))
+        (trigger state))
+      (trigger state))))
+
+
+(defmethod trigger-event :panic
+  [state event]
+  (let [{:keys [unit/player entity/name unit/id]} event]
+    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+      (if-let [panickable? (lu/panickable? (:game/battlefield state) unit-cube)]
+        (let [unit (get-in state [:game/battlefield unit-cube])
+              roll (cd/roll! 2)
+              passed? (<= (apply + roll) (:unit/Ld unit))]
+          (-> (if passed?
+                (assoc state :game/subphase :passed)
+                (assoc state :game/subphase :failed))
+              (assoc-in [:game/battlefield unit-cube :unit/phase :panicked?] true)
+              (assoc-in [:game/trigger :event]
+                        {:unit-cube unit-cube
+                         :roll roll})
+              (cb/refresh-battlemap [unit-cube])
+              (update :game/battlemap l/set-state [unit-cube] :marked)))
         (trigger state))
       (trigger state))))
 
@@ -445,7 +467,10 @@
         (move pointer))))
 
 
-(defn flee
+(defmulti flee :game/phase)
+
+
+(defmethod flee :heavy-casualties
   [state]
   (let [{:keys [unit-cube trigger-cube]} (get-in state [:game/trigger :event])
         unit (get-in state [:game/battlefield unit-cube])
@@ -463,6 +488,31 @@
                :game/subphase :flee)
         (cb/refresh-battlemap [(:cube end)])
         (update :game/battlemap l/set-state [(:cube end)] :marked)
+        (assoc-in [:game/trigger :event]
+                  {:edge? edge?
+                   :unit unit
+                   :roll roll}))))
+
+
+(defmethod flee :panic
+  [state]
+  (let [{:keys [unit-cube]} (get-in state [:game/trigger :event])
+        unit (get-in state [:game/battlefield unit-cube])
+        trigger-cube (ce/panic-trigger state unit)
+        roll (cd/roll! 2)
+        {:keys [battlemap end edge? events]} (lm/show-flee (:game/battlefield state)
+                                                           unit-cube
+                                                           trigger-cube
+                                                           (apply + roll))]
+    (-> (if edge?
+          (cu/destroy-unit state unit-cube)
+          (-> (assoc-in state [:game/battlefield unit-cube :unit/movement :fleeing?] true)
+              (cu/move-unit unit-cube end)))
+        (update :game/events into events)
+        (assoc :game/battlemap battlemap
+               :game/subphase :flee)
+        (cb/refresh-battlemap [trigger-cube (:cube end)])
+        (update :game/battlemap l/set-state [trigger-cube (:cube end)] :marked)
         (assoc-in [:game/trigger :event]
                   {:edge? edge?
                    :unit unit

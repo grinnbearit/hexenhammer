@@ -16,3 +16,9 @@
   [battlefield cubes state]
   (-> (select-keys battlefield cubes)
       (set-state state)))
+
+
+(defn enemy-player
+  "Returns the opposing player id"
+  [player]
+  ({1 2 2 1} player))

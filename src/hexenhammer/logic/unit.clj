@@ -139,3 +139,15 @@
     (and (<= (/ (mu/unit-strength unit) (get-in unit [:unit/phase :strength]))
              3/4)
          (panickable? battlefield unit-cube))))
+
+
+(defn panic-trigger
+  "Returns the closest enemy cube, if tied returns the strongest"
+  [battlefield unit-cube enemy-cubes]
+  (letfn [(keyfn [enemy-cube]
+            (let [enemy (battlefield enemy-cube)]
+              [(mc/distance unit-cube enemy-cube)
+               (- (mu/unit-strength enemy))]))]
+
+    (->> (sort-by keyfn enemy-cubes)
+         (first))))

@@ -42,3 +42,10 @@
               :cube-2 :entity-2}
              :selected)
   => :set-state))
+
+
+(facts
+ "enemy player"
+
+ (enemy-player 1) => 2
+ (enemy-player 2) => 1)

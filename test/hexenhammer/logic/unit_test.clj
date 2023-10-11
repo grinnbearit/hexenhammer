@@ -386,3 +386,27 @@
    (provided
     (mu/unit-strength unit) => 11
     (panickable? battlefield :cube-1) => true)))
+
+
+(facts
+ "panic trigger"
+
+ (let [battlefield {:cube-1 :unit-1
+                    :cube-2 :unit-2
+                    :cube-3 :unit-3
+                    :cube-4 :unit-4
+                    :cube-5 :unit-5}]
+
+   (panic-trigger battlefield :cube-1 [:cube-2 :cube-3 :cube-4 :cube-5])
+   => :cube-4
+
+   (provided
+    (mc/distance :cube-1 :cube-2) => 3
+    (mc/distance :cube-1 :cube-3) => 2
+    (mc/distance :cube-1 :cube-4) => 2
+    (mc/distance :cube-1 :cube-5) => 2
+
+    (mu/unit-strength :unit-2) => 10
+    (mu/unit-strength :unit-3) => 6
+    (mu/unit-strength :unit-4) => 8
+    (mu/unit-strength :unit-5) => 8)))

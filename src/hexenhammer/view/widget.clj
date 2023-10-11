@@ -62,7 +62,10 @@
          [:tr [:td (inc index)] [:td "Opportunity Attack"] [:td (unit-str event)]]
 
          :heavy-casualties
-         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (unit-str event)]]))]))
+         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (unit-str event)]]
+
+         :panic
+         [:tr [:td (inc index)] [:td "Panic!"] [:td (unit-str event)]]))]))
 
 
 (defn render-movement
