@@ -355,8 +355,20 @@
        (vw/render-battlefield state) [:br] [:br]
        (vw/render-profile unit) [:br]
        (vw/render-events events) [:br]
-       [:input {:type "button" :disabled true
-                :value (format "Declare Charge (~%d%%)" charge-perc)}]]])))
+       [:form {:action "/charge/declare" :method "post"}
+        [:input {:type "submit" :value (format "Declare Charge (~%d%%)" charge-perc)}]]]])))
+
+
+(defmethod render [:charge :react]
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Charge - React"]
+     [:style STYLESHEET]]
+    [:body
+     (vw/render-battlefield state) [:br] [:br]]]))
 
 
 (defmethod render [:movement :select-hex]

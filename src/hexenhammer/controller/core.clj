@@ -263,6 +263,21 @@
       (select cube)))
 
 
+(defn declare-charge
+  [state]
+  (let [pointer (get-in state [:game/charge :pointer])
+        targets (get-in state [:game/charge :pointer->targets pointer])]
+    (-> (assoc state :game/subphase :react)
+        (dissoc :game/battlemap :game/selected)
+        (assoc :game/charge
+               {:charger (:game/selected state)
+                :declared (for [cube targets]
+                            (-> (get-in state [:game/battlefield cube])
+                                (select-keys [:unit/player :entity/name :unit/id])))})
+        (cb/refresh-battlemap targets)
+        (update :game/battlemap l/set-state targets :selectable))))
+
+
 (defn reset-movement
   [{:keys [game/player game/battlefield] :as state}]
   (let [player-cubes (cu/unit-cubes state player)

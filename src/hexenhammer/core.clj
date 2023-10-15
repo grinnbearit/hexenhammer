@@ -62,6 +62,7 @@
   (POST "/setup/to-charge" [] (swap! hexenhammer-state controller/to-charge))
   (POST "/trigger/next" [] (swap! hexenhammer-state controller/trigger))
   (POST "/charge/to-movement" [] (swap! hexenhammer-state controller/to-movement))
+  (POST "/charge/declare" [] (swap! hexenhammer-state controller/declare-charge))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state controller/skip-movement))
   (POST "/movement/finish-movement" [] (swap! hexenhammer-state controller/finish-movement))
   (POST "/movement/test-leadership" [] (swap! hexenhammer-state controller/test-march!))

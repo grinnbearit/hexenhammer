@@ -786,6 +786,39 @@
 
 
 (facts
+ "declare charge"
+
+ (let [battlefield {:cube-2 {:unit/player 1 :entity/name "unit" :unit/id 1
+                             :entity/cube :cube-2}
+                    :cube-3 {:unit/player 1 :entity/name "unit" :unit/id 2
+                             :entity/cube :cube-3}}
+       state {:game/selected :cube-1
+              :game/charge {:pointer :pointer-1
+                            :pointer->targets {:pointer-1 [:cube-2 :cube-3]}}
+              :game/battlemap :battlemap-1
+              :game/battlefield battlefield}]
+
+   (declare-charge state)
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (cb/refresh-battlemap {:game/charge {:charger :cube-1
+                                         :declared [{:unit/player 1
+                                                     :entity/name "unit"
+                                                     :unit/id 1}
+                                                    {:unit/player 1
+                                                     :entity/name "unit"
+                                                     :unit/id 2}]}
+                           :game/battlefield battlefield
+                           :game/subphase :react}
+                          [:cube-2 :cube-3])
+    => {:game/battlemap :battlemap-2}
+
+    (l/set-state :battlemap-2 [:cube-2 :cube-3] :selectable)
+    => :battlemap-3)))
+
+
+(facts
  "reset movement"
 
  (let [state {:game/player 1
