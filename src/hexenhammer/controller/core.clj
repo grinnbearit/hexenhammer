@@ -237,7 +237,7 @@
   (if (or (= cube (:game/selected state))
           (= cube (get-in state [:game/charge :pointer :cube])))
     (unselect state)
-    (let [{:keys [battlemap breadcrumbs pointer->events ranges]} (lm/show-charge (:game/battlefield state) cube)
+    (let [{:keys [battlemap breadcrumbs pointer->events pointer->targets pointer->range]} (lm/show-charge (:game/battlefield state) cube)
           pointer (mc/->Pointer cube (get-in state [:game/battlefield cube :unit/facing]))]
       (-> (assoc state
                  :game/subphase :select-target
@@ -247,7 +247,8 @@
                   :battlemap battlemap
                   :breadcrumbs breadcrumbs
                   :pointer->events pointer->events
-                  :ranges ranges)))))
+                  :pointer->targets pointer->targets
+                  :pointer->range pointer->range)))))
 
 
 (defmethod select [:charge :select-target]

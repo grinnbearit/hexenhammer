@@ -850,10 +850,19 @@
 
 
 (facts
+ "point targets"
+
+ (point-targets {[:pointer-1 :pointer-2] :targets-1
+                 [:pointer-1 :pointer-2 :pointer-3] :targets-2})
+ => {:pointer-2 :targets-1
+     :pointer-3 :targets-2})
+
+
+(facts
  "show targets"
 
- (show-targets :battlefield {[:pointer-1] #{:cube-1}
-                             [:pointer-1 :pointer-2] #{:cube-1 :cube-2}})
+ (show-targets :battlefield {:pointer-1  #{:cube-1}
+                             :pointer-2 #{:cube-1 :cube-2}})
  => {:pointer-1 :marked-1
      :pointer-2 :marked-2}
 
@@ -863,10 +872,10 @@
 
 
 (facts
- "target ranges"
+ "range targets"
 
- (target-ranges {[:pointer-1] #{:cube-2 :cube-3}
-                 [:pointer-1 :pointer-2]  #{:cube-2}}
+ (range-targets {:pointer-1 #{:cube-2 :cube-3}
+                 :pointer-2 #{:cube-2}}
                 :cube-1)
  => {:pointer-1 3
      :pointer-2 2}
@@ -891,7 +900,8 @@
        :breadcrumbs {:cube-3 :breadcrumbs-entry-1
                      :cube-4 :target-map-entry-1}
        :pointer->events {:cube-3 :events-1}
-       :ranges :target-ranges}
+       :pointer->targets :pointer->targets
+       :pointer->range :target-ranges}
 
    (provided
     (list-targets battlefield :cube-1)
@@ -911,10 +921,13 @@
     (l/show-cubes battlefield [:cube-1] :selected)
     => {:cube-1 :unit-map-entry-1}
 
-    (show-targets battlefield {:path-1 :target-1})
+    (point-targets {:path-1 :target-1})
+    => :pointer->targets
+
+    (show-targets battlefield :pointer->targets)
     => {:cube-4 :target-map-entry-1}
 
-    (target-ranges {:path-1 :target-1} :cube-1) => :target-ranges)))
+    (range-targets :pointer->targets :cube-1) => :target-ranges)))
 
 
 (facts

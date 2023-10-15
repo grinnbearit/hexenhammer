@@ -387,21 +387,26 @@
          (not (empty? paths)))))
 
 
+(defn point-targets
+  "Given charge paths, returns a map of final pointer to targets"
+  [paths]
+  (update-keys paths peek))
+
+
 (defn show-targets
   "Returns a breadcrumbs map that marks targets for each pointer"
-  [battlefield paths]
-  (->> (for [[path targets] paths]
-         [(peek path) (l/show-cubes battlefield targets :marked)])
-       (into {})))
+  [battlefield pointer->targets]
+  (update-vals pointer->targets #(l/show-cubes battlefield % :marked)))
 
 
-(defn target-ranges
+(defn range-targets
   "Given charge paths and a source cube Returns a map of pointer to charge ranges, if multiple targets returns the largest"
-  [paths cube]
-  (->> (for [[path targets] paths]
-         [(peek path) (->> (map #(mc/distance cube %) targets)
-                           (apply max))])
-       (into {})))
+  [pointer->targets cube]
+  (letfn [(max-range [targets]
+            (->> (map #(mc/distance cube %) targets)
+                 (apply max)))]
+
+    (update-vals pointer->targets max-range)))
 
 
 (defn show-charge
@@ -414,12 +419,14 @@
         breadcrumbs (show-breadcrumbs battlefield battlemap (:unit/player unit) (keys paths))
         pointer->events (show-events battlefield unit (keys paths))
         unit-map (l/show-cubes battlefield [cube] :selected)
-        target-map (show-targets battlefield paths)
-        ranges (target-ranges paths cube)]
+        pointer->targets (point-targets paths)
+        target-map (show-targets battlefield pointer->targets)
+        pointer->range (range-targets pointer->targets cube)]
     {:battlemap (merge battlemap unit-map)
      :breadcrumbs (merge-with merge breadcrumbs target-map)
      :pointer->events pointer->events
-     :ranges ranges}))
+     :pointer->targets pointer->targets
+     :pointer->range pointer->range}))
 
 
 (defn flee-direction
