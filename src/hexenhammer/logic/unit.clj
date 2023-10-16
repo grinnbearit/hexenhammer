@@ -163,7 +163,4 @@
         :when (and (le/unit? entity)
                    (= player (:unit/player entity))
                    (panickable? battlefield cube))]
-    (mv/panic source
-              (:unit/player entity)
-              (:entity/name entity)
-              (:unit/id entity))))
+    (mv/panic source (mu/unit-key entity))))

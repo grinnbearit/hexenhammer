@@ -24,15 +24,15 @@
      (ve/render entity))])
 
 
-(defn unit-str
-  [unit]
-  (format "P%d - %s (%s)" (:unit/player unit) (:entity/name unit) (vu/int->roman (:unit/id unit))))
+(defn unit-key->str
+  [{:keys [unit/player entity/name unit/id]}]
+  (format "P%d - %s (%s)" player name (vu/int->roman id)))
 
 
 (defn render-profile
   [unit]
   [:div
-   [:h3 (unit-str unit)]
+   [:h3 (unit-key->str unit)]
    [:table.profile
     [:thead
      [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "Formation"] [:th "Damage"] [:th "Models"] [:th "Unit Strength"]]]
@@ -53,19 +53,20 @@
     [:table
      [:thead
       [:tr [:th "Order"] [:th "Event"] [:th "Unit"]]]
-     (for [[index event] (zipmap (range) events)]
+     (for [[index event] (zipmap (range) events)
+           :let [unit-key (:event/unit-key event)]]
        (case (:event/class event)
          :dangerous
-         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td (unit-str event)]]
+         [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td (unit-key->str unit-key)]]
 
          :opportunity-attack
-         [:tr [:td (inc index)] [:td "Opportunity Attack"] [:td (unit-str event)]]
+         [:tr [:td (inc index)] [:td "Opportunity Attack"] [:td (unit-key->str unit-key)]]
 
          :heavy-casualties
-         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (unit-str event)]]
+         [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (unit-key->str unit-key)]]
 
          :panic
-         [:tr [:td (inc index)] [:td "Panic!"] [:td (unit-str event)]]))]))
+         [:tr [:td (inc index)] [:td "Panic!"] [:td (unit-key->str unit-key)]]))]))
 
 
 (defn render-movement

@@ -5,6 +5,12 @@
             [hexenhammer.logic.terrain :as lt]))
 
 
+(defn key->cube
+  "Given a unit key, returns the cube that key points to"
+  [state {:keys [unit/player entity/name unit/id]}]
+  (get-in state [:game/units player name :cubes id]))
+
+
 (defn unit-cubes
   "Returns all unit cubes for the passed player, if no player is passed returns all unit cubes"
   ([state]
@@ -56,7 +62,7 @@
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/heavy-casualties source-cube (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/heavy-casualties source-cube (mu/unit-key unit))))))
 
 
 (defn destroy-models
@@ -68,7 +74,7 @@
 
       (lu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
-              (mv/heavy-casualties source-cube (:unit/player unit) (:entity/name unit) (:unit/id unit))))))
+              (mv/heavy-casualties source-cube (mu/unit-key unit))))))
 
 
 (defn move-unit

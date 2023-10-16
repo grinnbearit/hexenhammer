@@ -6,43 +6,35 @@
 (facts
  "dangerous"
 
- (dangerous :cube-1 1 "unit" 2)
+ (dangerous :cube-1 :unit-key-1)
  => {:event/class :dangerous
      :event/cube :cube-1
-     :unit/player 1
-     :entity/name "unit"
-     :unit/id 2})
+     :event/unit-key :unit-key-1})
 
 
 (facts
  "heavy casualties"
 
- (heavy-casualties :cube-1 1 "unit" 2)
+ (heavy-casualties :cube-1 :unit-key-1)
  => {:event/class :heavy-casualties
      :event/cube :cube-1
-     :unit/player 1
-     :entity/name "unit"
-     :unit/id 2})
+     :event/unit-key :unit-key-1})
 
 
 (facts
  "panic"
 
- (panic :cube-1 1 "unit" 2)
+ (panic :cube-1 :unit-key-1)
  => {:event/class :panic
      :event/cube :cube-1
-     :unit/player 1
-     :entity/name "unit"
-     :unit/id 2})
+     :event/unit-key :unit-key-1})
 
 
 (facts
  "opportunity attack"
 
- (opportunity-attack :cube-1 1 "unit" 2 3)
+ (opportunity-attack :cube-1 :unit-key-1 3)
  => {:event/class :opportunity-attack
      :event/cube :cube-1
-     :unit/player 1
-     :entity/name "unit"
-     :unit/id 2
+     :event/unit-key :unit-key-1
      :event/wounds 3})

@@ -441,5 +441,6 @@
     (panickable? battlefield :cube-3) => false
     (panickable? battlefield :cube-4) => true
 
-    (mv/panic :cube-1 2 "unit" 3)
+    (mu/unit-key unit-3) => :unit-key-3
+    (mv/panic :cube-1 :unit-key-3)
     => :panic)))

@@ -119,8 +119,8 @@
 
 (defmethod trigger-event :dangerous
   [state event]
-  (let [{:keys [event/cube unit/player entity/name unit/id]} event]
-    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+  (let [{:keys [event/cube event/unit-key]} event]
+    (if-let [unit-cube (cu/key->cube state unit-key)]
       (let [unit (get-in state [:game/battlefield unit-cube])
             models (mu/models unit)
             roll (cd/roll! models)
@@ -141,8 +141,8 @@
 
 (defmethod trigger-event :opportunity-attack
   [state event]
-  (let [{:keys [event/cube unit/player entity/name unit/id event/wounds]} event]
-    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+  (let [{:keys [event/cube event/unit-key event/wounds]} event]
+    (if-let [unit-cube (cu/key->cube state unit-key)]
       (let [unit (get-in state [:game/battlefield unit-cube])
             unit-wounds (mu/wounds unit)
             unit-destroyed? (<= unit-wounds wounds)]
@@ -160,8 +160,8 @@
 
 (defmethod trigger-event :heavy-casualties
   [state event]
-  (let [{:keys [event/cube unit/player entity/name unit/id]} event]
-    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+  (let [{:keys [event/cube event/unit-key]} event]
+    (if-let [unit-cube (cu/key->cube state unit-key)]
       (if-let [panickable? (lu/panickable? (:game/battlefield state) unit-cube)]
         (let [unit (get-in state [:game/battlefield unit-cube])
               roll (cd/roll! 2)
@@ -182,8 +182,8 @@
 
 (defmethod trigger-event :panic
   [state event]
-  (let [{:keys [event/cube unit/player entity/name unit/id]} event]
-    (if-let [unit-cube (get-in state [:game/units player name :cubes id])]
+  (let [{:keys [event/cube event/unit-key]} event]
+    (if-let [unit-cube (cu/key->cube state unit-key)]
       (if-let [panickable? (lu/panickable? (:game/battlefield state) unit-cube)]
         (let [unit (get-in state [:game/battlefield unit-cube])
               roll (cd/roll! 2)

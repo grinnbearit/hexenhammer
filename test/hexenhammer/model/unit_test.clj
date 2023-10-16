@@ -68,3 +68,15 @@
 
    (provided
     (models unit) => 5)))
+
+
+(facts
+ "unit key"
+
+ (unit-key {:unit/player 1
+            :entity/name "unit"
+            :unit/id 2
+            :entity/cube :cube-1})
+ => {:unit/player 1
+     :entity/name "unit"
+     :unit/id 2})

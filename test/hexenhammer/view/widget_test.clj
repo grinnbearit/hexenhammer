@@ -35,9 +35,9 @@
 
 
 (facts
- "unit-str"
+ "unit-key -> str"
 
- (unit-str {:unit/player 1
-            :entity/name "unit"
-            :unit/id 2})
+ (unit-key->str {:unit/player 1
+                 :entity/name "unit"
+                 :unit/id 2})
  => "P1 - unit (ii)")

@@ -55,3 +55,9 @@
   [unit]
   (* (:unit/model-strength unit)
      (models unit)))
+
+
+(defn unit-key
+  "Returns a unique identifier for the passed unit"
+  [unit]
+  (select-keys unit [:unit/player :entity/name :unit/id]))

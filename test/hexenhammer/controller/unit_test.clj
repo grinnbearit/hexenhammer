@@ -1,10 +1,19 @@
 (ns hexenhammer.controller.unit-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.model.cube :as mc]
+            [hexenhammer.model.unit :as mu]
             [hexenhammer.model.event :as mv]
             [hexenhammer.logic.unit :as lu]
             [hexenhammer.logic.terrain :as lt]
             [hexenhammer.controller.unit :refer :all]))
+
+
+(facts
+ "key -> cube"
+
+ (let [state {:game/units {1 {"unit" {:cubes {2 :cube-1}}}}}]
+   (key->cube state {:unit/player 1 :entity/name "unit" :unit/id 2}) => :cube-1
+   (key->cube state {:unit/player 1 :entity/name "unit" :unit/id 3}) => nil))
 
 
 (facts
@@ -117,12 +126,7 @@
     (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => false))
 
 
- (let [unit {:entity/cube :cube-2
-             :unit/player 1
-             :entity/name "unit"
-             :unit/id 2}
-
-       state {:game/battlefield {:cube-2 unit}
+ (let [state {:game/battlefield {:cube-2 :unit-1}
               :game/events []}]
 
    (damage-unit state :cube-2 :cube-1 2)
@@ -130,9 +134,10 @@
        :game/events [:heavy-casualties]}
 
    (provided
-    (lu/damage-unit unit 2) => :unit-2
+    (lu/damage-unit :unit-1 2) => :unit-2
     (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
-    (mv/heavy-casualties :cube-1 1 "unit" 2) => :heavy-casualties)))
+    (mu/unit-key :unit-1) => :unit-key-1
+    (mv/heavy-casualties :cube-1 :unit-key-1) => :heavy-casualties)))
 
 
 (facts
@@ -148,12 +153,7 @@
     (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => false))
 
 
- (let [unit {:entity/cube :cube-2
-             :unit/player 1
-             :entity/name "unit"
-             :unit/id 2}
-
-       state {:game/battlefield {:cube-2 unit}
+ (let [state {:game/battlefield {:cube-2 :unit-1}
               :game/events []}]
 
    (destroy-models state :cube-2 :cube-1 2)
@@ -161,9 +161,10 @@
        :game/events [:heavy-casualties]}
 
    (provided
-    (lu/destroy-models unit 2) => :unit-2
+    (lu/destroy-models :unit-1 2) => :unit-2
     (lu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
-    (mv/heavy-casualties :cube-1 1 "unit" 2) => :heavy-casualties)))
+    (mu/unit-key :unit-1) => :unit-key-1
+    (mv/heavy-casualties :cube-1 :unit-key-1) => :heavy-casualties)))
 
 
 (facts

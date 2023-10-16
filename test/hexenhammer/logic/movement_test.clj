@@ -365,17 +365,15 @@
 
 
  (let [pointer (mc/->Pointer :cube-1 :n)
-       unit {:unit/player 1
-             :entity/name "unit"
-             :unit/id 2}
        battlefield {:cube-1 :entity-1}]
 
-   (pointer-events battlefield unit pointer)
+   (pointer-events battlefield :unit-1 pointer)
    => [:dangerous]
 
    (provided
     (lt/dangerous? (lt/pickup :entity-1)) => true
-    (mv/dangerous :cube-1 1 "unit" 2) => :dangerous
+    (mu/unit-key :unit-1) => :unit-key-1
+    (mv/dangerous :cube-1 :unit-key-1) => :dangerous
     (le/unit? :entity-1) => false))
 
 
@@ -407,25 +405,23 @@
 
 
  (let [pointer (mc/->Pointer :cube-1 :n)
-       unit {:unit/player 1
-             :entity/name "unit"
-             :unit/id 2}
        entity {:unit/player 2
                :entity/name "unit"
                :unit/id 3
                :unit/movement {:fleeing? false}}
        battlefield {:cube-1 entity}]
 
-   (pointer-events battlefield unit pointer)
+   (pointer-events battlefield :unit-1 pointer)
    => [:opportunity-attack]
 
    (provided
     (lt/dangerous? (lt/pickup entity)) => false
     (le/unit? entity) => true
-    (lu/enemies? unit entity) => true
+    (lu/enemies? :unit-1 entity) => true
     (mu/unit-strength entity) => 4
-    (mv/opportunity-attack :cube-1 1 "unit" 2 4) => :opportunity-attack
-    (lu/allies? unit entity) => false))
+    (mu/unit-key :unit-1) => :unit-key-1
+    (mv/opportunity-attack :cube-1 :unit-key-1 4) => :opportunity-attack
+    (lu/allies? :unit-1 entity) => false))
 
 
  (let [pointer (mc/->Pointer :cube-1 :n)
@@ -458,45 +454,42 @@
 
 
  (let [pointer (mc/->Pointer :cube-1 :n)
-       entity {:unit/player 1
-               :entity/name "unit"
-               :unit/id 3}
-       battlefield {:cube-1 entity}]
+       entity :entity-1
+       battlefield {:cube-1 :entity-1}]
 
    (pointer-events battlefield :unit-1 pointer)
    => [:panic]
 
    (provided
-    (lt/dangerous? (lt/pickup entity)) => false
-    (le/unit? entity) => true
-    (lu/enemies? :unit-1 entity) => false
-    (lu/allies? :unit-1 entity) => true
+    (lt/dangerous? (lt/pickup :entity-1)) => false
+    (le/unit? :entity-1) => true
+    (lu/enemies? :unit-1 :entity-1) => false
+    (lu/allies? :unit-1 :entity-1) => true
     (mu/unit-strength :unit-1) => 8
     (lu/panickable? battlefield :cube-1) => true
-    (mv/panic :cube-1 1 "unit" 3) => :panic))
+    (mu/unit-key :entity-1) => :entity-key-1
+    (mv/panic :cube-1 :entity-key-1) => :panic))
 
 
  (let [pointer (mc/->Pointer :cube-1 :n)
-       unit {:unit/player 1
-             :entity/name "unit"
-             :unit/id 2}
-       entity {:unit/player 1
-               :entity/name "unit"
-               :unit/id 3}
-       battlefield {:cube-1 entity}]
+       unit :unit-1
+       entity :entity-1
+       battlefield {:cube-1 :entity-1}]
 
-   (pointer-events battlefield unit pointer)
+   (pointer-events battlefield :unit-1 pointer)
    => [:dangerous :panic]
 
    (provided
-    (lt/dangerous? (lt/pickup entity)) => true
-    (mv/dangerous :cube-1 1 "unit" 2) => :dangerous
-    (le/unit? entity) => true
-    (lu/enemies? unit entity) => false
-    (lu/allies? unit entity) => true
-    (mu/unit-strength unit) => 8
+    (lt/dangerous? (lt/pickup :entity-1)) => true
+    (mu/unit-key :unit-1) => :unit-key-1
+    (mv/dangerous :cube-1 :unit-key-1) => :dangerous
+    (le/unit? :entity-1) => true
+    (lu/enemies? :unit-1 :entity-1) => false
+    (lu/allies? :unit-1 :entity-1) => true
+    (mu/unit-strength :unit-1) => 8
     (lu/panickable? battlefield :cube-1) => true
-    (mv/panic :cube-1 1 "unit" 3) => :panic)))
+    (mu/unit-key :entity-1) => :entity-key-1
+    (mv/panic :cube-1 :entity-key-1) => :panic)))
 
 
 (facts

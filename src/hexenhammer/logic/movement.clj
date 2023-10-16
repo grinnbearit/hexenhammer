@@ -174,28 +174,18 @@
     (cond-> []
 
       (lt/dangerous? (lt/pickup entity))
-      (conj (mv/dangerous cube
-                          (:unit/player unit)
-                          (:entity/name unit)
-                          (:unit/id unit)))
+      (conj (mv/dangerous cube (mu/unit-key unit)))
 
       (and (le/unit? entity)
            (lu/enemies? unit entity)
            (not (get-in entity [:unit/movement :fleeing?])))
-      (conj (mv/opportunity-attack cube
-                                   (:unit/player unit)
-                                   (:entity/name unit)
-                                   (:unit/id unit)
-                                   (mu/unit-strength entity)))
+      (conj (mv/opportunity-attack cube (mu/unit-key unit) (mu/unit-strength entity)))
 
       (and (le/unit? entity)
            (lu/allies? unit entity)
            (<= 8 (mu/unit-strength unit))
            (lu/panickable? battlefield cube))
-      (conj (mv/panic cube
-                      (:unit/player entity)
-                      (:entity/name entity)
-                      (:unit/id entity))))))
+      (conj (mv/panic cube (mu/unit-key entity))))))
 
 
 (defn path-events

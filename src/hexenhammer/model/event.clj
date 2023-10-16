@@ -2,37 +2,29 @@
 
 
 (defn dangerous
-  [cube player name id]
+  [cube unit-key]
   {:event/class :dangerous
    :event/cube cube
-   :unit/player player
-   :entity/name name
-   :unit/id id})
+   :event/unit-key unit-key})
 
 
 (defn heavy-casualties
-  [cube player name id]
+  [cube unit-key]
   {:event/class :heavy-casualties
    :event/cube cube
-   :unit/player player
-   :entity/name name
-   :unit/id id})
+   :event/unit-key unit-key})
 
 
 (defn panic
-  [cube player name id]
+  [cube unit-key]
   {:event/class :panic
    :event/cube cube
-   :unit/player player
-   :entity/name name
-   :unit/id id})
+   :event/unit-key unit-key})
 
 
 (defn opportunity-attack
-  [cube player name id wounds]
+  [cube unit-key wounds]
   {:event/class :opportunity-attack
    :event/cube cube
-   :unit/player player
-   :entity/name name
-   :unit/id id
+   :event/unit-key unit-key
    :event/wounds wounds})
