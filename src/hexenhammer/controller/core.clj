@@ -317,7 +317,7 @@
 (defn skip-movement
   [state]
   (let [unit-cube (:game/selected state)]
-    (-> (assoc-in state [:game/battlefield unit-cube :unit/flags :unmoved?] true)
+    (-> (assoc-in state [:game/battlefield unit-cube :unit/movement :unmoved?] true)
         (update-in [:game/movement :movers] disj unit-cube)
         (unselect))))
 

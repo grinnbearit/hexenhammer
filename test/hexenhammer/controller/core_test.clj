@@ -849,7 +849,7 @@
  (provided
 
   (unselect {:game/selected :cube-1
-             :game/battlefield {:cube-1 {:unit/flags {:unmoved? true}}}
+             :game/battlefield {:cube-1 {:unit/movement {:unmoved? true}}}
              :game/movement {:movers #{:cube-2}}})
   => :unselect))
 
