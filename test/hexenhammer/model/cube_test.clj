@@ -132,7 +132,7 @@
  (cubes-between (->Cube 1 1 -2) (->Cube -1 -1 2))
  => [(->Cube 1 0 -1)
      (->Cube 0 0 0)
-     (->Cube -1 0 1)])
+     (->Cube 0 -1 1)])
 
 
 (facts

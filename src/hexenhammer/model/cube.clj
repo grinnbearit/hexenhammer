@@ -107,7 +107,7 @@
   "Given two cubes, returns all cubes intersected by a line drawn
   connecting the centres of each"
   [cx cy]
-  (let [cuts (inc (distance cx cy))
+  (let [cuts (* 2 (distance cx cy))
         delta (->Cube (/ (- (:q cy) (:q cx)) cuts)
                       (/ (- (:r cy) (:r cx)) cuts)
                       (/ (- (:s cy) (:s cx)) cuts))]
