@@ -716,38 +716,114 @@
              :game/subphase :select-hex})
   => :unselect))
 
+(facts
+ "unselect react"
+
+ (let [state {:game/phase :react
+              :game/react {:targets [:cube-1 :cube-2]}
+              :game/selected :cube-3
+              :game/battlemap :battlemap-1}]
+
+   (unselect state)
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (cb/refresh-battlemap {:game/phase :react
+                           :game/react {:targets [:cube-1 :cube-2]}
+                           :game/subphase :select-hex}
+                          [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap-2}
+
+    (l/set-state :battlemap-2 [:cube-1 :cube-2] :selectable)
+    => :battlemap-3)))
+
 
 (facts
  "declare charge"
 
- (let [battlefield {:cube-2 {:unit/player 1 :entity/name "unit" :unit/id 1
-                             :entity/cube :cube-2}
-                    :cube-3 {:unit/player 1 :entity/name "unit" :unit/id 2
-                             :entity/cube :cube-3}}
+ (let [battlefield {:cube-2 :unit-1
+                    :cube-3 :unit-2}
        state {:game/selected :cube-1
               :game/charge {:pointer :pointer-1
                             :pointer->targets {:pointer-1 [:cube-2 :cube-3]}}
-              :game/battlemap :battlemap-1
               :game/battlefield battlefield}]
 
    (declare-charge state)
+   => :unselect
+
+   (provided
+    (mu/unit-key :unit-1) => :unit-key-1
+    (mu/unit-key :unit-2) => :unit-key-2
+
+    (unselect {:game/selected :cube-1
+               :game/react {:charger :cube-1
+                            :declared #{:unit-key-1 :unit-key-2}
+                            :targets #{:cube-2 :cube-3}}
+               :game/battlefield battlefield
+               :game/phase :react})
+    => :unselect)))
+
+
+(facts
+ "select react select-hex"
+
+ (select {:game/selected :cube-1
+          :game/phase :react
+          :game/subphase :select-hex}
+         :cube-1)
+ => :unselect
+
+ (provided
+  (unselect {:game/selected :cube-1
+             :game/phase :react
+             :game/subphase :hold})
+  => :unselect))
+
+
+(facts
+ "select react hold"
+
+ (let [state {:game/phase :react
+              :game/subphase :hold
+              :game/selected :cube-1}]
+
+   (select state :cube-1)
+   => :unselect
+
+   (provided
+    (unselect state) => :unselect))
+
+
+ (let [state {:game/phase :react
+              :game/subphase :hold
+              :game/selected :cube-1
+              :game/battlemap :battlemap-1}]
+
+   (select state :cube-2)
    => {:game/battlemap :battlemap-3}
 
    (provided
-    (cb/refresh-battlemap {:game/charge {:charger :cube-1
-                                         :declared [{:unit/player 1
-                                                     :entity/name "unit"
-                                                     :unit/id 1}
-                                                    {:unit/player 1
-                                                     :entity/name "unit"
-                                                     :unit/id 2}]}
-                           :game/battlefield battlefield
-                           :game/subphase :react}
-                          [:cube-2 :cube-3])
+    (cb/refresh-battlemap {:game/phase :react
+                           :game/subphase :hold
+                           :game/selected :cube-2}
+                          [:cube-2])
     => {:game/battlemap :battlemap-2}
 
-    (l/set-state :battlemap-2 [:cube-2 :cube-3] :selectable)
+    (l/set-state :battlemap-2 [:cube-2] :selected)
     => :battlemap-3)))
+
+
+(facts
+ "react hold"
+
+ (react-hold {:game/selected :cube-1
+              :game/react {:targets #{:cube-1 :cube-2}}})
+ => :unselect
+
+ (provided
+  (unselect {:game/selected :cube-1
+             :game/react {:targets #{:cube-2}}})
+  => :unselect))
 
 
 (facts

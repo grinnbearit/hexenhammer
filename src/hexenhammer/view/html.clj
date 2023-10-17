@@ -317,7 +317,7 @@
     (html
      [:html
       [:head
-       [:h1 "Hexenhammer"]
+       [:h1 (str "Player - " (:game/player state))]
        [:h2 "Charge"]
        [:style STYLESHEET]]
       [:body
@@ -348,7 +348,7 @@
     (html
      [:html
       [:head
-       [:h1 "Hexenhammer"]
+       [:h1 (str "Player - " (:game/player state))]
        [:h2 "Charge"]
        [:style STYLESHEET]]
       [:body
@@ -359,16 +359,42 @@
         [:input {:type "submit" :value (format "Declare Charge (~%d%%)" charge-perc)}]]]])))
 
 
-(defmethod render [:charge :react]
+(defmethod render [:react :select-hex]
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 "Hexenhammer"]
-     [:h2 "Charge - React"]
-     [:style STYLESHEET]]
-    [:body
-     (vw/render-battlefield state) [:br] [:br]]]))
+  (let [targets (get-in state [:game/react :targets])]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Charge - React"]
+       [:style STYLESHEET]]
+      [:body
+       (vw/render-battlefield state) [:br] [:br]]
+
+      (if (empty? targets)
+        [:form {:action "/react/to-charge" :method "post"}
+         [:input {:type "submit" :value "To Charge" :disabled true}]])])))
+
+
+(defmethod render [:react :hold]
+  [state]
+  (let [cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Charge - React"]
+       [:style STYLESHEET]]
+      [:body
+       (vw/render-battlefield state) [:br] [:br]
+       (vw/render-profile unit) [:br]
+       [:form {:action "/react/hold" :method "post"}
+        [:input {:type "submit" :value "Hold!"}]]
+       [:table
+        [:tr
+         [:td "Hold"]
+         [:td "Flee"]]]]])))
 
 
 (defmethod render [:movement :select-hex]

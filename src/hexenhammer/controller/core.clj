@@ -263,19 +263,53 @@
       (select cube)))
 
 
+(defmethod unselect :react
+  [state]
+  (let [target-cubes (get-in state [:game/react :targets])]
+    (-> (assoc state
+               :game/subphase :select-hex
+               :game/react {:targets target-cubes})
+        (dissoc :game/selected
+                :game/battlemap)
+        (cb/refresh-battlemap target-cubes)
+        (update :game/battlemap l/set-state target-cubes :selectable))))
+
+
 (defn declare-charge
   [state]
   (let [pointer (get-in state [:game/charge :pointer])
-        targets (get-in state [:game/charge :pointer->targets pointer])]
-    (-> (assoc state :game/subphase :react)
-        (dissoc :game/battlemap :game/selected)
-        (assoc :game/charge
-               {:charger (:game/selected state)
-                :declared (for [cube targets]
-                            (-> (get-in state [:game/battlefield cube])
-                                (select-keys [:unit/player :entity/name :unit/id])))})
-        (cb/refresh-battlemap targets)
-        (update :game/battlemap l/set-state targets :selectable))))
+        target-cubes (get-in state [:game/charge :pointer->targets pointer])
+        target-units (map (:game/battlefield state) target-cubes)
+        target-keys (map mu/unit-key target-units)]
+    (-> (dissoc state :game/charge)
+        (assoc :game/phase :react
+               :game/react {:charger (:game/selected state)
+                            :declared (set target-keys)
+                            :targets (set target-cubes)})
+        (unselect))))
+
+
+(defmethod select [:react :select-hex]
+  [state cube]
+  (-> (assoc state :game/subphase :hold)
+      (select cube)))
+
+
+(defmethod select [:react :hold]
+  [state cube]
+  (if (= (:game/selected state) cube)
+    (unselect state)
+    (-> (assoc state :game/selected cube)
+        (dissoc :game/battlemap)
+        (cb/refresh-battlemap [cube])
+        (update :game/battlemap l/set-state [cube] :selected))))
+
+
+(defn react-hold
+  [state]
+  (let [cube (:game/selected state)]
+    (-> (update-in state [:game/react :targets] disj cube)
+        (unselect))))
 
 
 (defn reset-movement
