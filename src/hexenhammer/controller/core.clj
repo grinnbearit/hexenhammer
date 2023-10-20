@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.core
-  (:require [hexenhammer.model.cube :as mc]
+  (:require [clojure.set :as set]
+            [hexenhammer.model.cube :as mc]
             [hexenhammer.model.unit :as mu]
             [hexenhammer.model.entity :as me]
             [hexenhammer.logic.core :as l]
@@ -266,27 +267,45 @@
 (defmethod unselect :react
   [state]
   (let [target-cubes (get-in state [:game/react :targets])]
-    (-> (assoc state
-               :game/subphase :select-hex
-               :game/react {:targets target-cubes})
+    (-> (assoc state :game/subphase :select-hex)
         (dissoc :game/selected
                 :game/battlemap)
         (cb/refresh-battlemap target-cubes)
         (update :game/battlemap l/set-state target-cubes :selectable))))
 
 
+(defn reset-react
+  [state]
+  (let [remaining-keys (set/difference (get-in state [:game/react :declared])
+                                       (get-in state [:game/react :reacted]))
+        reactive-cubes (->> (map #(cu/key->cube state %) remaining-keys)
+                            (remove nil?)
+                            (filter #(lm/reactive? (:game/battlefield state) %)))]
+    (-> (assoc state :game/phase :react)
+        (update :game/react select-keys [:charger :declared :reacted])
+        (assoc-in [:game/react :targets] (set reactive-cubes))
+        (unselect))))
+
+
 (defn declare-charge
   [state]
   (let [pointer (get-in state [:game/charge :pointer])
-        target-cubes (get-in state [:game/charge :pointer->targets pointer])
-        target-units (map (:game/battlefield state) target-cubes)
-        target-keys (map mu/unit-key target-units)]
+        declared-keys (->> (get-in state [:game/charge :pointer->targets pointer])
+                           (map (comp mu/unit-key (:game/battlefield state))))]
     (-> (dissoc state :game/charge)
         (assoc :game/phase :react
                :game/react {:charger (:game/selected state)
-                            :declared (set target-keys)
-                            :targets (set target-cubes)})
-        (unselect))))
+                            :declared (set declared-keys)
+                            :reacted #{}})
+        (reset-react))))
+
+
+(defn react-transition
+  [state reaction]
+  (let [cube (:game/selected state)]
+    (-> (dissoc state :game/selected)
+        (assoc :game/subphase reaction)
+        (select cube))))
 
 
 (defmethod select [:react :select-hex]
@@ -305,11 +324,58 @@
         (update :game/battlemap l/set-state [cube] :selected))))
 
 
+(defmethod select [:react :flee]
+  [state cube]
+  (if (= (:game/selected state) cube)
+    (unselect state)
+    (let [trigger-cube (get-in state [:game/react :charger])
+          {:keys [battlemap]} (lm/show-flee-direction (:game/battlefield state) cube trigger-cube)]
+      (-> (assoc state
+                 :game/selected cube
+                 :game/battlemap battlemap)
+          (update :game/battlemap l/set-state [cube] :selected)))))
+
+
 (defn react-hold
   [state]
-  (let [cube (:game/selected state)]
+  (let [cube (:game/selected state)
+        unit-key (mu/unit-key (get-in state [:game/battlefield cube]))]
     (-> (update-in state [:game/react :targets] disj cube)
+        (update-in [:game/react :reacted] conj unit-key)
         (unselect))))
+
+
+(defn react-flee
+  [state]
+  (let [unit-cube (:game/selected state)
+        unit (get-in state [:game/battlefield unit-cube])
+        unit-key (mu/unit-key unit)
+        trigger-cube (get-in state [:game/react :charger])
+        roll (cd/roll! 2)
+        {:keys [battlemap end edge? events]} (lm/show-flee (:game/battlefield state)
+                                                           unit-cube
+                                                           trigger-cube
+                                                           (apply + roll))]
+
+    (-> (if edge?
+          (cu/escape-unit state unit-cube (:cube end))
+          (-> (assoc-in state [:game/battlefield unit-cube :unit/movement :fleeing?] true)
+              (cu/move-unit unit-cube end)))
+        (update :game/events into events)
+        (assoc :game/battlemap battlemap
+               :game/subphase :fled)
+        (update-in [:game/react :reacted] conj unit-key)
+        (assoc-in [:game/react :flee]
+                  {:edge? edge?
+                   :unit unit
+                   :roll roll})
+        (cb/refresh-battlemap [trigger-cube (:cube end)])
+        (update :game/battlemap l/set-state [trigger-cube (:cube end)] :marked))))
+
+
+(defn react-trigger
+  [state]
+  (trigger state reset-react))
 
 
 (defn reset-movement

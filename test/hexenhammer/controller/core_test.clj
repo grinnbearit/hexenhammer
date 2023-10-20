@@ -739,29 +739,75 @@
 
 
 (facts
+ "reset react"
+
+ (let [state {:game/battlefield :battlefield-1
+              :game/react {:charger :cube-1
+                           :declared #{:unit-key-1 :unit-key-2 :unit-key-3 :unit-key-4}
+                           :reacted #{:unit-key-1}
+                           :flee :flee-1}}]
+
+   (reset-react state)
+   => :unselect
+
+   (provided
+    (cu/key->cube state :unit-key-2) => nil
+    (cu/key->cube state :unit-key-3) => :cube-3
+    (cu/key->cube state :unit-key-4) => :cube-4
+
+    (lm/reactive? :battlefield-1 :cube-3) => false
+    (lm/reactive? :battlefield-1 :cube-4) => true
+
+    (unselect {:game/phase :react
+               :game/battlefield :battlefield-1
+               :game/react {:charger :cube-1
+                            :declared #{:unit-key-1 :unit-key-2 :unit-key-3 :unit-key-4}
+                            :reacted #{:unit-key-1}
+                            :targets #{:cube-4}}})
+    => :unselect)))
+
+
+(facts
  "declare charge"
 
- (let [battlefield {:cube-2 :unit-1
-                    :cube-3 :unit-2}
+ (let [pointer (mc/->Pointer :cube-1 :n)
        state {:game/selected :cube-1
-              :game/charge {:pointer :pointer-1
-                            :pointer->targets {:pointer-1 [:cube-2 :cube-3]}}
-              :game/battlefield battlefield}]
+              :game/battlefield {:cube-2 :unit-1
+                                 :cube-3 :unit-2}
+              :game/charge {:pointer pointer
+                            :pointer->targets {pointer #{:cube-2 :cube-3}}}}]
+
 
    (declare-charge state)
-   => :unselect
+   => :reset-react
+
 
    (provided
     (mu/unit-key :unit-1) => :unit-key-1
     (mu/unit-key :unit-2) => :unit-key-2
 
-    (unselect {:game/selected :cube-1
-               :game/react {:charger :cube-1
-                            :declared #{:unit-key-1 :unit-key-2}
-                            :targets #{:cube-2 :cube-3}}
-               :game/battlefield battlefield
-               :game/phase :react})
-    => :unselect)))
+    (reset-react {:game/phase :react
+                  :game/selected :cube-1
+                  :game/battlefield {:cube-2 :unit-1
+                                     :cube-3 :unit-2}
+                  :game/react {:charger :cube-1
+                               :declared #{:unit-key-1 :unit-key-2}
+                               :reacted #{}}})
+    => :reset-react)))
+
+
+(facts
+ "react transition"
+
+ (react-transition {:game/selected :cube-1
+                    :game/subphase :select-hex}
+                   :flee)
+ => :select
+
+ (provided
+  (select {:game/subphase :flee}
+          :cube-1)
+  => :select))
 
 
 (facts
@@ -814,16 +860,154 @@
 
 
 (facts
+ "select react flee"
+
+ (let [state {:game/phase :react
+              :game/subphase :flee
+              :game/selected :cube-1}]
+
+   (select state :cube-1)
+   => :unselect
+
+   (provided
+    (unselect state) => :unselect))
+
+
+ (let [state {:game/phase :react
+              :game/subphase :flee
+              :game/selected :cube-1
+              :game/battlefield :battlefield-1
+              :game/react {:charger :cube-3}}]
+
+   (select state :cube-2)
+   => {:game/phase :react
+       :game/subphase :flee
+       :game/selected :cube-2
+       :game/battlefield :battlefield-1
+       :game/battlemap :battlemap-2
+       :game/react {:charger :cube-3}}
+
+   (provided
+    (lm/show-flee-direction :battlefield-1 :cube-2 :cube-3)
+    => {:battlemap :battlemap-1}
+
+    (l/set-state :battlemap-1 [:cube-2] :selected)
+    => :battlemap-2)))
+
+
+(facts
  "react hold"
 
- (react-hold {:game/selected :cube-1
-              :game/react {:targets #{:cube-1 :cube-2}}})
- => :unselect
+ (let [state {:game/selected :cube-1
+              :game/battlefield {:cube-1 :unit-1}
+              :game/react {:targets #{:cube-1 :cube-2}
+                           :reacted #{}}}]
+
+   (react-hold state)
+   => :unselect
+
+   (provided
+    (mu/unit-key :unit-1) => :unit-key-1
+
+    (unselect {:game/selected :cube-1
+               :game/battlefield {:cube-1 :unit-1}
+               :game/react {:targets #{:cube-2}
+                            :reacted #{:unit-key-1}}})
+    => :unselect)))
+
+
+(facts
+ "react flee"
+
+ (let [battlefield {:cube-2 :unit-1}
+       state {:game/selected :cube-2
+              :game/react {:charger :cube-1}
+              :game/battlefield battlefield}
+       end (mc/->Pointer :cube-3 :n)]
+
+   (react-flee state)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (mu/unit-key :unit-1) => :unit-key-1
+
+    (cd/roll! 2) => [2 3]
+
+    (lm/show-flee battlefield :cube-2 :cube-1 5)
+    => {:battlemap :battlemap-1
+        :end end
+        :edge? true
+        :events [:event-1]}
+
+    (cu/escape-unit state :cube-2 :cube-3)
+    => {:game/events []
+        :game/react {:reacted #{}}}
+
+    (cb/refresh-battlemap {:game/react {:flee {:edge? true
+                                               :unit :unit-1
+                                               :roll [2 3]}
+                                        :reacted #{:unit-key-1}}
+                           :game/events [:event-1]
+                           :game/battlemap :battlemap-1
+                           :game/subphase :fled}
+                          [:cube-1 :cube-3])
+    => {:game/battlemap :battlemap-1}
+
+    (l/set-state :battlemap-1 [:cube-1 :cube-3] :marked)
+    => :battlemap-2))
+
+
+ (let [unit {:entity/class :unit}
+       battlefield {:cube-2 unit}
+       state {:game/selected :cube-2
+              :game/react {:charger :cube-1}
+              :game/battlefield battlefield}
+       end (mc/->Pointer :cube-3 :n)]
+
+   (react-flee state)
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (mu/unit-key {:entity/class :unit}) => :unit-key-1
+
+    (cd/roll! 2) => [2 3]
+
+    (lm/show-flee battlefield :cube-2 :cube-1 5)
+    => {:battlemap :battlemap-1
+        :end end
+        :edge? false
+        :events [:event-1]}
+
+    (cu/move-unit {:game/selected :cube-2
+                   :game/react {:charger :cube-1}
+                   :game/battlefield {:cube-2 {:entity/class :unit
+                                               :unit/movement {:fleeing? true}}}}
+                  :cube-2 end)
+    => {:game/events []
+        :game/react {:reacted #{}}}
+
+    (cb/refresh-battlemap {:game/events [:event-1]
+                           :game/battlemap :battlemap-1
+                           :game/subphase :fled
+                           :game/react {:flee {:edge? false
+                                               :unit unit
+                                               :roll [2 3]}
+                                        :reacted #{:unit-key-1}}}
+                          [:cube-1 :cube-3])
+    => {:game/battlemap :battlemap-2}
+
+    (l/set-state :battlemap-2 [:cube-1 :cube-3] :marked)
+    => :battlemap-3)))
+
+
+(facts
+ "react trigger"
+
+ (react-trigger :state)
+ => :trigger
 
  (provided
-  (unselect {:game/selected :cube-1
-             :game/react {:targets #{:cube-2}}})
-  => :unselect))
+  (trigger :state reset-react) => :trigger))
 
 
 (facts

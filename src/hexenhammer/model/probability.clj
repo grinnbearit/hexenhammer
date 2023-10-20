@@ -18,6 +18,12 @@
       (update-vals #(/ % 36))))
 
 
+(def FLEE
+  (->> (for [[roll prob] ROLL-2D6]
+         {(m/M->hexes roll) prob})
+       (apply merge-with +)))
+
+
 (defn march
   [Ld]
   (->> (map ROLL-2D6 (range 2 (inc Ld)))

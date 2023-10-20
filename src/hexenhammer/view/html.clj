@@ -147,7 +147,7 @@
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
         (if unit-destroyed?
-          [:h3 (str (vw/unit-str unit) " destroyed")]
+          [:h3 (str (vw/unit-key->str unit) " destroyed")]
           [:h3 (format "%d Models Destroyed" models-destroyed)])
         (svg/dice roll 2)
         [:form {:action "/trigger/next" :method "post"}
@@ -168,7 +168,7 @@
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
         (if unit-destroyed?
-          [:h3 (str (vw/unit-str unit) " destroyed")]
+          [:h3 (str (vw/unit-key->str unit) " destroyed")]
           [:h3 (format "%d Wounds Taken" wounds)])
         [:form {:action "/trigger/next" :method "post"}
          [:input {:type "submit" :value "Next"}]]]]])))
@@ -228,7 +228,7 @@
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
         (when edge?
-          [:h3 (str (vw/unit-str unit) " flees the Battlefield")])
+          [:h3 (str (vw/unit-key->str unit) " flees the Battlefield")])
         (svg/dice roll)
         [:form {:action "/trigger/next" :method "post"}
          [:input {:type "submit" :value "Next"}]]]]])))
@@ -288,7 +288,7 @@
         (vw/render-profile unit) [:br]
         (vw/render-events (:game/events state)) [:br]
         (when edge?
-          [:h3 (str (vw/unit-str unit) " flees the Battlefield")])
+          [:h3 (str (vw/unit-key->str unit) " flees the Battlefield")])
         (svg/dice roll)
         [:form {:action "/trigger/next" :method "post"}
          [:input {:type "submit" :value "Next"}]]]]])))
@@ -394,7 +394,61 @@
        [:table
         [:tr
          [:td "Hold"]
+         [:td [:a {:href "/react/flee"} "Flee"]]]]]])))
+
+
+(defmethod render [:react :flee]
+  [state]
+  (let [cube (:game/selected state)
+        unit (get-in state [:game/battlefield cube])
+        flee-prob (sort mp/FLEE)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Charge - React"]
+       [:style STYLESHEET]]
+      [:body
+       (vw/render-battlefield state) [:br] [:br]
+       (vw/render-profile unit) [:br]
+
+       [:table
+        [:thead
+         [:th "Flee Distance"]
+         [:th "Roll %"]]
+        [:tbody
+         (for [[hexes prob] flee-prob
+               :let [perc (Math/round (float (* 100 prob)))]]
+           [:tr
+            [:td hexes]
+            [:td (format "~%d%%" perc)]])]] [:br]
+
+       [:form {:action "/react/flee" :method "post"}
+        [:input {:type "submit" :value "Flee!"}]]
+       [:table
+        [:tr
+         [:td [:a {:href "/react/hold"} "Hold"]]
          [:td "Flee"]]]]])))
+
+
+(defmethod render [:react :fled]
+  [state]
+  (let [{:keys [edge? unit roll]} (get-in state [:game/react :flee])]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Charge - Flee!"]
+       [:style STYLESHEET]
+       [:body
+        (vw/render-battlefield state) [:br] [:br]
+        (vw/render-profile unit) [:br]
+        (vw/render-events (:game/events state)) [:br]
+        (when edge?
+          [:h3 (str (vw/unit-key->str unit) " flees the Battlefield")])
+        (svg/dice roll)
+        [:form {:action "/react/trigger" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
 
 
 (defmethod render [:movement :select-hex]

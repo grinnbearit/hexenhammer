@@ -1016,6 +1016,23 @@
 
 
 (facts
+ "show flee direction"
+
+ (let [unit {:unit/player 1
+             :unit/facing :n}
+       battlefield {:cube-1 unit}
+       pointer (mc/->Pointer :cube-1 :n)
+       start (mc/->Pointer :cube-1 :s)]
+
+   (show-flee-direction battlefield :cube-1 :cube-2)
+   => {:battlemap :battlemap-1}
+
+   (provided
+    (flee-direction pointer :cube-2) => :s
+    (show-flee-map battlefield 1 start) => :battlemap-1)))
+
+
+(facts
  "show flee"
 
  (let [unit {:unit/player 1
@@ -1036,3 +1053,34 @@
     (flee-path battlefield start 3) => {:path [start end] :edge? false}
     (show-flee-map battlefield 1 start) => :battlemap-1
     (path-events battlefield unit [start end]) => :events-1)))
+
+
+(facts
+ "reactive?"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (reactive? battlefield :cube-1)
+   => false
+
+   (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => true))
+
+
+ (let [unit {:unit/movement {:fleeing? true}}
+       battlefield {:cube-1 unit}]
+
+   (reactive? battlefield :cube-1)
+   => false
+
+   (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (reactive? battlefield :cube-1)
+   => true
+
+   (provided
+    (lu/battlefield-engaged? battlefield :cube-1) => false)))

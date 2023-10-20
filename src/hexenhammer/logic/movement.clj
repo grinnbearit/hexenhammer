@@ -454,6 +454,16 @@
                (lt/swap (battlefield cube)))}))
 
 
+(defn show-flee-direction
+  [battlefield unit-cube trigger-cube]
+  (let [unit (battlefield unit-cube)
+        pointer (mc/->Pointer unit-cube (:unit/facing unit))
+        direction (flee-direction pointer trigger-cube)
+        start (mc/->Pointer unit-cube direction)
+        battlemap (show-flee-map battlefield (:unit/player unit) start)]
+    {:battlemap battlemap}))
+
+
 (defn show-flee
   [battlefield unit-cube trigger-cube roll]
   (let [unit (battlefield unit-cube)
@@ -469,3 +479,11 @@
      :end end
      :edge? edge?
      :events events}))
+
+
+(defn reactive?
+  "True if the unit cube is still capable of reacting"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (not (or (lu/battlefield-engaged? battlefield unit-cube)
+             (get-in unit [:unit/movement :fleeing?])))))
