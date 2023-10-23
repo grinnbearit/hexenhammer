@@ -5,15 +5,28 @@
 
 
 (facts
+ "render base"
+
+ (render-base {:terrain/type :open
+               :entity/presentation :default})
+ => [:hexagon {:class "terrain open default"}]
+
+ (provided
+  (rs/hexagon) => [:hexagon {}]))
+
+
+(facts
  "render terrain"
 
  (let [entity {:entity/class :terrain
-               :terrain/type :open}]
+               :entity/presentation :default}]
 
-   (render entity :cube-1)
-   => :translate
+   (render entity :phase-1 :cube-1)
+   => :if-selectable
 
    (provided
-    (rs/hexagon) => [:terrain {}]
+    (render-base entity) => :render-base
 
-    (rs/translate [:terrain {:class "terrain open"}] :cube-1) => :translate)))
+    (rs/translate :render-base :cube-1) => :translate
+
+    (rs/if-selectable :translate :default :phase-1 :cube-1) => :if-selectable)))

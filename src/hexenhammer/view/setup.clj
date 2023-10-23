@@ -14,3 +14,15 @@
      [:style STYLESHEET]
      [:body
       (rc/render-battlefield state)]]]))
+
+
+(defn add-unit
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Setup - Add Unit"]
+     [:style STYLESHEET]
+     [:body
+      (rc/render-battlefield state)]]]))

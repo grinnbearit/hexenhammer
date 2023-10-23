@@ -85,3 +85,47 @@
 
  (add-classes [:element-1 {:class "class-1"}] ["class-2" "class-3"])
  => [:element-1 {:class "class-1 class-2 class-3"}])
+
+
+(facts
+ "anchor"
+
+ (anchor :element-1 :href-1)
+ => [:a {:href :href-1} :element-1])
+
+
+(facts
+ "phase -> url"
+
+ (phase->url "/prefix/" [:phase :subphase])
+ => "/prefix/phase/subphase"
+
+ (phase->url "/prefix/" [:phase] {:x 1 :y 2})
+ => "/prefix/phase?x=1&y=2")
+
+
+(facts
+ "selectable"
+
+ (selectable :element-1 :phase :form)
+ => [:a {:href :url} :element-1]
+
+ (provided
+  (phase->url "/select/" :phase :form) => :url))
+
+
+(facts
+ "if selectable"
+
+ (if-selectable :element-1 :presentation-1 :phase-1 :cube-1)
+ => :element-1
+
+
+ (for [presentation [:selectable :silent-selectable :selected]]
+
+   (if-selectable :element-1 presentation :phase-1 :cube-1)
+   => :selectable
+
+   (provided
+    (selectable :element-1 :phase-1 :cube-1)
+    => :selectable)))

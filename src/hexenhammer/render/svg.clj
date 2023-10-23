@@ -1,5 +1,6 @@
 (ns hexenhammer.render.svg
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [ring.util.codec :refer [form-encode]]))
 
 
 (def WIDTH 80)
@@ -67,3 +68,33 @@
   [element classes]
   (let [class-str (str/join " " classes)]
     (update-in element [1 :class] #(if % (str % " " class-str) class-str))))
+
+
+(defn anchor
+  "given an element, wraps it in an anchor tag with the passed href"
+  [element href]
+  [:a {:href href} element])
+
+
+(defn phase->url
+  ([prefix phase]
+   (->> (map name phase)
+        (str/join "/")
+        (str prefix)))
+  ([prefix phase form]
+   (str (phase->url prefix phase) "?" (form-encode form))))
+
+
+(defn selectable
+  "given an element and a cube, wraps it in an anchor tag  pointing to /select/:phase/:subphase...?[cube]"
+  [element phase cube]
+  (anchor element (phase->url "/select/" phase cube)))
+
+
+(defn if-selectable
+  "Depending on the presentation, adds a selectable wrapper"
+  [element presentation phase cube]
+  (cond-> element
+
+    (#{:selectable :silent-selectable :selected} presentation)
+    (selectable phase cube)))

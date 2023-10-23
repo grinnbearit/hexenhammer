@@ -2,12 +2,20 @@
   (:require [hexenhammer.render.svg :as rs]))
 
 
-(defmulti render (fn [entity cube] (:entity/class entity)))
+(defn render-base
+  "Generates a base for an entity"
+  [terrain]
+  (let [type-str (name (:terrain/type terrain))
+        presentation-str (name (:entity/presentation terrain))]
+    (-> (rs/hexagon)
+        (rs/add-classes ["terrain" type-str presentation-str]))))
+
+
+(defmulti render (fn [entity phase cube] (:entity/class entity)))
 
 
 (defmethod render :terrain
-  [terrain cube]
-  (let [type-str (name (:terrain/type terrain))]
-    (-> (rs/hexagon)
-        (rs/add-classes ["terrain" type-str])
-        (rs/translate cube))))
+  [terrain phase cube]
+  (-> (render-base terrain)
+      (rs/translate cube)
+      (rs/if-selectable (:entity/presentation terrain) phase cube)))
