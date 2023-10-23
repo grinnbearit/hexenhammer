@@ -1,6 +1,8 @@
 (ns hexenhammer.render.core
-  (:require [hexenhammer.render.entity :as re]
-            [hexenhammer.render.svg :as rs]))
+  (:require [hexenhammer.logic.entity.unit :as leu]
+            [hexenhammer.render.bit :as rb]
+            [hexenhammer.render.svg :as rs]
+            [hexenhammer.render.entity :as re]))
 
 
 (defn entity->z
@@ -18,3 +20,21 @@
      (for [[cube entity] (->> (merge battlefield battlemap)
                               (sort-by (comp entity->z last)))]
        (re/render entity phase cube))]))
+
+
+(defn render-profile
+  [unit]
+  [:div
+   [:h3 (rb/unit-key->str unit)]
+   [:table.profile
+    [:thead
+     [:tr [:th "M"][:th "Ld"] [:th "W"] [:th "Formation"] [:th "Damage"] [:th "Models"] [:th "Unit Strength"]]]
+    [:tbody
+     [:tr
+      [:td (:unit/M unit)]
+      [:td (:unit/Ld unit)]
+      [:td (:unit/W unit)]
+      [:td (format "%d x %d" (:unit/F unit) (:unit/ranks unit))]
+      [:td (:unit/damage unit)]
+      [:td (leu/models unit)]
+      [:td (leu/unit-strength unit)]]]]])

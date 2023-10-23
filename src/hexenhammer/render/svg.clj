@@ -1,6 +1,6 @@
 (ns hexenhammer.render.svg
   (:require [clojure.string :as str]
-            [ring.util.codec :refer [form-encode]]))
+            [hexenhammer.render.bit :as rb]))
 
 
 (def WIDTH 80)
@@ -45,6 +45,22 @@
     (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
 
 
+(defn rotate
+  "Returns the element with a transform attribute that rotates it by angle `angle`'"
+  [element angle]
+  (let [attrs (element 1)
+        tran-str (format "rotate(%.2f)" (float angle))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
+
+
+(defn scale
+  "Returns the element with a transform attribute that scales it by a factor `factor`"
+  [element factor]
+  (let [attrs (element 1)
+        tran-str (format "scale(%.2f)" (float factor))]
+    (update-in element [1 :transform] #(if % (str tran-str " " %) tran-str))))
+
+
 (defn gen-hexpoints
   ;; points of a hexagon, centred at 0, 0
   [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
@@ -76,19 +92,10 @@
   [:a {:href href} element])
 
 
-(defn phase->url
-  ([prefix phase]
-   (->> (map name phase)
-        (str/join "/")
-        (str prefix)))
-  ([prefix phase form]
-   (str (phase->url prefix phase) "?" (form-encode form))))
-
-
 (defn selectable
   "given an element and a cube, wraps it in an anchor tag  pointing to /select/:phase/:subphase...?[cube]"
   [element phase cube]
-  (anchor element (phase->url "/select/" phase cube)))
+  (anchor element (rb/phase->url "/select/" phase cube)))
 
 
 (defn if-selectable
@@ -98,3 +105,33 @@
 
     (#{:selectable :silent-selectable :selected} presentation)
     (selectable phase cube)))
+
+
+(def facing->angle
+  (zipmap [:s :sw :nw :n :ne :se] (map #(* 60 %) (range))))
+
+
+(defn gen-chevpoints
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[0 (/ height 2)]
+   [(- (* width 1/20)) (* height 45/100)]
+   [(+ (* width 1/20)) (* height 45/100)]])
+
+
+(defn chevron
+  "draws a chevron pointing to a face of the hex"
+  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (rotate
+   [:polygon {:points (points->str (gen-chevpoints :width width :height height))
+              :stroke "white" :fill "white"}]
+   (facing->angle facing)))
+
+
+(defn text
+  "Returns an svg text element withis a text offset from the centre of the hex"
+  [text row & {:keys [font-size] :or {font-size FONT-SIZE}}]
+  (let [x-offset (- (* (/ (inc (count text)) 2) 1/2 font-size))
+        y-offset (+ (* row font-size) (/ font-size 4))]
+    [:text {:x x-offset :y y-offset
+            :font-family "monospace" :font-size (str font-size) :fill "white"}
+     text]))

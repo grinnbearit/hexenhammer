@@ -1,7 +1,7 @@
 (ns hexenhammer.web.server
   (:require [hexenhammer.logic.cube :as lc]
             [ring.util.response :refer [redirect]]
-            [hexenhammer.render.svg :refer [phase->url]]))
+            [hexenhammer.render.bit :refer [phase->url]]))
 
 
 (defn wrap-redirect-phase

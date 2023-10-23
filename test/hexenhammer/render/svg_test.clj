@@ -1,6 +1,7 @@
 (ns hexenhammer.render.svg-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.cube :as lc]
+            [hexenhammer.render.bit :as rb]
             [hexenhammer.render.svg :refer :all]))
 
 
@@ -59,6 +60,26 @@
 
 
 (facts
+ "rotate"
+
+ (rotate [:element {}] 30)
+ => [:element {:transform "rotate(30.00)"}]
+
+ (rotate [:element {:transform "scale(0.90)"}] 30)
+ => [:element {:transform "rotate(30.00) scale(0.90)"}])
+
+
+(facts
+ "scale"
+
+ (scale [:g {}] 9/10)
+ => [:g {:transform "scale(0.90)"}]
+
+ (scale [:g {:transform "rotate(30)"}] 9/10)
+ => [:g {:transform "scale(0.90) rotate(30)"}])
+
+
+(facts
  "gen hexpoints"
 
  (gen-hexpoints :width 200 :height 100)
@@ -95,23 +116,13 @@
 
 
 (facts
- "phase -> url"
-
- (phase->url "/prefix/" [:phase :subphase])
- => "/prefix/phase/subphase"
-
- (phase->url "/prefix/" [:phase] {:x 1 :y 2})
- => "/prefix/phase?x=1&y=2")
-
-
-(facts
  "selectable"
 
  (selectable :element-1 :phase :form)
  => [:a {:href :url} :element-1]
 
  (provided
-  (phase->url "/select/" :phase :form) => :url))
+  (rb/phase->url "/select/" :phase :form) => :url))
 
 
 (facts
@@ -129,3 +140,45 @@
    (provided
     (selectable :element-1 :phase-1 :cube-1)
     => :selectable)))
+
+
+(facts
+ "facing -> angle"
+
+ (facing->angle :s) => 0
+ (facing->angle :n) => 180
+ (facing->angle :se) => 300)
+
+
+(facts
+ "gen chevpoints"
+
+ (gen-chevpoints :width 200 :height 100)
+ => [[0 50] [-10 45] [10 45]])
+
+
+(facts
+ "chevron"
+
+ (chevron :n :width 200 :height 100)
+ => :rotate
+
+ (provided
+  (points->str (gen-chevpoints :width 200 :height 100)) => :chevpoints-1
+
+  (rotate [:polygon {:points :chevpoints-1 :stroke "white" :fill "white"}] 180)
+  => :rotate))
+
+
+(facts
+ "text"
+
+ (text "" 0 :font-size 12)
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -3 :y 3} ""]
+
+
+ (text "0" 1 :font-size 12)
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y 15} "0"]
+
+ (text "0" -1 :font-size 12)
+ => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y -9} "0"])
