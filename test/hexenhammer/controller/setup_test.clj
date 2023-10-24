@@ -124,3 +124,60 @@
                :game/units {1 {"unit" {:cubes {}}}}
                :game/battlefield {:cube-1 :terrain-1}})
     => :unselect)))
+
+
+(facts
+ "swap terrain"
+
+ (swap-terrain {:game/cube :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :open)
+ => :unselect
+
+ (provided
+  (let/terrain? :entity-1) => true
+
+  (unselect {:game/cube :cube-1
+             :game/battlefield {:cube-1 let/OPEN-GROUND}})
+  => :unselect)
+
+
+ (swap-terrain {:game/cube :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :dangerous)
+ => :unselect
+
+ (provided
+  (let/terrain? :entity-1) => true
+
+  (unselect {:game/cube :cube-1
+             :game/battlefield {:cube-1 let/DANGEROUS-TERRAIN}})
+  => :unselect)
+
+
+  (swap-terrain {:game/cube :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :impassable)
+ => :unselect
+
+ (provided
+  (let/terrain? :entity-1) => true
+
+  (unselect {:game/cube :cube-1
+             :game/battlefield {:cube-1 let/IMPASSABLE-TERRAIN}})
+  => :unselect)
+
+
+ (swap-terrain {:game/cube :cube-1
+                :game/battlefield {:cube-1 :entity-1}}
+               :open)
+ => :unselect
+
+ (provided
+  (let/terrain? :entity-1) => false
+
+  (let/place let/OPEN-GROUND :entity-1) => :entity-2
+
+  (unselect {:game/cube :cube-1
+             :game/battlefield {:cube-1 :entity-2}})
+  => :unselect))

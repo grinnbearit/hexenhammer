@@ -1,13 +1,22 @@
 (ns hexenhammer.logic.entity.terrain)
 
 
-(defn gen-open-ground
-  "Returns an open ground terrain object"
-  []
+(def OPEN-GROUND
   {:entity/class :terrain
    :entity/presentation :default
    :entity/los 0
    :terrain/type :open})
+
+
+(def DANGEROUS-TERRAIN
+  (assoc OPEN-GROUND
+         :terrain/type :dangerous))
+
+
+(def IMPASSABLE-TERRAIN
+  (assoc OPEN-GROUND
+         :terrain/type :impassable
+         :entity/los 5))
 
 
 (defn terrain?

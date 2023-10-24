@@ -53,3 +53,16 @@
     (-> (update state :game/battlefield lbu/remove-unit unit-cube)
         (update-in [:game/units player name :cubes] dissoc id)
         (unselect))))
+
+
+(defn swap-terrain
+  [state terrain]
+  (let [cube (:game/cube state)
+        entity (get-in state [:game/battlefield cube])
+        new-terrain (case terrain
+                      :open let/OPEN-GROUND
+                      :dangerous let/DANGEROUS-TERRAIN
+                      :impassable let/IMPASSABLE-TERRAIN)
+        new-entity (if (let/terrain? entity) new-terrain (let/place new-terrain entity))]
+    (-> (assoc-in state [:game/battlefield cube] new-entity)
+        (unselect))))

@@ -29,7 +29,8 @@
                                                         (Integer/parseInt M)
                                                         (Integer/parseInt Ld)
                                                         (Integer/parseInt R)))
-  (POST "/setup/remove-unit" [] (swap! hexenhammer-state cs/remove-unit)))
+  (POST "/setup/remove-unit" [] (swap! hexenhammer-state cs/remove-unit))
+  (POST "/setup/swap-terrain" [terrain] (swap! hexenhammer-state cs/swap-terrain (keyword terrain))))
 
 
 (defroutes select-handler

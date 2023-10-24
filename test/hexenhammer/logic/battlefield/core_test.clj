@@ -33,10 +33,9 @@
  (gen-initial-state 3 4)
  => {:game/setup {:rows 3
                   :columns 4}
-     :game/battlefield {:cube-1 :terrain-1
-                        :cube-2 :terrain-1}
+     :game/battlefield {:cube-1 let/OPEN-GROUND
+                        :cube-2 let/OPEN-GROUND}
      :game/events []}
 
  (provided
-  (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]
-  (let/gen-open-ground) => :terrain-1))
+  (gen-battlefield-cubes 3 4) => [:cube-1 :cube-2]))
