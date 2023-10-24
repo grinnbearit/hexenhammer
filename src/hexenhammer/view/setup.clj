@@ -64,7 +64,7 @@
 
 (defn remove-unit
   [state]
-  (let [cube (:game/selected state)
+  (let [cube (:game/cube state)
         unit (get-in state [:game/battlefield cube])]
     (html
      [:html

@@ -11,7 +11,7 @@
         subphase (if (let/terrain? entity) :add-unit :remove-unit)]
     (-> (assoc state
                :game/phase [:setup subphase]
-               :game/selected cube)
+               :game/cube cube)
         (t/reset-battlemap [cube])
         (update :game/battlemap t/set-presentation [cube] :selected))))
 
@@ -19,7 +19,7 @@
 (defn unselect
   [state]
   (-> (assoc state :game/phase [:setup :select-hex])
-      (dissoc :game/selected)
+      (dissoc :game/cube)
       (t/reset-battlemap)
       (update :game/battlemap t/set-presentation :silent-selectable)))
 
@@ -36,7 +36,7 @@
 
 (defn add-unit
   [state player facing M Ld R]
-  (let [cube (:game/selected state)
+  (let [cube (:game/cube state)
         prev-id (get-in state [:game/units player "infantry" :counter] 0)
         next-id (inc prev-id)
         unit (leu/gen-infantry player next-id facing M Ld R)]
@@ -48,7 +48,7 @@
 
 (defn remove-unit
   [state]
-  (let [unit-cube (:game/selected state)
+  (let [unit-cube (:game/cube state)
         {:keys [unit/player unit/name unit/id]} (get-in state [:game/battlefield unit-cube])]
     (-> (update state :game/battlefield lbu/remove-unit unit-cube)
         (update-in [:game/units player name :cubes] dissoc id)
