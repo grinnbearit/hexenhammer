@@ -1,6 +1,6 @@
-(ns hexenhammer.transition.core-test
+(ns hexenhammer.transition.battlemap-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.transition.core :refer :all]))
+            [hexenhammer.transition.battlemap :refer :all]))
 
 
 (facts

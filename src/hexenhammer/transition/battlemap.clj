@@ -1,4 +1,4 @@
-(ns hexenhammer.transition.core)
+(ns hexenhammer.transition.battlemap)
 
 
 (defn reset-battlemap
