@@ -5,6 +5,7 @@
             [hexenhammer.controller.setup :as cs]
             [hexenhammer.view.core :as v]
             [hexenhammer.view.setup :as vs]
+            [hexenhammer.view.movement :as vm]
             [hexenhammer.web.server :as ws]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.params :refer [wrap-params]]))
@@ -18,11 +19,14 @@
   (GET "/favicon.ico" [] "")
   (GET "/setup/select-hex" [] (vs/select @hexenhammer-state))
   (GET "/setup/add-unit" [] (vs/add-unit @hexenhammer-state))
-  (GET "/setup/remove-unit" [] (vs/remove-unit @hexenhammer-state)))
+  (GET "/setup/remove-unit" [] (vs/remove-unit @hexenhammer-state))
+
+  (GET "/movement/select-hex" [] (vm/select @hexenhammer-state)))
 
 
 (defroutes controller-handler
   (POST "/to-setup" [] (swap! hexenhammer-state c/to-setup))
+  (POST "/to-movement" [] (swap! hexenhammer-state c/to-movement))
   (POST "/setup/add-unit" [player facing M Ld R] (swap! hexenhammer-state cs/add-unit
                                                         (Integer/parseInt player)
                                                         (keyword facing)

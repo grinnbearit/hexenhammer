@@ -3,6 +3,7 @@
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.transition.core :as t]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.controller.setup :refer :all]))
 
@@ -18,7 +19,7 @@
    (provided
     (let/terrain? :terrain-1) => true
 
-    (tb/reset-battlemap {:game/battlefield {:cube-1 :terrain-1}
+    (t/reset-battlemap {:game/battlefield {:cube-1 :terrain-1}
                         :game/phase [:setup :add-unit]
                         :game/cube :cube-1}
                        [:cube-1])
@@ -36,7 +37,7 @@
    (provided
     (let/terrain? :unit-1) => false
 
-    (tb/reset-battlemap {:game/battlefield {:cube-1 :unit-1}
+    (t/reset-battlemap {:game/battlefield {:cube-1 :unit-1}
                         :game/phase [:setup :remove-unit]
                         :game/cube :cube-1}
                        [:cube-1])
@@ -56,7 +57,7 @@
    => {:game/battlemap :battlemap-2}
 
    (provided
-    (tb/reset-battlemap {:game/phase [:setup :select-hex]})
+    (t/reset-battlemap {:game/phase [:setup :select-hex]})
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 :silent-selectable)
@@ -155,7 +156,7 @@
   => :unselect)
 
 
-  (swap-terrain {:game/cube :cube-1
+ (swap-terrain {:game/cube :cube-1
                 :game/battlefield {:cube-1 :entity-1}}
                :impassable)
  => :unselect

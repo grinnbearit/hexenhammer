@@ -14,7 +14,9 @@
      [:h2 "Setup - Select Hex"]
      [:style STYLESHEET]
      [:body
-      (rc/render-battlefield state)]]]))
+      (rc/render-battlefield state) [:br] [:br]
+      [:form {:action "/to-movement" :method "post"}
+       [:input {:type "submit" :value "To Movement"}]]]]]))
 
 
 (defn add-unit

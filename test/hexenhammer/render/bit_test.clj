@@ -26,3 +26,10 @@
                  :unit/name "unit"
                  :unit/id 2})
  => "P1 - unit (ii)")
+
+
+(facts
+ "player -> str"
+
+ (player->str 1)
+ => "Player - 1")

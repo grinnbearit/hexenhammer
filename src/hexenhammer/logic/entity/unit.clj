@@ -1,4 +1,5 @@
-(ns hexenhammer.logic.entity.unit)
+(ns hexenhammer.logic.entity.unit
+  (:require [hexenhammer.logic.cube :as lc]))
 
 
 (defn gen-infantry
@@ -22,6 +23,11 @@
    :unit/damage 0})
 
 
+(defn unit?
+  [entity]
+  (= :unit (:entity/class entity)))
+
+
 (defn unit-key
   "Returns a unique identifier for the passed unit"
   [unit]
@@ -41,3 +47,10 @@
   [unit]
   (* (:unit/model-strength unit)
      (models unit)))
+
+
+(defn enemies?
+  "Returns true if the two units have different owners"
+  [unit-1 unit-2]
+  (not= (:unit/player unit-1)
+        (:unit/player unit-2)))

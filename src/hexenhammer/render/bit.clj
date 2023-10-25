@@ -19,3 +19,8 @@
 (defn unit-key->str
   [{:keys [unit/player unit/name unit/id]}]
   (format "P%d - %s (%s)" player name (int->roman id)))
+
+
+(defn player->str
+  [player]
+  (format "Player - %d" player))

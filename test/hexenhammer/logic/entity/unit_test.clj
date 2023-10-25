@@ -1,5 +1,6 @@
 (ns hexenhammer.logic.entity.unit-test
   (:require [midje.sweet :refer :all]
+            [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :refer :all]))
 
 
@@ -24,6 +25,13 @@
      :unit/model-strength 1
      :unit/ranks 5
      :unit/damage 0})
+
+
+(facts
+ "unit?"
+
+ (unit? {:entity/class :terrain}) => false
+ (unit? {:entity/class :unit}) => true)
 
 
 (facts
@@ -67,3 +75,10 @@
 
    (provided
     (models unit) => 5)))
+
+
+(facts
+ "enemies?"
+
+ (enemies? {:unit/player 1} {:unit/player 1}) => false
+ (enemies? {:unit/player 1} {:unit/player 2}) => true)
