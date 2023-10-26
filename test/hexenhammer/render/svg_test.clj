@@ -182,3 +182,35 @@
 
  (text "0" -1 :font-size 12)
  => [:text {:fill "white" :font-family "monospace" :font-size "12" :x -6 :y -9} "0"])
+
+
+(facts
+ "gen arrpoints"
+
+ (gen-arrpoints :width 200 :height 100)
+ => [[0 50] [-20 35] [20 35]])
+
+
+(facts
+ "arrow"
+
+ (arrow :n :width 200 :height 100)
+ => :rotate
+
+ (provided
+  (points->str (gen-arrpoints :width 200 :height 100)) => :arrpoints-1
+
+  (rotate [:polygon {:points :arrpoints-1 :stroke "white" :fill "white"}] 180)
+  => :rotate))
+
+
+(facts
+ "movable"
+
+ (let [pointer (lc/->Pointer (lc/->Cube 1 2 -3) :n)]
+
+   (movable :element-1 :phase pointer)
+   => [:a {:href :url} :element-1]
+
+   (provided
+    (rb/phase->url "/move/" :phase {:facing "n" :q 1 :r 2 :s -3}) => :url)))

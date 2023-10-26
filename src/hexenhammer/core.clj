@@ -47,6 +47,10 @@
   (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube)))
 
 
+(defroutes move-handler
+  (GET "/move/movement/reform" [pointer] (swap! hexenhammer-state cm/move-reform pointer)))
+
+
 (def hexenhammer-app
   (-> (routes view-handler
               (-> controller-handler
@@ -55,6 +59,10 @@
               (-> select-handler
                   (wrap-routes ws/wrap-redirect-phase)
                   (wrap-routes ws/wrap-select)
+                  (wrap-routes wrap-params))
+              (-> move-handler
+                  (wrap-routes ws/wrap-redirect-phase)
+                  (wrap-routes ws/wrap-move)
                   (wrap-routes wrap-params)))))
 
 

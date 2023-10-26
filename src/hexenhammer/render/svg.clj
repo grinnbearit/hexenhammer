@@ -135,3 +135,26 @@
     [:text {:x x-offset :y y-offset
             :font-family "monospace" :font-size (str font-size) :fill "white"}
      text]))
+
+
+(defn gen-arrpoints
+  [& {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  [[0 (/ height 2)]
+   [(- (* width 1/10)) (* height 35/100)]
+   [(+ (* width 1/10)) (* height 35/100)]])
+
+
+(defn arrow
+  "draws a large chevron pointing to a face of the hex"
+  [facing & {:keys [width height] :or {width WIDTH height HEIGHT}}]
+  (rotate
+   [:polygon {:points (points->str (gen-arrpoints :width width :height height))
+              :stroke "white" :fill "white"}]
+   (facing->angle facing)))
+
+
+(defn movable
+  "given an element and a pointer, wraps it in an anchor tag pointing to /move?cube=?&facing=?"
+  [element phase {:keys [cube facing]}]
+  (let [form (into {:facing (name facing)} cube)]
+    (anchor element (rb/phase->url "/move/" phase form))))

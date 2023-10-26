@@ -1,5 +1,6 @@
 (ns hexenhammer.logic.battlefield.unit
   (:require [midje.sweet :refer :all]
+            [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :refer :all]))
@@ -163,3 +164,24 @@
 
    (provided
     (leu/unit-key :unit-1) => :unit-key-1)))
+
+
+(facts
+ "move unit"
+
+ (let [battlefield {:cube-1 {:entity/class :unit
+                             :unit/facing :n}
+                    :cube-2 :terrain-2}]
+
+   (move-unit battlefield :cube-1 (lc/->Pointer :cube-2 :s))
+   => {:cube-1 :terrain-1
+       :cube-2 :unit-2}
+
+   (provided
+    (remove-unit battlefield :cube-1)
+    => {:cube-1 :terrain-1
+        :cube-2 :terrain-2}
+
+    (let/place :terrain-2 {:entity/class :unit
+                           :unit/facing :s})
+    => :unit-2)))

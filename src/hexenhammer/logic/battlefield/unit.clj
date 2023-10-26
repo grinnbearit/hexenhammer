@@ -42,3 +42,12 @@
   "Returns the unit-key for the passed unit-cube"
   [battlefield unit-cube]
   (leu/unit-key (battlefield unit-cube)))
+
+
+(defn move-unit
+  "Returns a new battlefield with the unit moved to the new pointer"
+  [battlefield unit-cube pointer]
+  (let [unit (-> (battlefield unit-cube)
+                 (assoc :unit/facing (:facing pointer)))]
+    (-> (remove-unit battlefield unit-cube)
+        (update (:cube pointer) let/place unit))))

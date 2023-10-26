@@ -21,3 +21,12 @@
 
    ((wrap-select identity) request)
    => (assoc-in request [:params "cube"] (lc/->Cube 1 2 -3))))
+
+
+(facts
+ "wrap move"
+
+ (let [request {:params {"facing" "n" "q" "1" "r" "2" "s" "-3"}}]
+
+   ((wrap-move identity) request)
+   => (assoc-in request [:params "pointer"] (lc/->Pointer (lc/->Cube 1 2 -3) :n))))

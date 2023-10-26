@@ -19,3 +19,13 @@
                           (Integer/parseInt r)
                           (Integer/parseInt s))]
       (handler (assoc-in request [:params "cube"] cube)))))
+
+
+(defn wrap-move
+  [handler]
+  (fn [{{:strs [facing q r s]} :params :as request}]
+    (let [cube (lc/->Cube (Integer/parseInt q)
+                          (Integer/parseInt r)
+                          (Integer/parseInt s))
+          pointer (lc/->Pointer cube (keyword facing))]
+      (handler (assoc-in request [:params "pointer"] pointer)))))

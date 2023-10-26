@@ -3,6 +3,7 @@
 
 
 (defrecord Cube [q r s])
+(defrecord Pointer [cube facing])
 
 
 (defn add

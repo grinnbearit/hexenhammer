@@ -1,5 +1,6 @@
 (ns hexenhammer.render.entity
-  (:require [hexenhammer.render.bit :as rb]
+  (:require [hexenhammer.logic.cube :as lc]
+            [hexenhammer.render.bit :as rb]
             [hexenhammer.render.svg :as rs]))
 
 
@@ -41,3 +42,38 @@
 
         (rs/translate cube)
         (rs/if-selectable (:entity/presentation unit) phase cube))))
+
+
+(defmethod render :mover
+  [mover phase cube]
+  (let [base (merge (:unit/terrain mover)
+                    (select-keys mover [:entity/presentation]))]
+    (-> [:g {}
+         (render-base base)
+         (-> [:g {}
+              (-> (rs/hexagon)
+                  (rs/add-classes ["mover"
+                                   (name (:mover/presentation mover))
+                                   (str "player-" (:unit/player mover))]))
+
+              (for [facing (disj (:mover/options mover)
+                                 (:mover/selected mover)
+                                 (:mover/highlighted mover))
+                    :let [pointer (lc/->Pointer cube facing)]]
+                (-> (rs/arrow facing)
+                    (rs/add-classes ["arrow"])
+                    (rs/movable phase pointer)))
+              (when-let [selected (:mover/selected mover)]
+                (-> (rs/arrow selected)
+                    (rs/add-classes ["arrow" "selected"])))
+              (when-let [highlighted (:mover/highlighted mover)]
+                (cond-> (-> (rs/arrow highlighted)
+                            (rs/add-classes ["arrow" "highlighted"]))
+
+                  (contains? (:mover/options mover) highlighted)
+                  (rs/movable phase (lc/->Pointer cube highlighted))))]
+
+             (rs/scale 9/10))]
+
+        (rs/translate cube)
+        (rs/if-selectable (:entity/presentation mover) phase cube))))
