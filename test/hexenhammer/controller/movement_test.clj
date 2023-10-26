@@ -1,35 +1,45 @@
-(ns hexenhammer.controller.core-test
+(ns hexenhammer.controller.movement-test
   (:require [midje.sweet :refer :all]
-            [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.core :as t]
-            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.controller.movement :refer :all]))
 
 
 (facts
- "reset movement"
+ "unselect"
 
- (let [state #:game{:player 1
-                    :battlefield :battlefield-1
-                    :units :units-1}]
+ (unselect {:game/movement {:movable-cubes [:cube-1 :cube-2]}
+            :game/cube :cube-1})
+ => {:game/battlemap :battlemap-2}
 
-   (reset-movement state)
-   => #:game{:battlemap :battlemap-2}
+ (provided
+  (t/reset-battlemap {:game/movement {:movable-cubes [:cube-1 :cube-2]}
+                      :game/phase [:movement :select-hex]}
+                     [:cube-1 :cube-2])
+  => {:game/battlemap :battlemap-1}
+
+  (tb/set-presentation :battlemap-1 :selectable)
+  => :battlemap-2))
+
+
+(facts
+ "select reform"
+
+ (let [state {:game/cube :cube-1}]
+
+   (select-reform state :cube-1)
+   => :unselect
 
    (provided
-    (tu/unit-cubes :units-1 1) => [:cube-1 :cube-2]
+    (unselect state) => :unselect)))
 
-    (lbu/movable? :battlefield-1 :cube-1) => true
-    (lbu/movable? :battlefield-1 :cube-2) => false
 
-    (t/reset-battlemap #:game{:player 1
-                              :battlefield :battlefield-1
-                              :units :units-1
-                              :phase [:movement :select-hex]
-                              :movement {:movers [:cube-1]}}
-                       [:cube-1])
-    => #:game{:battlemap :battlemap-1}
+(facts
+ "select hex"
 
-    (tb/set-presentation :battlemap-1 :marked)
-    => :battlemap-2)))
+ (select-hex {} :cube-1)
+ => :select-reform
+
+ (provided
+  (select-reform {:game/phase [:movement :reform]} :cube-1)
+  => :select-reform))

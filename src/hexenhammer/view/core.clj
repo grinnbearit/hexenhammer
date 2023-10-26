@@ -3,7 +3,7 @@
             [hexenhammer.web.css :refer [STYLESHEET]]))
 
 
-(defn select
+(defn select-hex
   [state]
   (html
    [:html

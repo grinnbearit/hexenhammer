@@ -38,3 +38,26 @@
       [:td (:unit/damage unit)]
       [:td (leu/models unit)]
       [:td (leu/unit-strength unit)]]]]])
+
+
+(defn render-events
+  [events]
+  (when (seq events)
+    [:table
+     [:thead
+      [:tr [:th "Order"] [:th "Event"] [:th "Unit"]]]
+     [:tbody
+      (for [[index event] (zipmap (range) events)
+            :let [unit-key (:event/unit-key event)]]
+        (case (:event/class event)
+          :dangerous
+          [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td (rb/unit-key->str unit-key)]]
+
+          :opportunity-attack
+          [:tr [:td (inc index)] [:td "Opportunity Attack"] [:td (rb/unit-key->str unit-key)]]
+
+          :heavy-casualties
+          [:tr [:td (inc index)] [:td "Heavy Casualties"] [:td (rb/unit-key->str unit-key)]]
+
+          :panic
+          [:tr [:td (inc index)] [:td "Panic!"] [:td (rb/unit-key->str unit-key)]]))]]))

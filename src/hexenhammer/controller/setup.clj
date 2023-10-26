@@ -3,6 +3,7 @@
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.core :as t]
+            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]))
 
 
@@ -36,23 +37,23 @@
 
 
 (defn add-unit
-  [state player facing M Ld R]
+  [{:keys [game/units] :as state} player facing M Ld R]
   (let [cube (:game/cube state)
-        prev-id (get-in state [:game/units player "infantry" :counter] 0)
-        next-id (inc prev-id)
-        unit (leu/gen-infantry player next-id facing M Ld R)]
+        id (tu/next-id units player "infantry")
+        unit (leu/gen-infantry player id facing M Ld R)
+        unit-key (leu/unit-key unit)]
     (-> (update-in state [:game/battlefield cube] let/place unit)
-        (assoc-in [:game/units player "infantry" :cubes next-id] cube)
-        (assoc-in [:game/units player "infantry" :counter] next-id)
+        (update :game/units tu/inc-id player "infantry")
+        (update :game/units tu/set-unit unit-key cube)
         (unselect))))
 
 
 (defn remove-unit
-  [state]
+  [{:keys [game/battlefield] :as state}]
   (let [unit-cube (:game/cube state)
-        {:keys [unit/player unit/name unit/id]} (get-in state [:game/battlefield unit-cube])]
+        unit-key (lbu/unit-key battlefield unit-cube)]
     (-> (update state :game/battlefield lbu/remove-unit unit-cube)
-        (update-in [:game/units player name :cubes] dissoc id)
+        (update :game/units tu/remove-unit unit-key)
         (unselect))))
 
 

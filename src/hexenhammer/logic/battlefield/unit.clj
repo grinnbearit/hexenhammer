@@ -35,4 +35,10 @@
   [battlefield unit-cube]
   (let [unit (battlefield unit-cube)]
     (not (or (engaged? battlefield unit-cube)
-             (get-in unit [:unit/status :fleeing?])))))
+             (leu/fleeing? unit)))))
+
+
+(defn unit-key
+  "Returns the unit-key for the passed unit-cube"
+  [battlefield unit-cube]
+  (leu/unit-key (battlefield unit-cube)))

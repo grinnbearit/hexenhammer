@@ -134,22 +134,32 @@
    => false
 
    (provided
-    (engaged? battlefield :cube-1) => true))
+    (engaged? battlefield :cube-1) => true)
 
-
- (let [battlefield {:cube-1 {:unit/status {:fleeing? true}}}]
 
    (movable? battlefield :cube-1)
    => false
 
    (provided
-    (engaged? battlefield :cube-1) => false))
+    (engaged? battlefield :cube-1) => false
+    (leu/fleeing? :unit-1) => true)
 
-
- (let [battlefield {:cube-1 {}}]
 
    (movable? battlefield :cube-1)
    => true
 
    (provided
-    (engaged? battlefield :cube-1) => false)))
+    (engaged? battlefield :cube-1) => false
+    (leu/fleeing? :unit-1) => false)))
+
+
+(facts
+ "unit key"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (unit-key battlefield :cube-1)
+   => :unit-key-1
+
+   (provided
+    (leu/unit-key :unit-1) => :unit-key-1)))

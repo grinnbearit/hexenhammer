@@ -3,6 +3,7 @@
             [hexenhammer.logic.battlefield.core :as lb]
             [hexenhammer.controller.core :as c]
             [hexenhammer.controller.setup :as cs]
+            [hexenhammer.controller.movement :as cm]
             [hexenhammer.view.core :as v]
             [hexenhammer.view.setup :as vs]
             [hexenhammer.view.movement :as vm]
@@ -15,13 +16,14 @@
 
 
 (defroutes view-handler
-  (GET "/" [] (v/select @hexenhammer-state))
+  (GET "/" [] (v/select-hex @hexenhammer-state))
   (GET "/favicon.ico" [] "")
-  (GET "/setup/select-hex" [] (vs/select @hexenhammer-state))
+  (GET "/setup/select-hex" [] (vs/select-hex @hexenhammer-state))
   (GET "/setup/add-unit" [] (vs/add-unit @hexenhammer-state))
   (GET "/setup/remove-unit" [] (vs/remove-unit @hexenhammer-state))
 
-  (GET "/movement/select-hex" [] (vm/select @hexenhammer-state)))
+  (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
+  (GET "/movement/reform" [] (vm/reform @hexenhammer-state)))
 
 
 (defroutes controller-handler
@@ -40,7 +42,9 @@
 (defroutes select-handler
   (GET "/select/setup/select-hex" [cube] (swap! hexenhammer-state cs/select-hex cube))
   (GET "/select/setup/add-unit" [cube] (swap! hexenhammer-state cs/select-add-unit cube))
-  (GET "/select/setup/remove-unit" [cube] (swap! hexenhammer-state cs/select-remove-unit cube)))
+  (GET "/select/setup/remove-unit" [cube] (swap! hexenhammer-state cs/select-remove-unit cube))
+  (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
+  (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube)))
 
 
 (def hexenhammer-app

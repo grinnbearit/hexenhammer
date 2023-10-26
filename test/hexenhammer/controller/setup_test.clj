@@ -4,6 +4,7 @@
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.core :as t]
+            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.controller.setup :refer :all]))
 
@@ -88,41 +89,47 @@
  "add unit"
 
  (let [state {:game/cube :cube-1
+              :game/units :units-1
               :game/battlefield {:cube-1 :terrain-1}}]
 
    (add-unit state 1 :n 2 3 4)
    => :unselect
 
    (provided
+    (tu/next-id :units-1 1 "infantry") => 1
     (leu/gen-infantry 1 1 :n 2 3 4) => :unit-1
+    (leu/unit-key :unit-1) => :unit-key-1
     (let/place :terrain-1 :unit-1) => :unit-2
+    (tu/inc-id :units-1 1 "infantry") => :units-2
+    (tu/set-unit :units-2 :unit-key-1 :cube-1) => :units-3
 
     (unselect {:game/cube :cube-1
-               :game/units {1 {"infantry" {:counter 1
-                                           :cubes {1 :cube-1}}}}
-               :game/battlefield {:cube-1 :unit-2}})
+               :game/battlefield {:cube-1 :unit-2}
+               :game/units :units-3})
     => :unselect)))
 
 
 (facts
  "remove unit"
 
- (let [battlefield {:cube-1 {:unit/player 1
-                             :unit/name "unit"
-                             :unit/id 2}}
+ (let [battlefield {:cube-1 :unit-1}
        state {:game/cube :cube-1
-              :game/units {1 {"unit" {:cubes {2 :cube-1}}}}
+              :game/units :units-1
               :game/battlefield battlefield}]
 
    (remove-unit state)
    => :unselect
 
    (provided
+    (lbu/unit-key battlefield :cube-1) => :unit-key-1
+
     (lbu/remove-unit battlefield :cube-1)
     => {:cube-1 :terrain-1}
 
+    (tu/remove-unit :units-1 :unit-key-1) => :units-2
+
     (unselect {:game/cube :cube-1
-               :game/units {1 {"unit" {:cubes {}}}}
+               :game/units :units-2
                :game/battlefield {:cube-1 :terrain-1}})
     => :unselect)))
 

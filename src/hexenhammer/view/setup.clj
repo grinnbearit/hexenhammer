@@ -5,7 +5,7 @@
             [hexenhammer.render.core :as rc]))
 
 
-(defn select
+(defn select-hex
   [state]
   (html
    [:html

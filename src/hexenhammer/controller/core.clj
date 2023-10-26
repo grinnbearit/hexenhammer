@@ -1,8 +1,9 @@
 (ns hexenhammer.controller.core
-  (:require [hexenhammer.transition.core :as t]
+  (:require [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.transition.core :as t]
+            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.controller.movement :as cm]))
-
 
 
 (defn to-setup
@@ -13,6 +14,14 @@
 
 
 (defn to-movement
-  [state]
-  (-> (assoc state :game/player 1)
-      (cm/reset-movement)))
+  [{:keys [game/battlefield game/units] :as state}]
+  (let [player-cubes (tu/unit-cubes units 1)
+        movable-cubes (filter #(lbu/movable? battlefield %) player-cubes)
+        movable-keys (map #(lbu/unit-key battlefield %) movable-cubes)]
+    (-> (assoc state
+               :game/player 1
+               :game/phase [:movement :select-hex]
+               :game/movement {:movable-keys (set movable-keys)
+                               :movable-cubes (set movable-cubes)})
+        (t/reset-battlemap movable-cubes)
+        (update :game/battlemap tb/set-presentation :selectable))))
