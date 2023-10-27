@@ -48,7 +48,7 @@
        [:table
         [:tr
          [:td [:a {:href "/movement/switch-movement/forward"} "Forward"]]
-         [:td "Reposition"]
+         [:td [:a {:href "/movement/switch-movement/reposition"} "Reposition"]]
          [:td "March"]]]]])))
 
 
@@ -82,5 +82,39 @@
        [:table
         [:tr
          [:td [:a {:href "/movement/switch-movement/reform"} "Reform"]]
-         [:td "Reposition"]
+         [:td [:a {:href "/movement/switch-movement/reposition"} "Reposition"]]
+         [:td "March"]]]]])))
+
+
+(defn reposition
+  [state]
+  (let [player (:game/player state)
+        cube (:game/cube state)
+        pointer (:game/pointer state)
+        unit (get-in state [:game/battlefield cube])
+        moved? (get-in state [:game/movement :moved?])
+        events (get-in state [:game/movement :pointer->events pointer])]
+
+    (html
+     [:html
+      [:head
+       [:h1 (rb/player->str (:game/player state))]
+       [:h2 (str "Movement - Reposition")]
+       [:style STYLESHEET]]
+      [:body
+       (rc/render-battlefield state)
+       (rc/render-profile unit) [:br]
+       (rc/render-events events) [:br]
+
+       [:form {:action "/movement/skip-movement" :method "post"}
+        [:input {:type "submit" :value "Skip Movement"}]
+
+        (when moved?
+          [:input {:type "submit" :value "Finish Movement"
+                   :formaction "/movement/finish-movement"}])]
+
+       [:table
+        [:tr
+         [:td [:a {:href "/movement/switch-movement/reform"} "Reform"]]
+         [:td [:a {:href "/movement/switch-movement/forward"} "Forward"]]
          [:td "March"]]]]])))

@@ -70,6 +70,36 @@
         (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
 
 
+(defn set-reposition
+  [{:keys [game/battlefield] :as state} cube]
+  (let [{:keys [cube->enders]} (lbm/reposition battlefield cube)]
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:movement :reposition]
+               :game/battlemap cube->enders)
+        (update :game/movement assoc
+                :cube->enders cube->enders)
+        (t/refresh-battlemap [cube])
+        (update :game/battlemap tb/set-presentation [cube] :selected))))
+
+
+(defn select-reposition
+  [state _]
+  (unselect state))
+
+
+(defn move-reposition
+  [state pointer]
+  (let [cube->enders (get-in state [:game/movement :cube->enders])]
+    (-> (assoc state
+               :game/pointer pointer
+               :game/battlemap cube->enders)
+        (assoc-in [:game/movement :moved?] true)
+        (update-in [:game/battlemap (:cube pointer)] assoc
+                   :mover/selected (:facing pointer))
+        (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
+
+
 (defn select-hex
   [state cube]
   (set-reform state cube))
@@ -97,4 +127,7 @@
     (set-reform cube)
 
     (= :forward movement)
-    (set-forward cube)))
+    (set-forward cube)
+
+    (= :reposition movement)
+    (set-reposition cube)))

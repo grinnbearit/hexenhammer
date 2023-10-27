@@ -84,6 +84,26 @@
                     (recur next-queue paths next-seen)))))))))
 
 
+(defn reposition-paths
+  "returns all valid repositioning paths given the starting pointer and a number of hexes
+  removes paths that end as engaged"
+  [battlefield unit-cube hexes]
+  (let [start (lbu/unit-pointer battlefield unit-cube)]
+    (for [facing (disj #{:n :ne :se :s :sw :nw} (:facing start))
+          :let [steps (->> (iterate #(lc/step % facing) (:cube start))
+                           (drop 1)
+                           (map #(lc/->Pointer % (:facing start)))
+                           (take-while #(valid-move? battlefield (:cube start) %))
+                           (take hexes)
+                           (cons start)
+                           (vec))]
+          path-length (range 2 (+ 2 hexes))
+          :when (<= path-length (count steps))
+          :let [path (subvec steps 0 path-length)]
+          :when (valid-end? battlefield (:cube start) (peek path))]
+      path)))
+
+
 (defn paths->enders
   "Given a battlefield, player and path-list returns a new map of cube->mover for each end cube"
   [battlefield unit-cube paths]
@@ -111,5 +131,13 @@
   [battlefield unit-cube]
   (let [hexes (lc/hexes (get-in battlefield [unit-cube :unit/M]))
         paths (forward-paths battlefield unit-cube hexes)
+        cube->enders (paths->enders battlefield unit-cube paths)]
+    {:cube->enders cube->enders}))
+
+
+(defn reposition
+  [battlefield unit-cube]
+  (let [hexes (lc/hexes (/ (get-in battlefield [unit-cube :unit/M]) 2))
+        paths (reposition-paths battlefield unit-cube hexes)
         cube->enders (paths->enders battlefield unit-cube paths)]
     {:cube->enders cube->enders}))

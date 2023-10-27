@@ -121,6 +121,60 @@
 
 
 (facts
+ "set reposition"
+
+ (let [state {:game/battlefield :battlefield-1}]
+
+   (set-reposition state :cube-1)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (lbm/reposition :battlefield-1 :cube-1) => {:cube->enders :cube->enders-1}
+
+    (t/refresh-battlemap {:game/battlefield :battlefield-1
+                          :game/cube :cube-1
+                          :game/phase [:movement :reposition]
+                          :game/battlemap :cube->enders-1
+                          :game/movement {:cube->enders :cube->enders-1}}
+                         [:cube-1])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-1] :selected)
+    => :battlemap-2)))
+
+
+(facts
+ "select reposition"
+
+ (select-reposition :state-1 :cube-1)
+ => :unselect
+
+ (provided
+  (unselect :state-1) => :unselect))
+
+
+(facts
+ "move reposition"
+
+ (let [cube->enders {:cube-1 {:entity/class :mover}}
+       state {:game/movement {:cube->enders cube->enders}}
+       pointer (lc/->Pointer :cube-1 :n)]
+
+   (move-reposition state pointer)
+   => {:game/pointer pointer
+       :game/battlemap :battlemap-2
+       :game/movement {:moved? true
+                       :cube->enders cube->enders}}
+
+   (provided
+    (tb/set-presentation {:cube-1 {:entity/class :mover
+                                   :mover/selected :n}}
+                         [:cube-1]
+                         :selected)
+    => :battlemap-2)))
+
+
+(facts
  "select hex"
 
  (select-hex :state-1 :cube-1)
@@ -192,4 +246,14 @@
 
    (provided
     (unselect state) => :unselect
-    (set-forward :unselect :cube-1) => :set-forward)))
+    (set-forward :unselect :cube-1) => :set-forward))
+
+
+ (let [state {:game/cube :cube-1}]
+
+   (switch-movement state :reposition)
+   => :set-reposition
+
+   (provided
+    (unselect state) => :unselect
+    (set-reposition :unselect :cube-1) => :set-reposition)))
