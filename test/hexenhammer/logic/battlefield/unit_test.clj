@@ -185,3 +185,11 @@
     (let/place :terrain-2 {:entity/class :unit
                            :unit/facing :s})
     => :unit-2)))
+
+
+(facts
+ "unit pointer"
+
+ (let [battlefield {:cube-1 {:unit/facing :n}}]
+
+   (unit-pointer battlefield :cube-1) => (lc/->Pointer :cube-1 :n)))

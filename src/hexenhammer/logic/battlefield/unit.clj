@@ -51,3 +51,10 @@
                  (assoc :unit/facing (:facing pointer)))]
     (-> (remove-unit battlefield unit-cube)
         (update (:cube pointer) let/place unit))))
+
+
+(defn unit-pointer
+  "Returns the pointer for the passed unit-cube"
+  [battlefield unit-cube]
+  (let [facing (get-in battlefield [unit-cube :unit/facing])]
+    (lc/->Pointer unit-cube facing)))

@@ -41,3 +41,10 @@
   "Pops the unit off the terrain, returns the unit"
   [unit]
   (dissoc unit :unit/terrain))
+
+
+(defn passable?
+  "Returns true if the passed entity can be moved through"
+  [entity]
+  (and (terrain? entity)
+       (not= :impassable (:terrain/type entity))))

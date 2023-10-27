@@ -17,17 +17,19 @@
         (update :game/battlemap tb/set-presentation :selectable))))
 
 
-(defn select-reform
+(defn set-reform
   [{:keys [game/battlefield] :as state} cube]
-  (if (= cube (:game/cube state))
-    (unselect state)
-    (let [{:keys [cube->enders]} (lbm/reform battlefield cube)]
-      (-> (assoc state
-                 :game/cube cube
-                 :game/battlemap cube->enders)
-          (update :game/movement assoc
-                  :cube->enders cube->enders)
-          (update :game/battlemap tb/set-presentation [cube] :selected)))))
+  (let [{:keys [cube->enders]} (lbm/reform battlefield cube)]
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:movement :reform]
+               :game/battlemap cube->enders)
+        (update :game/battlemap tb/set-presentation [cube] :selected))))
+
+
+(defn select-reform
+  [state _]
+  (unselect state))
 
 
 (defn move-reform
@@ -39,10 +41,38 @@
                    :mover/selected (:facing pointer)))))
 
 
+(defn set-forward
+  [{:keys [game/battlefield] :as state} cube]
+  (let [{:keys [cube->enders]} (lbm/forward battlefield cube)]
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:movement :forward]
+               :game/battlemap cube->enders)
+        (update :game/movement assoc
+                :cube->enders cube->enders)
+        (update :game/battlemap tb/set-presentation [cube] :selected))))
+
+
+(defn select-forward
+  [state _]
+  (unselect state))
+
+
+(defn move-forward
+  [state pointer]
+  (let [cube->enders (get-in state [:game/movement :cube->enders])]
+    (-> (assoc state
+               :game/pointer pointer
+               :game/battlemap cube->enders)
+        (assoc-in [:game/movement :moved?] true)
+        (update-in [:game/battlemap (:cube pointer)] assoc
+                   :mover/selected (:facing pointer))
+        (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
+
+
 (defn select-hex
   [state cube]
-  (-> (assoc state :game/phase [:movement :reform])
-      (select-reform cube)))
+  (set-reform state cube))
 
 
 (defn skip-movement
@@ -57,3 +87,14 @@
   [{:keys [game/cube game/pointer] :as state}]
   (-> (update state :game/battlefield lbu/move-unit cube pointer)
       (skip-movement)))
+
+
+(defn switch-movement
+  [{:keys [game/cube] :as state} movement]
+  (cond-> (unselect state)
+
+    (= :reform movement)
+    (set-reform cube)
+
+    (= :forward movement)
+    (set-forward cube)))

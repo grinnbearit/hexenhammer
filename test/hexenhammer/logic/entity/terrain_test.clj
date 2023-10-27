@@ -29,3 +29,26 @@
 
  (pickup {:unit/terrain :terrain-1})
  => {})
+
+
+(facts
+ "passable?"
+
+ (passable? :unit-1) => false
+
+ (provided
+  (terrain? :unit-1) => false)
+
+
+ (let [entity {:terrain/type :impassable}]
+   (passable? entity) => false
+
+   (provided
+    (terrain? entity) => true))
+
+
+ (let [entity {:terrain/type :open}]
+   (passable? entity) => true
+
+   (provided
+    (terrain? entity) => true)))

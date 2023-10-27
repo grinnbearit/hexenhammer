@@ -34,3 +34,9 @@
   (let [facing->arc {:n [:nw :n :ne] :ne [:n :ne :se] :se [:ne :se :s]
                      :s [:se :s :sw] :sw [:s :sw :nw] :nw [:sw :nw :n]}]
     (map (partial step cube) (facing->arc facing))))
+
+
+(defn hexes
+  "converts a wfb distance in inches to hexes"
+  [distance]
+  (Math/round (float (/ distance 3))))

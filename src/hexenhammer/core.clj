@@ -23,7 +23,8 @@
   (GET "/setup/remove-unit" [] (vs/remove-unit @hexenhammer-state))
 
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
-  (GET "/movement/reform" [] (vm/reform @hexenhammer-state)))
+  (GET "/movement/reform" [] (vm/reform @hexenhammer-state))
+  (GET "/movement/forward" [] (vm/forward @hexenhammer-state)))
 
 
 (defroutes controller-handler
@@ -38,6 +39,7 @@
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state cs/remove-unit))
   (POST "/setup/swap-terrain" [terrain] (swap! hexenhammer-state cs/swap-terrain (keyword terrain)))
 
+  (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state cm/skip-movement))
   (POST "/movement/finish-movement" [] (swap! hexenhammer-state cm/finish-movement)))
 
@@ -47,11 +49,13 @@
   (GET "/select/setup/add-unit" [cube] (swap! hexenhammer-state cs/select-add-unit cube))
   (GET "/select/setup/remove-unit" [cube] (swap! hexenhammer-state cs/select-remove-unit cube))
   (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
-  (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube)))
+  (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube))
+  (GET "/select/movement/forward" [cube] (swap! hexenhammer-state cm/select-forward cube)))
 
 
 (defroutes move-handler
-  (GET "/move/movement/reform" [pointer] (swap! hexenhammer-state cm/move-reform pointer)))
+  (GET "/move/movement/reform" [pointer] (swap! hexenhammer-state cm/move-reform pointer))
+  (GET "/move/movement/forward" [pointer] (swap! hexenhammer-state cm/move-forward pointer)))
 
 
 (def hexenhammer-app

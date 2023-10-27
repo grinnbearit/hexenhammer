@@ -60,9 +60,3 @@
   "Returns true if the unit is fleeing"
   [unit]
   (boolean (get-in unit [:unit/flags :fleeing?])))
-
-
-(defn unit-key
-  "Returns the 3 fields that uniquely identify a unit"
-  [unit]
-  (select-keys unit [:unit/player :unit/name :unit/id]))

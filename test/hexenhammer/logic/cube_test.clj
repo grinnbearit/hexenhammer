@@ -44,3 +44,12 @@
  (forward-arc (->Cube 0 0 0) :s) => [(->Cube 1 0 -1)
                                      (->Cube 0 1 -1)
                                      (->Cube -1 1 0)])
+
+
+(facts
+ "hexes"
+
+ (hexes 2) => 1
+ (hexes 3) => 1
+ (hexes 4) => 1
+ (hexes 5) => 2)

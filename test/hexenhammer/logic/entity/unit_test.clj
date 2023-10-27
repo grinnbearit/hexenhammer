@@ -89,15 +89,3 @@
 
  (fleeing? {}) => false
  (fleeing? {:unit/flags {:fleeing? true}}) => true)
-
-
-(facts
- "unit-key"
-
- (unit-key {:unit/player 1
-            :unit/name "unit"
-            :unit/id 2
-            :unit/M 4})
- => {:unit/player 1
-     :unit/name "unit"
-     :unit/id 2})

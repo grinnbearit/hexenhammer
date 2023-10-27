@@ -29,30 +29,31 @@
 
 
 (facts
- "select reform"
-
- (let [state {:game/cube :cube-1}]
-
-   (select-reform state :cube-1)
-   => :unselect
-
-   (provided
-    (unselect state) => :unselect))
-
+ "set reform"
 
  (let [state {:game/battlefield :battlefield-1}]
 
-   (select-reform state :cube-1)
+   (set-reform state :cube-1)
    => {:game/battlefield :battlefield-1
        :game/cube :cube-1
-       :game/battlemap :battlemap-1
-       :game/movement {:cube->enders :cube->enders-1}}
+       :game/phase [:movement :reform]
+       :game/battlemap :battlemap-1}
 
    (provided
     (lbm/reform :battlefield-1 :cube-1) => {:cube->enders :cube->enders-1}
 
     (tb/set-presentation :cube->enders-1 [:cube-1] :selected)
     => :battlemap-1)))
+
+
+(facts
+ "select reform"
+
+ (select-reform :state-1 :cube-1)
+ => :unselect
+
+ (provided
+  (unselect :state-1) => :unselect))
 
 
 (facts
@@ -70,14 +71,64 @@
 
 
 (facts
- "select hex"
+ "set forward"
 
- (select-hex {} :cube-1)
- => :select-reform
+ (let [state {:game/battlefield :battlefield-1}]
+
+   (set-forward state :cube-1)
+   => {:game/battlefield :battlefield-1
+       :game/cube :cube-1
+       :game/phase [:movement :forward]
+       :game/battlemap :battlemap-1
+       :game/movement {:cube->enders :cube->enders-1}}
+
+   (provided
+    (lbm/forward :battlefield-1 :cube-1) => {:cube->enders :cube->enders-1}
+
+    (tb/set-presentation :cube->enders-1 [:cube-1] :selected)
+    => :battlemap-1)))
+
+
+(facts
+ "select forward"
+
+ (select-forward :state-1 :cube-1)
+ => :unselect
 
  (provided
-  (select-reform {:game/phase [:movement :reform]} :cube-1)
-  => :select-reform))
+  (unselect :state-1) => :unselect))
+
+
+(facts
+ "move forward"
+
+ (let [cube->enders {:cube-1 {:entity/class :mover}}
+       state {:game/movement {:cube->enders cube->enders}}
+       pointer (lc/->Pointer :cube-1 :n)]
+
+   (move-forward state pointer)
+   => {:game/pointer pointer
+       :game/battlemap :battlemap-2
+       :game/movement {:moved? true
+                       :cube->enders cube->enders}}
+
+   (provided
+    (tb/set-presentation {:cube-1 {:entity/class :mover
+                                   :mover/selected :n}}
+                         [:cube-1]
+                         :selected)
+    => :battlemap-2)))
+
+
+(facts
+ "select hex"
+
+ (select-hex :state-1 :cube-1)
+ => :set-reform
+
+ (provided
+  (set-reform :state-1 :cube-1)
+  => :set-reform))
 
 
 (facts
@@ -119,3 +170,26 @@
                     :game/pointer :pointer-1
                     :game/battlefield :battlefield-2})
     => :skip-movement)))
+
+
+(facts
+ "switch movement"
+
+ (let [state {:game/cube :cube-1}]
+
+   (switch-movement state :reform)
+   => :set-reform
+
+   (provided
+    (unselect state) => :unselect
+    (set-reform :unselect :cube-1) => :set-reform))
+
+
+ (let [state {:game/cube :cube-1}]
+
+   (switch-movement state :forward)
+   => :set-forward
+
+   (provided
+    (unselect state) => :unselect
+    (set-forward :unselect :cube-1) => :set-forward)))
