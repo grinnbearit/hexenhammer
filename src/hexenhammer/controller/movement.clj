@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.movement
-  (:require [hexenhammer.logic.battlefield.movement :as lbm]
+  (:require [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.movement :as lbm]
             [hexenhammer.transition.core :as t]
             [hexenhammer.transition.battlemap :as tb]))
 
@@ -42,3 +43,17 @@
   [state cube]
   (-> (assoc state :game/phase [:movement :reform])
       (select-reform cube)))
+
+
+(defn skip-movement
+  [{:keys [game/cube game/battlefield] :as state}]
+  (let [unit-key (lbu/unit-key battlefield cube)]
+    (-> (update-in state [:game/movement :movable-cubes] disj cube)
+        (update-in [:game/movement :movable-keys] disj unit-key)
+        (unselect))))
+
+
+(defn finish-movement
+  [{:keys [game/cube game/pointer] :as state}]
+  (-> (update state :game/battlefield lbu/move-unit cube pointer)
+      (skip-movement)))

@@ -21,6 +21,7 @@
   [rows columns]
   {:game/setup {:rows rows
                 :columns columns}
+   :game/units {1 {} 2 {}}
    :game/battlefield (-> (gen-battlefield-cubes rows columns)
                          (zipmap (repeat let/OPEN-GROUND)))
    :game/events (clojure.lang.PersistentQueue/EMPTY)})

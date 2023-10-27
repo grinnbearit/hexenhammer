@@ -39,12 +39,11 @@
        (rc/render-events events) [:br]
 
        [:form {:action "/movement/skip-movement" :method "post"}
-        [:input {:type "submit" :value "Skip Movement" :disabled true}]
+        [:input {:type "submit" :value "Skip Movement"}]
 
         (when moved?
           [:input {:type "submit" :value "Finish Movement"
-                   :formaction "/movement/finish-movement"
-                   :disabled true}])]
+                   :formaction "/movement/finish-movement"}])]
 
        [:table
         [:tr

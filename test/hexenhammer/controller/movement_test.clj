@@ -1,6 +1,7 @@
 (ns hexenhammer.controller.movement-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.cube :as lc]
+            [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
             [hexenhammer.transition.core :as t]
             [hexenhammer.transition.battlemap :as tb]
@@ -77,3 +78,44 @@
  (provided
   (select-reform {:game/phase [:movement :reform]} :cube-1)
   => :select-reform))
+
+
+(facts
+ "skip movement"
+
+ (let [state {:game/cube :cube-1
+              :game/battlefield :battlefield-1
+              :game/movement {:movable-keys #{:unit-key-1 :unit-key-2}
+                              :movable-cubes #{:cube-1 :cube-2}}}]
+
+   (skip-movement state)
+   => :unselect
+
+   (provided
+    (lbu/unit-key :battlefield-1 :cube-1) => :unit-key-1
+
+    (unselect {:game/cube :cube-1
+               :game/battlefield :battlefield-1
+               :game/movement {:movable-keys #{:unit-key-2}
+                               :movable-cubes #{:cube-2}}})
+    => :unselect)))
+
+
+(facts
+ "finish movement"
+
+ (let [state {:game/cube :cube-1
+              :game/pointer :pointer-1
+              :game/battlefield :battlefield-1}]
+
+   (finish-movement state)
+   => :skip-movement
+
+   (provided
+    (lbu/move-unit :battlefield-1 :cube-1 :pointer-1)
+    => :battlefield-2
+
+    (skip-movement {:game/cube :cube-1
+                    :game/pointer :pointer-1
+                    :game/battlefield :battlefield-2})
+    => :skip-movement)))
