@@ -29,21 +29,72 @@
 
 
 (facts
- "set reform"
+ "set movement"
 
- (let [state {:game/battlefield :battlefield-1}]
+ (let [state {:game/battlefield :battlefield-1}
+       cube->enders {:cube-1 :mover-1}
+       logic-fn (fn [_ _] {:cube->enders cube->enders})]
 
-   (set-reform state :cube-1)
+   (set-movement state logic-fn :phase-1 :cube-1)
    => {:game/battlefield :battlefield-1
        :game/cube :cube-1
-       :game/phase [:movement :reform]
-       :game/battlemap :battlemap-1}
+       :game/phase :phase-1
+       :game/battlemap :battlemap-2
+       :game/movement {:battlemap cube->enders}}
 
    (provided
-    (lbm/reform :battlefield-1 :cube-1) => {:cube->enders :cube->enders-1}
+    (tb/set-presentation cube->enders [:cube-1] :selected)
+    => :battlemap-2))
 
-    (tb/set-presentation :cube->enders-1 [:cube-1] :selected)
-    => :battlemap-1)))
+
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/battlefield battlefield}
+       cube->enders {:cube-2 :mover-2}
+       logic-fn (fn [_ _] {:cube->enders cube->enders})
+       battlemap {:cube-1 :unit-1
+                  :cube-2 :mover-2}]
+
+   (set-movement state logic-fn :phase-1 :cube-1)
+   => {:game/battlefield battlefield
+       :game/cube :cube-1
+       :game/phase :phase-1
+       :game/battlemap :battlemap-2
+       :game/movement {:battlemap battlemap}}
+
+   (provided
+    (tb/set-presentation battlemap [:cube-1] :selected)
+    => :battlemap-2)))
+
+
+(facts
+ "move movement"
+
+ (let [battlemap {:cube-1 {:entity/class :mover}}
+       state {:game/movement {:battlemap battlemap}}
+       pointer (lc/->Pointer :cube-1 :n)]
+
+   (move-forward state pointer)
+   => {:game/pointer pointer
+       :game/battlemap :battlemap-2
+       :game/movement {:moved? true
+                       :battlemap battlemap}}
+
+   (provided
+    (tb/set-presentation {:cube-1 {:entity/class :mover
+                                   :mover/selected :n}}
+                         [:cube-1]
+                         :selected)
+    => :battlemap-2)))
+
+
+(facts
+ "set reform"
+
+ (set-reform :state :cube)
+ => :set-movement
+
+ (provided
+  (set-movement :state lbm/reform [:movement :reform] :cube) => :set-movement))
 
 
 (facts
@@ -59,34 +110,20 @@
 (facts
  "move reform"
 
- (let [state {:game/cube :cube-1
-              :game/battlemap {:cube-1 {}}}
-       pointer (lc/->Pointer :cube-1 :n)]
+ (move-reform :state :pointer) => :move-movement
 
-   (move-reform state pointer)
-   => {:game/cube :cube-1
-       :game/pointer pointer
-       :game/movement {:moved? true}
-       :game/battlemap {:cube-1 {:mover/selected :n}}}))
+ (provided
+  (move-movement :state :pointer) => :move-movement))
 
 
 (facts
  "set forward"
 
- (let [state {:game/battlefield :battlefield-1}]
+ (set-forward :state :cube)
+ => :set-movement
 
-   (set-forward state :cube-1)
-   => {:game/battlefield :battlefield-1
-       :game/cube :cube-1
-       :game/phase [:movement :forward]
-       :game/battlemap :battlemap-1
-       :game/movement {:cube->enders :cube->enders-1}}
-
-   (provided
-    (lbm/forward :battlefield-1 :cube-1) => {:cube->enders :cube->enders-1}
-
-    (tb/set-presentation :cube->enders-1 [:cube-1] :selected)
-    => :battlemap-1)))
+ (provided
+  (set-movement :state lbm/forward [:movement :forward] :cube) => :set-movement))
 
 
 (facts
@@ -102,45 +139,20 @@
 (facts
  "move forward"
 
- (let [cube->enders {:cube-1 {:entity/class :mover}}
-       state {:game/movement {:cube->enders cube->enders}}
-       pointer (lc/->Pointer :cube-1 :n)]
+ (move-forward :state :pointer) => :move-movement
 
-   (move-forward state pointer)
-   => {:game/pointer pointer
-       :game/battlemap :battlemap-2
-       :game/movement {:moved? true
-                       :cube->enders cube->enders}}
-
-   (provided
-    (tb/set-presentation {:cube-1 {:entity/class :mover
-                                   :mover/selected :n}}
-                         [:cube-1]
-                         :selected)
-    => :battlemap-2)))
+ (provided
+  (move-movement :state :pointer) => :move-movement))
 
 
 (facts
  "set reposition"
 
- (let [state {:game/battlefield :battlefield-1}]
+ (set-reposition :state :cube)
+ => :set-movement
 
-   (set-reposition state :cube-1)
-   => {:game/battlemap :battlemap-2}
-
-   (provided
-    (lbm/reposition :battlefield-1 :cube-1) => {:cube->enders :cube->enders-1}
-
-    (t/refresh-battlemap {:game/battlefield :battlefield-1
-                          :game/cube :cube-1
-                          :game/phase [:movement :reposition]
-                          :game/battlemap :cube->enders-1
-                          :game/movement {:cube->enders :cube->enders-1}}
-                         [:cube-1])
-    => {:game/battlemap :battlemap-1}
-
-    (tb/set-presentation :battlemap-1 [:cube-1] :selected)
-    => :battlemap-2)))
+ (provided
+  (set-movement :state lbm/reposition [:movement :reposition] :cube) => :set-movement))
 
 
 (facts
@@ -156,22 +168,10 @@
 (facts
  "move reposition"
 
- (let [cube->enders {:cube-1 {:entity/class :mover}}
-       state {:game/movement {:cube->enders cube->enders}}
-       pointer (lc/->Pointer :cube-1 :n)]
+ (move-reposition :state :pointer) => :move-movement
 
-   (move-reposition state pointer)
-   => {:game/pointer pointer
-       :game/battlemap :battlemap-2
-       :game/movement {:moved? true
-                       :cube->enders cube->enders}}
-
-   (provided
-    (tb/set-presentation {:cube-1 {:entity/class :mover
-                                   :mover/selected :n}}
-                         [:cube-1]
-                         :selected)
-    => :battlemap-2)))
+ (provided
+  (move-movement :state :pointer) => :move-movement))
 
 
 (facts

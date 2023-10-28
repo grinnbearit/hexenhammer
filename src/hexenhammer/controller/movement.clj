@@ -17,14 +17,35 @@
         (update :game/battlemap tb/set-presentation :selectable))))
 
 
-(defn set-reform
-  [{:keys [game/battlefield] :as state} cube]
-  (let [{:keys [cube->enders]} (lbm/reform battlefield cube)]
+(defn set-movement
+  [{:keys [game/battlefield] :as state} logic-fn phase cube]
+  (let [{:keys [cube->enders]} (logic-fn battlefield cube)
+        battlemap (cond-> cube->enders
+                    (not (contains? cube->enders cube))
+                    (assoc cube (battlefield cube)))]
     (-> (assoc state
                :game/cube cube
-               :game/phase [:movement :reform]
-               :game/battlemap cube->enders)
+               :game/phase phase
+               :game/battlemap battlemap)
+        (assoc-in [:game/movement :battlemap] battlemap)
         (update :game/battlemap tb/set-presentation [cube] :selected))))
+
+
+(defn move-movement
+  [state pointer]
+  (let [battlemap (get-in state [:game/movement :battlemap])]
+    (-> (assoc state
+               :game/pointer pointer
+               :game/battlemap battlemap)
+        (assoc-in [:game/movement :moved?] true)
+        (update-in [:game/battlemap (:cube pointer)] assoc
+                   :mover/selected (:facing pointer))
+        (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
+
+
+(defn set-reform
+  [state cube]
+  (set-movement state lbm/reform [:movement :reform] cube))
 
 
 (defn select-reform
@@ -34,23 +55,12 @@
 
 (defn move-reform
   [state pointer]
-  (let [cube (:game/cube state)]
-    (-> (assoc state :game/pointer pointer)
-        (assoc-in [:game/movement :moved?] true)
-        (update-in [:game/battlemap cube] assoc
-                   :mover/selected (:facing pointer)))))
+  (move-movement state pointer))
 
 
 (defn set-forward
-  [{:keys [game/battlefield] :as state} cube]
-  (let [{:keys [cube->enders]} (lbm/forward battlefield cube)]
-    (-> (assoc state
-               :game/cube cube
-               :game/phase [:movement :forward]
-               :game/battlemap cube->enders)
-        (update :game/movement assoc
-                :cube->enders cube->enders)
-        (update :game/battlemap tb/set-presentation [cube] :selected))))
+  [state cube]
+  (set-movement state lbm/forward [:movement :forward] cube))
 
 
 (defn select-forward
@@ -60,27 +70,12 @@
 
 (defn move-forward
   [state pointer]
-  (let [cube->enders (get-in state [:game/movement :cube->enders])]
-    (-> (assoc state
-               :game/pointer pointer
-               :game/battlemap cube->enders)
-        (assoc-in [:game/movement :moved?] true)
-        (update-in [:game/battlemap (:cube pointer)] assoc
-                   :mover/selected (:facing pointer))
-        (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
+  (move-movement state pointer))
 
 
 (defn set-reposition
-  [{:keys [game/battlefield] :as state} cube]
-  (let [{:keys [cube->enders]} (lbm/reposition battlefield cube)]
-    (-> (assoc state
-               :game/cube cube
-               :game/phase [:movement :reposition]
-               :game/battlemap cube->enders)
-        (update :game/movement assoc
-                :cube->enders cube->enders)
-        (t/refresh-battlemap [cube])
-        (update :game/battlemap tb/set-presentation [cube] :selected))))
+  [state cube]
+  (set-movement state lbm/reposition [:movement :reposition] cube))
 
 
 (defn select-reposition
@@ -90,14 +85,7 @@
 
 (defn move-reposition
   [state pointer]
-  (let [cube->enders (get-in state [:game/movement :cube->enders])]
-    (-> (assoc state
-               :game/pointer pointer
-               :game/battlemap cube->enders)
-        (assoc-in [:game/movement :moved?] true)
-        (update-in [:game/battlemap (:cube pointer)] assoc
-                   :mover/selected (:facing pointer))
-        (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
+  (move-movement state pointer))
 
 
 (defn select-hex

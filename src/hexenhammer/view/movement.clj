@@ -2,7 +2,8 @@
   (:require [hiccup.core :refer [html]]
             [hexenhammer.web.css :refer [STYLESHEET]]
             [hexenhammer.render.bit :as rb]
-            [hexenhammer.render.core :as rc]))
+            [hexenhammer.render.core :as rc]
+            [clojure.string :as str]))
 
 
 (defn select-hex
@@ -18,25 +19,22 @@
        (rc/render-battlefield state)]])))
 
 
-(defn reform
-  [state]
+(defn render-movement
+  [state movement]
   (let [player (:game/player state)
         cube (:game/cube state)
-        pointer (:game/pointer state)
         unit (get-in state [:game/battlefield cube])
         moved? (get-in state [:game/movement :moved?])
-        events (get-in state [:game/movement :pointer->events pointer])]
-
+        title (str/capitalize (name movement))]
     (html
      [:html
       [:head
        [:h1 (rb/player->str (:game/player state))]
-       [:h2 (str "Movement - Reform")]
+       [:h2 (str "Movement - " title)]
        [:style STYLESHEET]]
       [:body
        (rc/render-battlefield state)
        (rc/render-profile unit) [:br]
-       (rc/render-events events) [:br]
 
        [:form {:action "/movement/skip-movement" :method "post"}
         [:input {:type "submit" :value "Skip Movement"}]
@@ -47,74 +45,24 @@
 
        [:table
         [:tr
-         [:td [:a {:href "/movement/switch-movement/forward"} "Forward"]]
-         [:td [:a {:href "/movement/switch-movement/reposition"} "Reposition"]]
+         (for [option [:reform :forward :reposition]
+               :when (not= option movement)
+               :let [option-url (str "/movement/switch-movement/" (name option))
+                     option-title (str/capitalize (name option))]]
+           [:td [:a {:href option-url} option-title]])
          [:td "March"]]]]])))
+
+
+(defn reform
+  [state]
+  (render-movement state :reform))
 
 
 (defn forward
   [state]
-  (let [player (:game/player state)
-        cube (:game/cube state)
-        pointer (:game/pointer state)
-        unit (get-in state [:game/battlefield cube])
-        moved? (get-in state [:game/movement :moved?])
-        events (get-in state [:game/movement :pointer->events pointer])]
-
-    (html
-     [:html
-      [:head
-       [:h1 (rb/player->str (:game/player state))]
-       [:h2 (str "Movement - Forward")]
-       [:style STYLESHEET]]
-      [:body
-       (rc/render-battlefield state)
-       (rc/render-profile unit) [:br]
-       (rc/render-events events) [:br]
-
-       [:form {:action "/movement/skip-movement" :method "post"}
-        [:input {:type "submit" :value "Skip Movement"}]
-
-        (when moved?
-          [:input {:type "submit" :value "Finish Movement"
-                   :formaction "/movement/finish-movement"}])]
-
-       [:table
-        [:tr
-         [:td [:a {:href "/movement/switch-movement/reform"} "Reform"]]
-         [:td [:a {:href "/movement/switch-movement/reposition"} "Reposition"]]
-         [:td "March"]]]]])))
+  (render-movement state :forward))
 
 
 (defn reposition
   [state]
-  (let [player (:game/player state)
-        cube (:game/cube state)
-        pointer (:game/pointer state)
-        unit (get-in state [:game/battlefield cube])
-        moved? (get-in state [:game/movement :moved?])
-        events (get-in state [:game/movement :pointer->events pointer])]
-
-    (html
-     [:html
-      [:head
-       [:h1 (rb/player->str (:game/player state))]
-       [:h2 (str "Movement - Reposition")]
-       [:style STYLESHEET]]
-      [:body
-       (rc/render-battlefield state)
-       (rc/render-profile unit) [:br]
-       (rc/render-events events) [:br]
-
-       [:form {:action "/movement/skip-movement" :method "post"}
-        [:input {:type "submit" :value "Skip Movement"}]
-
-        (when moved?
-          [:input {:type "submit" :value "Finish Movement"
-                   :formaction "/movement/finish-movement"}])]
-
-       [:table
-        [:tr
-         [:td [:a {:href "/movement/switch-movement/reform"} "Reform"]]
-         [:td [:a {:href "/movement/switch-movement/forward"} "Forward"]]
-         [:td "March"]]]]])))
+  (render-movement state :reposition))
