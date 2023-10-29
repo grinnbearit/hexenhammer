@@ -88,6 +88,21 @@
   (move-movement state pointer))
 
 
+(defn set-march
+  [state cube]
+  (set-movement state lbm/march [:movement :march] cube))
+
+
+(defn select-march
+  [state _]
+  (unselect state))
+
+
+(defn move-march
+  [state pointer]
+  (move-movement state pointer))
+
+
 (defn select-hex
   [state cube]
   (set-reform state cube))
@@ -118,4 +133,7 @@
     (set-forward cube)
 
     (= :reposition movement)
-    (set-reposition cube)))
+    (set-reposition cube)
+
+    (= :march movement)
+    (set-march cube)))

@@ -141,3 +141,11 @@
         paths (reposition-paths battlefield unit-cube hexes)
         cube->enders (paths->enders battlefield unit-cube paths)]
     {:cube->enders cube->enders}))
+
+
+(defn march
+  [battlefield unit-cube]
+  (let [hexes (lc/hexes (* 2 (get-in battlefield [unit-cube :unit/M])))
+        paths (forward-paths battlefield unit-cube hexes)
+        cube->enders (paths->enders battlefield unit-cube paths)]
+    {:cube->enders cube->enders}))

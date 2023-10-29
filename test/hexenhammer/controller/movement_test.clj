@@ -175,6 +175,35 @@
 
 
 (facts
+ "set march"
+
+ (set-march :state :cube)
+ => :set-movement
+
+ (provided
+  (set-movement :state lbm/march [:movement :march] :cube) => :set-movement))
+
+
+(facts
+ "select march"
+
+ (select-march :state-1 :cube-1)
+ => :unselect
+
+ (provided
+  (unselect :state-1) => :unselect))
+
+
+(facts
+ "move march"
+
+ (move-march :state :pointer) => :move-movement
+
+ (provided
+  (move-movement :state :pointer) => :move-movement))
+
+
+(facts
  "select hex"
 
  (select-hex :state-1 :cube-1)
@@ -256,4 +285,14 @@
 
    (provided
     (unselect state) => :unselect
-    (set-reposition :unselect :cube-1) => :set-reposition)))
+    (set-reposition :unselect :cube-1) => :set-reposition))
+
+
+ (let [state {:game/cube :cube-1}]
+
+   (switch-movement state :march)
+   => :set-march
+
+   (provided
+    (unselect state) => :unselect
+    (set-march :unselect :cube-1) => :set-march)))

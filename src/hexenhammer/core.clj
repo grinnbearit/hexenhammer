@@ -25,7 +25,8 @@
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
   (GET "/movement/reform" [] (vm/reform @hexenhammer-state))
   (GET "/movement/forward" [] (vm/forward @hexenhammer-state))
-  (GET "/movement/reposition" [] (vm/reposition @hexenhammer-state)))
+  (GET "/movement/reposition" [] (vm/reposition @hexenhammer-state))
+  (GET "/movement/march" [] (vm/march @hexenhammer-state)))
 
 
 (defroutes controller-handler
@@ -52,13 +53,15 @@
   (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
   (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube))
   (GET "/select/movement/forward" [cube] (swap! hexenhammer-state cm/select-forward cube))
-  (GET "/select/movement/reposition" [cube] (swap! hexenhammer-state cm/select-reposition cube)))
+  (GET "/select/movement/reposition" [cube] (swap! hexenhammer-state cm/select-reposition cube))
+  (GET "/select/movement/march" [cube] (swap! hexenhammer-state cm/select-march cube)))
 
 
 (defroutes move-handler
   (GET "/move/movement/reform" [pointer] (swap! hexenhammer-state cm/move-reform pointer))
   (GET "/move/movement/forward" [pointer] (swap! hexenhammer-state cm/move-forward pointer))
-  (GET "/move/movement/reposition" [pointer] (swap! hexenhammer-state cm/move-reposition pointer)))
+  (GET "/move/movement/reposition" [pointer] (swap! hexenhammer-state cm/move-reposition pointer))
+  (GET "/move/movement/march" [pointer] (swap! hexenhammer-state cm/move-march pointer)))
 
 
 (def hexenhammer-app

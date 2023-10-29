@@ -45,12 +45,11 @@
 
        [:table
         [:tr
-         (for [option [:reform :forward :reposition]
+         (for [option [:reform :forward :reposition :march]
                :when (not= option movement)
                :let [option-url (str "/movement/switch-movement/" (name option))
                      option-title (str/capitalize (name option))]]
-           [:td [:a {:href option-url} option-title]])
-         [:td "March"]]]]])))
+           [:td [:a {:href option-url} option-title]])]]]])))
 
 
 (defn reform
@@ -66,3 +65,8 @@
 (defn reposition
   [state]
   (render-movement state :reposition))
+
+
+(defn march
+  [state]
+  (render-movement state :march))

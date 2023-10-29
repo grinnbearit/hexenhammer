@@ -268,3 +268,17 @@
     (lc/hexes 2) => :hexes
     (reposition-paths battlefield :cube-1 :hexes) => :reposition-paths
     (paths->enders battlefield :cube-1 :reposition-paths) => :cube->enders-1)))
+
+
+(facts
+ "march"
+
+ (let [battlefield {:cube-1 {:unit/M 4}}]
+
+   (march battlefield :cube-1)
+   => {:cube->enders :cube->enders-1}
+
+   (provided
+    (lc/hexes 8) => :hexes
+    (forward-paths battlefield :cube-1 :hexes) => :forward-paths
+    (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1)))
