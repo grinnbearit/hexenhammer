@@ -232,53 +232,119 @@
 
 
 (facts
- "reform"
+ "compress path"
 
- (reform :battlefield-1 :cube-1)
- => {:cube->enders :cube->enders-1}
+ (compress-path [{:cube :cube-1 :facing :n}])
+ => [{:cube :cube-1 :facing :n}]
+
+ (compress-path [{:cube :cube-1 :facing :n}
+                 {:cube :cube-1 :facing :ne}])
+ => [{:cube :cube-1 :facing :ne}]
+
+ (compress-path [{:cube :cube-1 :facing :n}
+                 {:cube :cube-1 :facing :ne}
+                 {:cube :cube-2 :facing :ne}])
+ => [{:cube :cube-1 :facing :ne}
+     {:cube :cube-2 :facing :ne}]
+
+ (compress-path [{:cube :cube-1 :facing :n}
+                 {:cube :cube-1 :facing :ne}
+                 {:cube :cube-2 :facing :ne}
+                 {:cube :cube-2 :facing :n}])
+ => [{:cube :cube-1 :facing :ne}
+     {:cube :cube-2 :facing :n}])
+
+
+(facts
+ "path -> tweeners"
+
+ (let [battlefield {:cube-1 {:unit/player 1}}]
+
+   (path->tweeners battlefield :cube-1 :path-1)
+   => {:cube-1 :place}
+
+   (provided
+    (lbu/remove-unit battlefield :cube-1)
+    => {:cube-1 :terrain-1
+        :cube-2 :terrain-2}
+
+    (compress-path :path-1)
+    => [{:cube :cube-1 :facing :n}
+        {:cube :cube-2 :facing :n}]
+
+    (lem/gen-mover 1 :highlighted :n :presentation :past)
+    => :mover-1
+
+    (let/place :terrain-1 :mover-1)
+    => :place)))
+
+
+(facts
+ "paths -> tweeners"
+
+ (paths->tweeners :battlefield-1 :cube-1 [[:pointer-1] [:pointer-1 :pointer-2]])
+ => {:pointer-1 :tweeners-1
+     :pointer-2 :tweeners-2}
 
  (provided
-  (reform-paths :battlefield-1 :cube-1) => :paths-1
-  (paths->enders :battlefield-1 :cube-1 :paths-1) => :cube->enders-1))
+  (path->tweeners :battlefield-1 :cube-1 [:pointer-1]) => :tweeners-1
+  (path->tweeners :battlefield-1 :cube-1 [:pointer-1 :pointer-2]) => :tweeners-2))
 
 
 (facts
- "forward"
+"reform"
 
- (let [battlefield {:cube-1 {:unit/M 4}}]
+(reform :battlefield-1 :cube-1)
+=> {:cube->enders :cube->enders-1}
 
-   (forward battlefield :cube-1)
-   => {:cube->enders :cube->enders-1}
-
-   (provided
-    (lc/hexes 4) => :hexes
-    (forward-paths battlefield :cube-1 :hexes) => :forward-paths
-    (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1)))
+(provided
+ (reform-paths :battlefield-1 :cube-1) => :paths-1
+ (paths->enders :battlefield-1 :cube-1 :paths-1) => :cube->enders-1))
 
 
 (facts
- "reposition"
+"forward"
 
- (let [battlefield {:cube-1 {:unit/M 4}}]
+(let [battlefield {:cube-1 {:unit/M 4}}]
 
-   (reposition battlefield :cube-1)
-   => {:cube->enders :cube->enders-1}
+  (forward battlefield :cube-1)
+  => {:cube->enders :cube->enders-1
+      :pointer->cube->tweeners :pointer->cube->tweeners-1}
 
-   (provided
-    (lc/hexes 2) => :hexes
-    (reposition-paths battlefield :cube-1 :hexes) => :reposition-paths
-    (paths->enders battlefield :cube-1 :reposition-paths) => :cube->enders-1)))
+  (provided
+   (lc/hexes 4) => :hexes
+   (forward-paths battlefield :cube-1 :hexes) => :forward-paths
+   (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1
+   (paths->tweeners battlefield :cube-1 :forward-paths) => :pointer->cube->tweeners-1)))
 
 
 (facts
- "march"
+"reposition"
 
- (let [battlefield {:cube-1 {:unit/M 4}}]
+(let [battlefield {:cube-1 {:unit/M 4}}]
 
-   (march battlefield :cube-1)
-   => {:cube->enders :cube->enders-1}
+  (reposition battlefield :cube-1)
+  => {:cube->enders :cube->enders-1
+      :pointer->cube->tweeners :pointer->cube->tweeners-1}
 
-   (provided
-    (lc/hexes 8) => :hexes
-    (forward-paths battlefield :cube-1 :hexes) => :forward-paths
-    (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1)))
+  (provided
+   (lc/hexes 2) => :hexes
+   (reposition-paths battlefield :cube-1 :hexes) => :reposition-paths
+   (paths->enders battlefield :cube-1 :reposition-paths) => :cube->enders-1
+   (paths->tweeners battlefield :cube-1 :reposition-paths) => :pointer->cube->tweeners-1)))
+
+
+(facts
+"march"
+
+(let [battlefield {:cube-1 {:unit/M 4}}]
+
+  (march battlefield :cube-1)
+  => {:cube->enders :cube->enders-1
+      :pointer->cube->tweeners :pointer->cube->tweeners-1}
+
+  (provided
+   (lc/hexes 8) => :hexes
+   (forward-paths battlefield :cube-1 :hexes) => :forward-paths
+   (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1
+   (paths->tweeners battlefield :cube-1 :forward-paths) => :pointer->cube->tweeners-1)))

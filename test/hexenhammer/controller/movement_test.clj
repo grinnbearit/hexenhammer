@@ -33,14 +33,16 @@
 
  (let [state {:game/battlefield :battlefield-1}
        cube->enders {:cube-1 :mover-1}
-       logic-fn (fn [_ _] {:cube->enders cube->enders})]
+       logic-fn (fn [_ _] {:cube->enders cube->enders
+                           :pointer->cube->tweeners :pointer->cube->tweeners-1})]
 
    (set-movement state logic-fn :phase-1 :cube-1)
    => {:game/battlefield :battlefield-1
        :game/cube :cube-1
        :game/phase :phase-1
        :game/battlemap :battlemap-2
-       :game/movement {:battlemap cube->enders}}
+       :game/movement {:battlemap cube->enders
+                       :tweeners :pointer->cube->tweeners-1}}
 
    (provided
     (tb/set-presentation cube->enders [:cube-1] :selected)
@@ -50,7 +52,8 @@
  (let [battlefield {:cube-1 :unit-1}
        state {:game/battlefield battlefield}
        cube->enders {:cube-2 :mover-2}
-       logic-fn (fn [_ _] {:cube->enders cube->enders})
+       logic-fn (fn [_ _] {:cube->enders cube->enders
+                           :pointer->cube->tweeners :pointer->cube->tweeners-1})
        battlemap {:cube-1 :unit-1
                   :cube-2 :mover-2}]
 
@@ -59,7 +62,8 @@
        :game/cube :cube-1
        :game/phase :phase-1
        :game/battlemap :battlemap-2
-       :game/movement {:battlemap battlemap}}
+       :game/movement {:battlemap battlemap
+                       :tweeners :pointer->cube->tweeners-1}}
 
    (provided
     (tb/set-presentation battlemap [:cube-1] :selected)
@@ -69,22 +73,31 @@
 (facts
  "move movement"
 
- (let [battlemap {:cube-1 {:entity/class :mover}}
-       state {:game/movement {:battlemap battlemap}}
-       pointer (lc/->Pointer :cube-1 :n)]
+ (let [battlemap {:cube-1 {:entity/class :mover
+                           :mover/presentation :future}
+                  :cube-2 {:entity/class :mover
+                           :mover/presentation :future}}
+       pointer (lc/->Pointer :cube-2 :n)
+       tweeners {pointer {:cube-2 {:entity/class :mover
+                                   :mover/presentation :past}
+                          :cube-3 {:entity/class :mover
+                                   :mover/presentation :past}}}
+       state {:game/movement {:battlemap battlemap
+                              :tweeners tweeners}}]
 
    (move-forward state pointer)
    => {:game/pointer pointer
-       :game/battlemap :battlemap-2
+       :game/battlemap {:cube-1 {:entity/class :mover
+                                 :mover/presentation :future}
+                        :cube-2 {:entity/class :mover
+                                 :entity/presentation :selected
+                                 :mover/presentation :present
+                                 :mover/selected :n}
+                        :cube-3 {:entity/class :mover
+                                 :mover/presentation :past}}
        :game/movement {:moved? true
-                       :battlemap battlemap}}
-
-   (provided
-    (tb/set-presentation {:cube-1 {:entity/class :mover
-                                   :mover/selected :n}}
-                         [:cube-1]
-                         :selected)
-    => :battlemap-2)))
+                       :battlemap battlemap
+                       :tweeners tweeners}}))
 
 
 (facts

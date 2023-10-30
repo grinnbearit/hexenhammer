@@ -120,6 +120,41 @@
            (into {})))))
 
 
+(defn compress-path
+  "Returns a subset of path containing only the last pointer for every cube in the path"
+  [path]
+  (letfn [(reducer [acc pointer]
+            (if (= (:cube (peek acc)) (:cube pointer))
+              (conj (pop acc) pointer)
+              (conj acc pointer)))]
+
+    (reduce reducer [] path)))
+
+
+(defn path->tweeners
+  "Given a path, returns a new map of cube->mover for each inbetween step in the path"
+  [battlefield unit-cube path]
+  (let [player (get-in battlefield [unit-cube :unit/player])
+        new-bf (lbu/remove-unit battlefield unit-cube)]
+
+    (->> (for [pointer (pop (compress-path path))
+               :let [cube (:cube pointer)
+                     terrain (new-bf cube)
+                     mover (lem/gen-mover player
+                                          :highlighted (:facing pointer)
+                                          :presentation :past)]]
+           [cube (let/place terrain mover)])
+         (into {}))))
+
+
+(defn paths->tweeners
+  "returns a map of pointer->tweeners for all paths"
+  [battlefield unit-cube paths]
+  (->> (for [path paths]
+         [(peek path) (path->tweeners battlefield unit-cube path)])
+       (into {})))
+
+
 (defn reform
   [battlefield unit-cube]
   (let [paths (reform-paths battlefield unit-cube)
@@ -131,21 +166,27 @@
   [battlefield unit-cube]
   (let [hexes (lc/hexes (get-in battlefield [unit-cube :unit/M]))
         paths (forward-paths battlefield unit-cube hexes)
-        cube->enders (paths->enders battlefield unit-cube paths)]
-    {:cube->enders cube->enders}))
+        cube->enders (paths->enders battlefield unit-cube paths)
+        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)]
+    {:cube->enders cube->enders
+     :pointer->cube->tweeners pointer->cube->tweeners}))
 
 
 (defn reposition
   [battlefield unit-cube]
   (let [hexes (lc/hexes (/ (get-in battlefield [unit-cube :unit/M]) 2))
         paths (reposition-paths battlefield unit-cube hexes)
-        cube->enders (paths->enders battlefield unit-cube paths)]
-    {:cube->enders cube->enders}))
+        cube->enders (paths->enders battlefield unit-cube paths)
+        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)]
+    {:cube->enders cube->enders
+     :pointer->cube->tweeners pointer->cube->tweeners}))
 
 
 (defn march
   [battlefield unit-cube]
   (let [hexes (lc/hexes (* 2 (get-in battlefield [unit-cube :unit/M])))
         paths (forward-paths battlefield unit-cube hexes)
-        cube->enders (paths->enders battlefield unit-cube paths)]
-    {:cube->enders cube->enders}))
+        cube->enders (paths->enders battlefield unit-cube paths)
+        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)]
+    {:cube->enders cube->enders
+     :pointer->cube->tweeners pointer->cube->tweeners}))
