@@ -2,6 +2,7 @@
   (:require [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
             [hexenhammer.transition.core :as t]
+            [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.battlemap :as tb]))
 
 
@@ -93,8 +94,28 @@
 
 
 (defn set-march
-  [state cube]
-  (set-movement state lbm/march [:movement :march] cube))
+  [{:keys [game/battlefield] :as state} cube]
+  (let [threats (lbm/list-threats battlefield cube)
+        new-state (set-movement state lbm/march [:movement :march] cube)
+        unit (battlefield cube)]
+
+    (if (seq threats)
+      (-> (if (get-in unit [:unit/flags :marched?])
+            (let [roll (get-in unit [:unit/state :movement :roll])]
+              (if (get-in unit [:unit/state :movement :passed?])
+                (update new-state :game/movement assoc
+                        :march :passed
+                        :roll roll)
+                (update new-state :game/movement assoc
+                        :march :failed
+                        :roll roll)))
+            (assoc-in new-state [:game/movement :march] :required))
+
+          (assoc-in [:game/movement :threats] threats)
+          (t/refresh-battlemap threats)
+          (update :game/battlemap tb/set-presentation threats :marked))
+
+      (assoc-in new-state [:game/movement :march] :unnecessary))))
 
 
 (defn select-march
@@ -104,7 +125,11 @@
 
 (defn move-march
   [state pointer]
-  (move-movement state pointer))
+  (let [new-state (move-movement state pointer)
+        threats (get-in state [:game/movement :threats])]
+
+    (-> (t/refresh-battlemap new-state threats)
+        (update :game/battlemap tb/set-presentation threats :marked))))
 
 
 (defn select-hex
@@ -141,3 +166,18 @@
 
     (= :march movement)
     (set-march cube)))
+
+
+(defn test-leadership
+  [state]
+  (let [cube (:game/cube state)
+        pointer (:game/pointer state)
+        unit (get-in state [:game/battlefield cube])
+        roll (td/roll! 2)]
+    (-> (assoc-in state [:game/battlefield cube]
+                  (-> (assoc-in unit [:unit/flags :marched?] true)
+                      (assoc-in [:unit/state :movement]
+                                {:roll roll
+                                 :passed? (<= (apply + roll) (:unit/Ld unit))})))
+        (set-march cube)
+        (move-march pointer))))

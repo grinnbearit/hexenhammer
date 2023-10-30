@@ -214,3 +214,23 @@
 
    (provided
     (rb/phase->url "/move/" :phase {:facing "n" :q 1 :r 2 :s -3}) => :url)))
+
+
+(facts
+ "die"
+
+ (die 1) => [:text {:class "dice"} "⚀"])
+
+
+(facts
+ "dice"
+
+ (dice [1 2 3])
+ => [[:text {:class "dice"} "⚀"]
+     [:text {:class "dice"} "⚁"]
+     [:text {:class "dice"} "⚂"]]
+
+ (dice [1 2 3] 2)
+ => [[:text {:class "dice failed"} "⚀"]
+     [:text {:class "dice passed"} "⚁"]
+     [:text {:class "dice passed"} "⚂"]])

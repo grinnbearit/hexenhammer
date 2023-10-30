@@ -53,3 +53,15 @@
  (hexes 3) => 1
  (hexes 4) => 1
  (hexes 5) => 2)
+
+
+(facts
+ "neighbours within"
+
+ (neighbours-within (->Cube 0 0 0) 1)
+ => [(->Cube -1 0 1)
+     (->Cube -1 1 0)
+     (->Cube 0 -1 1)
+     (->Cube 0 1 -1)
+     (->Cube 1 -1 0)
+     (->Cube 1 0 -1)])

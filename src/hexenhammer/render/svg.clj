@@ -158,3 +158,27 @@
   [element phase {:keys [cube facing]}]
   (let [form (into {:facing (name facing)} cube)]
     (anchor element (rb/phase->url "/move/" phase form))))
+
+
+(defn die
+  [n]
+  (let [die->glyph {1 "⚀" 2 "⚁" 3 "⚂" 4 "⚃" 5 "⚄" 6 "⚅"}]
+    [:text {:class "dice"} (die->glyph n)]))
+
+
+(defn dice
+  "Given a list of die in a roll, returns each die as a text glyph
+  wraps successes (at or above `threshold` in the 'passed' class
+  wraps failures (below `threshold` in the 'failed' class"
+  ([roll]
+   (for [n roll]
+     (die n)))
+  ([roll threshold]
+   (for [n roll]
+     (cond-> (die n)
+
+       (<= threshold n)
+       (add-classes ["passed"])
+
+       (< n threshold)
+       (add-classes ["failed"])))))

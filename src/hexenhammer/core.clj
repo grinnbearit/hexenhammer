@@ -43,7 +43,8 @@
 
   (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state cm/skip-movement))
-  (POST "/movement/finish-movement" [] (swap! hexenhammer-state cm/finish-movement)))
+  (POST "/movement/finish-movement" [] (swap! hexenhammer-state cm/finish-movement))
+  (POST "/movement/test-leadership" [] (swap! hexenhammer-state cm/test-leadership)))
 
 
 (defroutes select-handler

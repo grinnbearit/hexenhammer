@@ -4,6 +4,7 @@
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
             [hexenhammer.transition.core :as t]
+            [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.controller.movement :refer :all]))
 
@@ -190,11 +191,77 @@
 (facts
  "set march"
 
- (set-march :state :cube)
- => :set-movement
+ (let [state {:game/battlefield :battlefield-1}]
 
- (provided
-  (set-movement :state lbm/march [:movement :march] :cube) => :set-movement))
+   (set-march state :cube-1)
+   => {:game/movement {:march :unnecessary}}
+
+   (provided
+    (lbm/list-threats :battlefield-1 :cube-1) => []
+    (set-movement state lbm/march [:movement :march] :cube-1) => {}))
+
+
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/battlefield battlefield}]
+
+   (set-march state :cube-1)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (lbm/list-threats battlefield :cube-1) => [:cube-2]
+    (set-movement state lbm/march [:movement :march] :cube-1) => {}
+
+    (t/refresh-battlemap {:game/movement {:march :required
+                                          :threats [:cube-2]}}
+                         [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-2] :marked)
+    => :battlemap-2))
+
+
+ (let [battlefield {:cube-1 {:unit/flags {:marched? true}
+                             :unit/state {:movement {:roll :roll-1
+                                                     :passed? false}}}}
+       state {:game/battlefield battlefield}]
+
+   (set-march state :cube-1)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (lbm/list-threats battlefield :cube-1) => [:cube-2]
+    (set-movement state lbm/march [:movement :march] :cube-1) => {}
+
+    (t/refresh-battlemap {:game/movement {:march :failed
+                                          :roll :roll-1
+                                          :threats [:cube-2]}}
+                         [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-2] :marked)
+    => :battlemap-2))
+
+
+ (let [battlefield {:cube-1 {:unit/flags {:marched? true}
+                             :unit/state {:movement {:roll :roll-1
+                                                     :passed? true}}}}
+       state {:game/battlefield battlefield}]
+
+   (set-march state :cube-1)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (lbm/list-threats battlefield :cube-1) => [:cube-2]
+    (set-movement state lbm/march [:movement :march] :cube-1) => {}
+
+    (t/refresh-battlemap {:game/movement {:march :passed
+                                          :roll :roll-1
+                                          :threats [:cube-2]}}
+                         [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-2] :marked)
+    => :battlemap-2)))
 
 
 (facts
@@ -210,10 +277,20 @@
 (facts
  "move march"
 
- (move-march :state :pointer) => :move-movement
+ (let [state {:game/movement {:threats [:cube-2]}}]
 
- (provided
-  (move-movement :state :pointer) => :move-movement))
+   (move-march state :pointer)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (move-movement state :pointer)
+    => :state-2
+
+    (t/refresh-battlemap :state-2 [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-2] :marked)
+    => :battlemap-2)))
 
 
 (facts
@@ -309,3 +386,27 @@
    (provided
     (unselect state) => :unselect
     (set-march :unselect :cube-1) => :set-march)))
+
+
+(facts
+ "test leadership"
+
+ (test-leadership {:game/cube :cube-1
+                   :game/pointer :pointer-1
+                   :game/battlefield {:cube-1 {:unit/Ld 7}}})
+ => :move-march
+
+ (provided
+  (td/roll! 2) => [2 3]
+
+  (set-march {:game/cube :cube-1
+              :game/pointer :pointer-1
+              :game/battlefield {:cube-1 {:unit/Ld 7
+                                          :unit/flags {:marched? true}
+                                          :unit/state {:movement {:roll [2 3]
+                                                                  :passed? true}}}}}
+             :cube-1)
+  => :set-march
+
+  (move-march :set-march :pointer-1)
+  => :move-march))

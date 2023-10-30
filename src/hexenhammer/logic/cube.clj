@@ -40,3 +40,14 @@
   "converts a wfb distance in inches to hexes"
   [distance]
   (Math/round (float (/ distance 3))))
+
+
+(defn neighbours-within
+  "Returns all cubes within `distance` of cube not including itself"
+  [cube distance]
+  (for [q (range (- distance) (inc distance))
+        r (range (max (- distance) (- (+ q distance)))
+                 (inc (min distance (- distance q))))
+        :let [s (- (+ q r))]
+        :when (not (and (zero? q) (zero? r) (zero? s)))]
+    (add cube (->Cube q r s))))

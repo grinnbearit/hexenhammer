@@ -1,5 +1,6 @@
 (ns hexenhammer.logic.battlefield.movement
   (:require [hexenhammer.logic.cube :as lc]
+            [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.mover :as lem]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]))
@@ -190,3 +191,16 @@
         pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)]
     {:cube->enders cube->enders
      :pointer->cube->tweeners pointer->cube->tweeners}))
+
+
+(defn list-threats
+  "Returns a list of cubes that 'threaten' this unit on the battlefield
+  i.e. enemy units within 3 hexes"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (for [neighbour (lc/neighbours-within unit-cube 3)
+          :when (contains? battlefield neighbour)
+          :let [entity (battlefield neighbour)]
+          :when (and (leu/unit? entity)
+                     (leu/enemies? unit entity))]
+      neighbour)))
