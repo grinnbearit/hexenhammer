@@ -48,3 +48,9 @@
   [entity]
   (and (terrain? entity)
        (not= :impassable (:terrain/type entity))))
+
+
+(defn dangerous?
+  "Returns true if the passed terrain triggers a dangerous terrain test when moved through"
+  [terrain]
+  (= :dangerous (:terrain/type terrain)))

@@ -52,3 +52,10 @@
 
    (provided
     (terrain? entity) => true)))
+
+
+(facts
+ "dangerous?"
+
+ (dangerous? :terrain-1) => false
+ (dangerous? {:terrain/type :dangerous}) => true)

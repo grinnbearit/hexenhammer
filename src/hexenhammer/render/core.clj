@@ -49,7 +49,7 @@
      [:tbody
       (for [[index event] (zipmap (range) events)
             :let [unit-key (:event/unit-key event)]]
-        (case (:event/class event)
+        (case (:event/type event)
           :dangerous
           [:tr [:td (inc index)] [:td "Dangerous Terrain"] [:td (rb/unit-key->str unit-key)]]
 
