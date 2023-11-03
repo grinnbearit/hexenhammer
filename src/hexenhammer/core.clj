@@ -66,7 +66,8 @@
 
 
 (def hexenhammer-app
-  (-> (routes view-handler
+  (-> (routes (-> view-handler
+                  (wrap-routes (ws/wrap-current-phase hexenhammer-state)))
               (-> controller-handler
                   (wrap-routes ws/wrap-redirect-phase)
                   (wrap-routes wrap-params))

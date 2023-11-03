@@ -29,3 +29,15 @@
                           (Integer/parseInt s))
           pointer (lc/->Pointer cube (keyword facing))]
       (handler (assoc-in request [:params "pointer"] pointer)))))
+
+
+(defn wrap-current-phase
+  "Returns a handler that redirects to the page determined by the current phase if the phase doesn't match the url"
+  [state!]
+  (fn [handler]
+    (fn [{:keys [compojure/route] :as request}]
+      (let [url (route 1)
+            phase-url (phase->url "/" (:game/phase @state!))]
+        (if (= phase-url url)
+          (handler request)
+          (redirect phase-url))))))

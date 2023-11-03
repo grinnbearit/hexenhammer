@@ -1,5 +1,6 @@
 (ns hexenhammer.web.server-test
   (:require [midje.sweet :refer :all]
+            [ring.util.response :refer [redirect]]
             [hexenhammer.logic.cube :as lc]
             [hexenhammer.web.server :refer :all]))
 
@@ -30,3 +31,20 @@
 
    ((wrap-move identity) request)
    => (assoc-in request [:params "pointer"] (lc/->Pointer (lc/->Cube 1 2 -3) :n))))
+
+
+(facts
+ "wrap current phase"
+
+ (let [state! (atom {:game/phase []})
+       request {:compojure/route [:get "/"]}]
+
+   (((wrap-current-phase state!) identity) request)
+   => request)
+
+
+ (let [state! (atom {:game/phase [:setup]})
+       request {:compojure/route [:get "/"]}]
+
+   (((wrap-current-phase state!) :handler-1) request)
+   => (redirect "/setup")))
