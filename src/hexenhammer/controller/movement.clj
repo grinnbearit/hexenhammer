@@ -1,9 +1,12 @@
 (ns hexenhammer.controller.movement
-  (:require [hexenhammer.logic.battlefield.unit :as lbu]
+  (:require [hexenhammer.logic.entity.unit :as leu]
+            [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
             [hexenhammer.transition.core :as t]
             [hexenhammer.transition.dice :as td]
-            [hexenhammer.transition.battlemap :as tb]))
+            [hexenhammer.transition.units :as tu]
+            [hexenhammer.transition.battlemap :as tb]
+            [hexenhammer.controller.event :as ce]))
 
 
 (defn unselect
@@ -149,10 +152,30 @@
         (unselect))))
 
 
+(defn reset-movement
+  [{:keys [game/battlefield game/units] :as state}]
+  (letfn [(movable-key? [unit-key]
+            (when-let [unit-cube (tu/get-unit units unit-key)]
+              (let [unit (battlefield unit-cube)]
+                (not (leu/fleeing? unit)))))]
+
+    (let [unmoved-keys (get-in state [:game/movement :movable-keys])
+          movable-keys (filter movable-key? unmoved-keys)
+          movable-cubes (map #(tu/get-unit units %) movable-keys)]
+
+      (-> (assoc state :game/movement
+                 {:movable-keys (set movable-keys)
+                  :movable-cubes (set movable-cubes)})
+          (unselect)))))
+
+
 (defn finish-movement
   [{:keys [game/cube game/pointer] :as state}]
-  (-> (update state :game/battlefield lbu/move-unit cube pointer)
-      (skip-movement)))
+  (let [events (get-in state [:game/movement :pointer->events pointer])]
+    (-> (update state :game/battlefield lbu/move-unit cube pointer)
+        (update :game/events into events)
+        (skip-movement)
+        (ce/trigger reset-movement))))
 
 
 (defn switch-movement

@@ -1,18 +1,20 @@
 (ns hexenhammer.core
   (:require [compojure.core :refer [defroutes routes GET POST wrap-routes]]
-            [hexenhammer.logic.battlefield.core :as lb]
+            [hexenhammer.transition.core :as t]
             [hexenhammer.controller.core :as c]
             [hexenhammer.controller.setup :as cs]
+            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.view.core :as v]
             [hexenhammer.view.setup :as vs]
+            [hexenhammer.view.event :as ve]
             [hexenhammer.view.movement :as vm]
             [hexenhammer.web.server :as ws]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.params :refer [wrap-params]]))
 
 
-(def hexenhammer-state (atom (lb/gen-initial-state 8 12)))
+(def hexenhammer-state (atom (t/gen-initial-state 8 12)))
 
 
 (defroutes view-handler
@@ -26,7 +28,9 @@
   (GET "/movement/reform" [] (vm/reform @hexenhammer-state))
   (GET "/movement/forward" [] (vm/forward @hexenhammer-state))
   (GET "/movement/reposition" [] (vm/reposition @hexenhammer-state))
-  (GET "/movement/march" [] (vm/march @hexenhammer-state)))
+  (GET "/movement/march" [] (vm/march @hexenhammer-state))
+
+  (GET "/event/dangerous" [] (ve/dangerous @hexenhammer-state)))
 
 
 (defroutes controller-handler
@@ -44,7 +48,9 @@
   (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state cm/skip-movement))
   (POST "/movement/finish-movement" [] (swap! hexenhammer-state cm/finish-movement))
-  (POST "/movement/test-leadership" [] (swap! hexenhammer-state cm/test-leadership)))
+  (POST "/movement/test-leadership" [] (swap! hexenhammer-state cm/test-leadership))
+
+  (POST "/event/trigger" [] (swap! hexenhammer-state ce/trigger)))
 
 
 (defroutes select-handler

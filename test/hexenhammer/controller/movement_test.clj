@@ -1,11 +1,14 @@
 (ns hexenhammer.controller.movement-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.cube :as lc]
+            [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
             [hexenhammer.transition.core :as t]
             [hexenhammer.transition.dice :as td]
+            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
+            [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.movement :refer :all]))
 
 
@@ -334,14 +337,45 @@
 
 
 (facts
+ "reset movement"
+
+ (let [battlefield {:cube-1 :unit-1
+                    :cube-2 :unit-2
+                    :cube-3 :unit-3}
+       state {:game/battlefield battlefield
+              :game/units :units-1
+              :game/movement {:movable-keys [:unit-key-1 :unit-key-2 :unit-key-3]}}]
+
+   (reset-movement state)
+   => :unselect
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => :cube-1
+    (tu/get-unit :units-1 :unit-key-2) => :cube-2
+    (tu/get-unit :units-1 :unit-key-3) => nil
+
+    (leu/fleeing? :unit-1) => false
+    (leu/fleeing? :unit-2) => true
+
+    (unselect {:game/battlefield battlefield
+               :game/units :units-1
+               :game/movement {:movable-keys #{:unit-key-1}
+                               :movable-cubes #{:cube-1}}})
+    => :unselect)))
+
+
+(facts
  "finish movement"
 
- (let [state {:game/cube :cube-1
+ (let [movement {:pointer->events {:pointer-1 [:event-1 :event-2]}}
+       state {:game/cube :cube-1
               :game/pointer :pointer-1
-              :game/battlefield :battlefield-1}]
+              :game/battlefield :battlefield-1
+              :game/movement movement
+              :game/events []}]
 
    (finish-movement state)
-   => :skip-movement
+   => :trigger
 
    (provided
     (lbu/move-unit :battlefield-1 :cube-1 :pointer-1)
@@ -349,8 +383,13 @@
 
     (skip-movement {:game/cube :cube-1
                     :game/pointer :pointer-1
-                    :game/battlefield :battlefield-2})
-    => :skip-movement)))
+                    :game/battlefield :battlefield-2
+                    :game/movement movement
+                    :game/events [:event-1 :event-2]})
+    => :skip-movement
+
+    (ce/trigger :skip-movement reset-movement)
+    => :trigger)))
 
 
 (facts

@@ -1,6 +1,5 @@
 (ns hexenhammer.logic.battlefield.core
-  (:require [hexenhammer.logic.cube :as lc]
-            [hexenhammer.logic.entity.terrain :as let]))
+  (:require [hexenhammer.logic.cube :as lc]))
 
 
 (defn gen-battlefield-cubes
@@ -14,14 +13,3 @@
          (iterate #(map hop-down %))
          (take rows)
          (apply concat))))
-
-
-(defn gen-initial-state
-  "Returns the initial hexenhammer state given a list of rows and columns"
-  [rows columns]
-  {:game/setup {:rows rows
-                :columns columns}
-   :game/units {1 {} 2 {}}
-   :game/battlefield (-> (gen-battlefield-cubes rows columns)
-                         (zipmap (repeat let/OPEN-GROUND)))
-   :game/events (clojure.lang.PersistentQueue/EMPTY)})
