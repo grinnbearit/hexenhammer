@@ -43,6 +43,30 @@
            (:unit/W unit))))
 
 
+(defn set-models
+  "Returns a new unit with the passed models `m` set, doesn't check for bounds
+  removes all pre-existing damage for multiwound units"
+  [unit m]
+  (let [full-ranks (quot m (:unit/F unit))
+        extra-models (rem m (:unit/F unit))
+        rank-wounds (* (:unit/F unit) (:unit/W unit))
+        extra-wounds (* extra-models (:unit/W unit))]
+    (if (zero? extra-models)
+      (assoc unit
+             :unit/ranks full-ranks
+             :unit/damage 0)
+      (assoc unit
+             :unit/ranks (inc full-ranks)
+             :unit/damage (- rank-wounds extra-wounds)))))
+
+
+(defn destroy-models
+  "Given a unit and a number of models `m`, returns the new unit with the
+  destroyed models removed, assumes the unit has sufficient models"
+  [unit m]
+  (set-models unit (- (models unit) m)))
+
+
 (defn unit-strength
   [unit]
   (* (:unit/model-strength unit)

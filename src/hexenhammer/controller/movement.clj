@@ -2,10 +2,11 @@
   (:require [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
-            [hexenhammer.transition.core :as t]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
+            [hexenhammer.transition.state.units :as tsu]
+            [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.event :as ce]))
 
 
@@ -17,7 +18,7 @@
         (dissoc :game/cube)
         (update :game/movement select-keys
                 [:movable-keys :movable-cubes])
-        (t/reset-battlemap movable-cubes)
+        (tsb/reset-battlemap movable-cubes)
         (update :game/battlemap tb/set-presentation :selectable))))
 
 
@@ -119,7 +120,7 @@
             (assoc-in new-state [:game/movement :march] :required))
 
           (assoc-in [:game/movement :threats] threats)
-          (t/refresh-battlemap threats)
+          (tsb/refresh-battlemap threats)
           (update :game/battlemap tb/set-presentation threats :marked))
 
       (assoc-in new-state [:game/movement :march] :unnecessary))))
@@ -135,7 +136,7 @@
   (let [new-state (move-movement state pointer)
         threats (get-in state [:game/movement :threats])]
 
-    (-> (t/refresh-battlemap new-state threats)
+    (-> (tsb/refresh-battlemap new-state threats)
         (update :game/battlemap tb/set-presentation threats :marked))))
 
 
@@ -170,11 +171,14 @@
 
 
 (defn finish-movement
-  [{:keys [game/cube game/pointer] :as state}]
-  (let [events (get-in state [:game/movement :pointer->events pointer])]
-    (-> (update state :game/battlefield lbu/move-unit cube pointer)
-        (update :game/events into events)
-        (skip-movement)
+  [{:keys [game/battlefield game/cube game/pointer] :as state}]
+  (let [unit-key (lbu/unit-key battlefield cube)
+        events (get-in state [:game/movement :pointer->events pointer])]
+    (-> (update state :game/events into events)
+        (update-in [:game/movement :movable-keys] disj unit-key)
+        (update-in [:game/movement :movable-cubes] disj cube)
+        (tsu/move-unit cube pointer)
+        (unselect)
         (ce/trigger reset-movement))))
 
 

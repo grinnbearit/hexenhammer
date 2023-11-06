@@ -59,6 +59,29 @@
 
 
 (facts
+ "set-models"
+
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 0} 6) => #:unit{:F 3 :ranks 2 :W 2 :damage 0}
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 1} 6) => #:unit{:F 3 :ranks 2 :W 2 :damage 0}
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 0} 5) => #:unit{:F 3 :ranks 2 :W 2 :damage 2}
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 0} 4) => #:unit{:F 3 :ranks 2 :W 2 :damage 4}
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 0} 3) => #:unit{:F 3 :ranks 1 :W 2 :damage 0}
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 0} 2) => #:unit{:F 3 :ranks 1 :W 2 :damage 2}
+ (set-models #:unit{:F 3 :ranks 2 :W 2 :damage 0} 1) => #:unit{:F 3 :ranks 1 :W 2 :damage 4})
+
+
+(facts
+ "destroy models"
+
+ (destroy-models :unit-1 2) => :unit-2
+
+ (provided
+  (models :unit-1) => 3
+
+  (set-models :unit-1 1) => :unit-2))
+
+
+(facts
  "unit strength"
 
  (let [unit #:unit{:model-strength 1}]

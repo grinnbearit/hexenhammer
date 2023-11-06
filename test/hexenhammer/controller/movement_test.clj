@@ -4,10 +4,11 @@
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement :as lbm]
-            [hexenhammer.transition.core :as t]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
+            [hexenhammer.transition.state.units :as tsu]
+            [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.event :as ce]
             [hexenhammer.controller.movement :refer :all]))
 
@@ -22,10 +23,10 @@
  => {:game/battlemap :battlemap-2}
 
  (provided
-  (t/reset-battlemap {:game/movement {:movable-keys [:unit-key-1 :unit-key-2]
-                                      :movable-cubes [:cube-1 :cube-2]}
-                      :game/phase [:movement :select-hex]}
-                     [:cube-1 :cube-2])
+  (tsb/reset-battlemap {:game/movement {:movable-keys [:unit-key-1 :unit-key-2]
+                                        :movable-cubes [:cube-1 :cube-2]}
+                        :game/phase [:movement :select-hex]}
+                       [:cube-1 :cube-2])
   => {:game/battlemap :battlemap-1}
 
   (tb/set-presentation :battlemap-1 :selectable)
@@ -222,9 +223,9 @@
     (lbm/list-threats battlefield :cube-1) => [:cube-2]
     (set-movement state lbm/march [:movement :march] :cube-1) => {}
 
-    (t/refresh-battlemap {:game/movement {:march :required
-                                          :threats [:cube-2]}}
-                         [:cube-2])
+    (tsb/refresh-battlemap {:game/movement {:march :required
+                                            :threats [:cube-2]}}
+                           [:cube-2])
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 [:cube-2] :marked)
@@ -243,10 +244,10 @@
     (lbm/list-threats battlefield :cube-1) => [:cube-2]
     (set-movement state lbm/march [:movement :march] :cube-1) => {}
 
-    (t/refresh-battlemap {:game/movement {:march :failed
-                                          :roll :roll-1
-                                          :threats [:cube-2]}}
-                         [:cube-2])
+    (tsb/refresh-battlemap {:game/movement {:march :failed
+                                            :roll :roll-1
+                                            :threats [:cube-2]}}
+                           [:cube-2])
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 [:cube-2] :marked)
@@ -265,10 +266,10 @@
     (lbm/list-threats battlefield :cube-1) => [:cube-2]
     (set-movement state lbm/march [:movement :march] :cube-1) => {}
 
-    (t/refresh-battlemap {:game/movement {:march :passed
-                                          :roll :roll-1
-                                          :threats [:cube-2]}}
-                         [:cube-2])
+    (tsb/refresh-battlemap {:game/movement {:march :passed
+                                            :roll :roll-1
+                                            :threats [:cube-2]}}
+                           [:cube-2])
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 [:cube-2] :marked)
@@ -297,7 +298,7 @@
     (move-movement state :pointer)
     => :state-2
 
-    (t/refresh-battlemap :state-2 [:cube-2])
+    (tsb/refresh-battlemap :state-2 [:cube-2])
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 [:cube-2] :marked)
@@ -367,7 +368,10 @@
 (facts
  "finish movement"
 
- (let [movement {:pointer->events {:pointer-1 [:event-1 :event-2]}}
+ (let [pointer->events {:pointer-1 [:event-1 :event-2]}
+       movement {:movable-keys #{:unit-key-1 :unit-key-2}
+                 :movable-cubes #{:cube-1 :cube-2}
+                 :pointer->events pointer->events}
        state {:game/cube :cube-1
               :game/pointer :pointer-1
               :game/battlefield :battlefield-1
@@ -378,17 +382,23 @@
    => :trigger
 
    (provided
-    (lbu/move-unit :battlefield-1 :cube-1 :pointer-1)
-    => :battlefield-2
+    (lbu/unit-key :battlefield-1 :cube-1) => :unit-key-1
 
-    (skip-movement {:game/cube :cube-1
+    (tsu/move-unit {:game/cube :cube-1
                     :game/pointer :pointer-1
-                    :game/battlefield :battlefield-2
-                    :game/movement movement
-                    :game/events [:event-1 :event-2]})
-    => :skip-movement
+                    :game/battlefield :battlefield-1
+                    :game/movement {:movable-keys #{:unit-key-2}
+                                    :movable-cubes #{:cube-2}
+                                    :pointer->events pointer->events}
+                    :game/events [:event-1 :event-2]}
+                   :cube-1
+                   :pointer-1)
+    => :move-unit
 
-    (ce/trigger :skip-movement reset-movement)
+    (unselect :move-unit)
+    => :unselect
+
+    (ce/trigger :unselect reset-movement)
     => :trigger)))
 
 

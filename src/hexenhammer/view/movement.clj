@@ -2,9 +2,9 @@
   (:require [hiccup.core :refer [html]]
             [hexenhammer.logic.probability :as lp]
             [hexenhammer.web.css :refer [STYLESHEET]]
+            [hexenhammer.render.core :as r]
             [hexenhammer.render.bit :as rb]
             [hexenhammer.render.svg :as rs]
-            [hexenhammer.render.core :as rc]
             [clojure.string :as str]))
 
 
@@ -18,7 +18,7 @@
        [:h2 "Movement"]
        [:style STYLESHEET]]
       [:body
-       (rc/render-battlefield state)]])))
+       (r/render-battlefield state)]])))
 
 
 (defn render-movement
@@ -36,9 +36,9 @@
        [:h2 (str "Movement - " title)]
        [:style STYLESHEET]]
       [:body
-       (rc/render-battlefield state)
-       (rc/render-profile unit) [:br]
-       (rc/render-events events) [:br]
+       (r/render-battlefield state)
+       (r/render-profile unit) [:br]
+       (r/render-events events) [:br]
 
        [:form {:action "/movement/skip-movement" :method "post"}
         [:input {:type "submit" :value "Skip Movement"}]
@@ -90,9 +90,9 @@
        [:h2 "Movement - March"]
        [:style STYLESHEET]
        [:body
-        (rc/render-battlefield state)
-        (rc/render-profile unit) [:br]
-        (rc/render-events events) [:br]
+        (r/render-battlefield state)
+        (r/render-profile unit) [:br]
+        (r/render-events events) [:br]
 
         [:form {:action "/movement/skip-movement" :method "post"}
          [:input {:type "submit" :value "Skip Movement"}]

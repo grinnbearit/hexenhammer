@@ -2,7 +2,7 @@
   (:require [hiccup.core :refer [html]]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.web.css :refer [STYLESHEET]]
-            [hexenhammer.render.core :as rc]))
+            [hexenhammer.render.core :as r]))
 
 
 (defn select-hex
@@ -14,7 +14,7 @@
      [:h2 "Setup - Select Hex"]
      [:style STYLESHEET]
      [:body
-      (rc/render-battlefield state) [:br] [:br]
+      (r/render-battlefield state) [:br] [:br]
       [:form {:action "/to-movement" :method "post"}
        [:input {:type "submit" :value "To Movement"}]]]]]))
 
@@ -30,7 +30,7 @@
        [:h2 "Setup - Add Unit"]
        [:style STYLESHEET]]
       [:body
-       (rc/render-battlefield state) [:br] [:br]
+       (r/render-battlefield state) [:br] [:br]
 
        [:form {:action "/setup/add-unit" :method "post"}
         [:table
@@ -107,8 +107,8 @@
        [:h2 "Setup - Remove Unit"]
        [:style STYLESHEET]]
       [:body
-       (rc/render-battlefield state)
-       (rc/render-profile unit) [:br]
+       (r/render-battlefield state)
+       (r/render-profile unit) [:br]
 
        [:form {:action "/setup/remove-unit" :method "post"}
         [:input {:type "submit" :value "Remove Unit"}]]

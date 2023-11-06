@@ -9,3 +9,8 @@
 (defn roll!
   [n]
   (doall (repeatedly n roll-die!)))
+
+
+(defn matches
+  [roll x]
+  (count (filter #{x} roll)))

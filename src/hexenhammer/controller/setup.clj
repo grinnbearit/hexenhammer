@@ -2,9 +2,9 @@
   (:require [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]
-            [hexenhammer.transition.core :as t]
             [hexenhammer.transition.units :as tu]
-            [hexenhammer.transition.battlemap :as tb]))
+            [hexenhammer.transition.battlemap :as tb]
+            [hexenhammer.transition.state.battlemap :as tsb]))
 
 
 (defn select-hex
@@ -14,7 +14,7 @@
     (-> (assoc state
                :game/phase [:setup subphase]
                :game/cube cube)
-        (t/reset-battlemap [cube])
+        (tsb/reset-battlemap [cube])
         (update :game/battlemap tb/set-presentation [cube] :selected))))
 
 
@@ -22,7 +22,7 @@
   [state]
   (-> (assoc state :game/phase [:setup :select-hex])
       (dissoc :game/cube)
-      (t/reset-battlemap)
+      (tsb/reset-battlemap)
       (update :game/battlemap tb/set-presentation :silent-selectable)))
 
 
