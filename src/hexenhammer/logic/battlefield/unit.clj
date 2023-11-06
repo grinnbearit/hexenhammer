@@ -58,3 +58,9 @@
   [battlefield unit-cube]
   (let [facing (get-in battlefield [unit-cube :unit/facing])]
     (lc/->Pointer unit-cube facing)))
+
+
+(defn reset-phase
+  "Resets the phase for the passed unit-cube"
+  [battlefield unit-cube]
+  (update battlefield unit-cube leu/reset-phase))

@@ -3,6 +3,7 @@
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
+            [hexenhammer.transition.battlefield :as tf]
             [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.controller.core :refer :all]))
@@ -30,6 +31,7 @@
  => {:game/battlemap :battlemap-2}
 
  (provided
+  (tu/unit-cubes :units-1) => [:cube-1 :cube-2 :cube-3 :cube-4]
   (tu/unit-cubes :units-1 1) => [:cube-1 :cube-2 :cube-3]
   (lbu/movable? :battlefield-1 :cube-1) => true
   (lbu/movable? :battlefield-1 :cube-2) => true
@@ -37,7 +39,10 @@
   (lbu/unit-key :battlefield-1 :cube-1) => :unit-key-1
   (lbu/unit-key :battlefield-1 :cube-2) => :unit-key-2
 
-  (tsb/reset-battlemap {:game/battlefield :battlefield-1
+  (tf/reset-phase :battlefield-1 [:cube-1 :cube-2 :cube-3 :cube-4])
+  => :battlefield-2
+
+  (tsb/reset-battlemap {:game/battlefield :battlefield-2
                         :game/units :units-1
                         :game/player 1
                         :game/phase [:movement :select-hex]

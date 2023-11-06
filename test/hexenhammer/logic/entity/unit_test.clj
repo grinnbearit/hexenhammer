@@ -112,3 +112,16 @@
 
  (fleeing? {}) => false
  (fleeing? {:unit/flags {:fleeing? true}}) => true)
+
+
+(facts
+ "reset phase"
+
+ (let [unit {:entity/class :unit}]
+
+   (reset-phase unit)
+   => {:entity/class :unit
+       :unit/state {:phase {:strength 10}}}
+
+   (provided
+    (unit-strength unit) => 10)))

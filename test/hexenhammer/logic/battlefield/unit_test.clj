@@ -193,3 +193,15 @@
  (let [battlefield {:cube-1 {:unit/facing :n}}]
 
    (unit-pointer battlefield :cube-1) => (lc/->Pointer :cube-1 :n)))
+
+
+(facts
+ "reset phase"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (reset-phase battlefield :cube-1)
+   => {:cube-1 :unit-2}
+
+   (provided
+    (leu/reset-phase :unit-1) => :unit-2)))

@@ -84,3 +84,9 @@
   "Returns true if the unit is fleeing"
   [unit]
   (boolean (get-in unit [:unit/flags :fleeing?])))
+
+
+(defn reset-phase
+  "Resets the phase state"
+  [unit]
+  (assoc-in unit [:unit/state :phase] {:strength (unit-strength unit)}))
