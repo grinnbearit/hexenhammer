@@ -166,7 +166,7 @@
     (for [pointer (rest path)
           :let [terrain (new-bf (:cube pointer))]
           :when (let/dangerous? terrain)]
-      (lev/dangerous (:cube pointer) unit-key))))
+      (lev/dangerous-terrain (:cube pointer) unit-key))))
 
 
 (defn paths-events

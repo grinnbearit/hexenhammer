@@ -64,3 +64,22 @@
   "Resets the phase for the passed unit-cube"
   [battlefield unit-cube]
   (update battlefield unit-cube leu/reset-phase))
+
+
+(defn panickable?
+  "Returns true if the unit needs to take a panic test"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (not (or (leu/panicked? unit)
+             (leu/fleeing? unit)
+             (engaged? battlefield unit-cube)))))
+
+
+(defn heavy-casualties?
+  "Returns true if the unit needs to take a heavy casualties test"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (and (<= (/ (leu/unit-strength unit)
+                (leu/phase-strength unit))
+             3/4)
+         (panickable? battlefield unit-cube))))

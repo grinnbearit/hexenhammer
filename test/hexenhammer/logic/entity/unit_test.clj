@@ -4,7 +4,6 @@
             [hexenhammer.logic.entity.unit :refer :all]))
 
 
-
 (facts
  "gen infantry"
 
@@ -115,6 +114,13 @@
 
 
 (facts
+ "panicked?"
+
+ (panicked? {}) => false
+ (panicked? {:unit/state {:phase {:panicked? true}}}) => true)
+
+
+(facts
  "reset phase"
 
  (let [unit {:entity/class :unit}]
@@ -125,3 +131,9 @@
 
    (provided
     (unit-strength unit) => 10)))
+
+
+(facts
+ "phase strength"
+
+ (phase-strength {:unit/state {:phase {:strength 10}}}) => 10)

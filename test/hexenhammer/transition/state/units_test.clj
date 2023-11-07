@@ -1,6 +1,7 @@
 (ns hexenhammer.transition.state.units-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.entity.unit :as leu]
+            [hexenhammer.logic.entity.event :as lev]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.state.units :refer :all]))
@@ -42,10 +43,25 @@
 (facts
  "destroy models"
 
- (let [state {:game/battlefield {:cube-1 :unit-1}}]
+ (let [state {:game/battlefield {:cube-2 :unit-1}}]
 
-   (destroy-models state :cube-1 4)
-   => {:game/battlefield {:cube-1 :unit-2}}
+   (destroy-models state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}}
 
    (provided
-    (leu/destroy-models :unit-1 4) => :unit-2)))
+    (leu/destroy-models :unit-1 2) => :unit-2
+    (lbu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => false))
+
+
+ (let [state {:game/battlefield {:cube-2 :unit-1}
+              :game/events []}]
+
+   (destroy-models state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}
+       :game/events [:heavy-casualties]}
+
+   (provided
+    (leu/destroy-models :unit-1 2) => :unit-2
+    (lbu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
+    (leu/unit-key :unit-1) => :unit-key-1
+    (lev/heavy-casualties :cube-1 :unit-key-1) => :heavy-casualties)))

@@ -1,5 +1,6 @@
 (ns hexenhammer.transition.state.units
   (:require [hexenhammer.logic.entity.unit :as leu]
+            [hexenhammer.logic.entity.event :as lev]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.units :as tu]))
 
@@ -22,5 +23,12 @@
 
 (defn destroy-models
   "Destroys a number of models in the unit"
-  [state unit-cube models]
-  (update-in state [:game/battlefield unit-cube] leu/destroy-models models))
+  [{:keys [game/battlefield] :as state} unit-cube source-cube models]
+  (let [unit (battlefield unit-cube)
+        damaged-unit (leu/destroy-models unit models)
+        damaged-bf (assoc battlefield unit-cube damaged-unit)]
+    (cond-> (update-in state [:game/battlefield unit-cube] leu/destroy-models models)
+
+      (lbu/heavy-casualties? damaged-bf unit-cube)
+      (update :game/events conj
+              (lev/heavy-casualties source-cube (leu/unit-key unit))))))

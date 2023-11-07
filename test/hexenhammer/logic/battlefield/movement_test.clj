@@ -316,10 +316,10 @@
     => battlefield-2
 
     (let/dangerous? :terrain-1) => true
-    (lev/dangerous :cube-1 :unit-key-1) => :dangerous-1
+    (lev/dangerous-terrain :cube-1 :unit-key-1) => :dangerous-1
 
     (let/dangerous? :terrain-2) => true
-    (lev/dangerous :cube-2 :unit-key-1) => :dangerous-2
+    (lev/dangerous-terrain :cube-2 :unit-key-1) => :dangerous-2
 
     (let/dangerous? :terrain-3) => false)))
 

@@ -86,7 +86,19 @@
   (boolean (get-in unit [:unit/flags :fleeing?])))
 
 
+(defn panicked?
+  "Returns true if the has taken a panic test this phase"
+  [unit]
+  (boolean (get-in unit [:unit/state :phase :panicked?])))
+
+
 (defn reset-phase
   "Resets the phase state"
   [unit]
   (assoc-in unit [:unit/state :phase] {:strength (unit-strength unit)}))
+
+
+(defn phase-strength
+  "Returns the strength this unit started the phase with"
+  [unit]
+  (get-in unit [:unit/state :phase :strength]))

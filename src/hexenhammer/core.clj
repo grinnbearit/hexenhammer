@@ -30,7 +30,8 @@
   (GET "/movement/reposition" [] (vm/reposition @hexenhammer-state))
   (GET "/movement/march" [] (vm/march @hexenhammer-state))
 
-  (GET "/event/dangerous" [] (ve/dangerous @hexenhammer-state)))
+  (GET "/event/dangerous-terrain" [] (ve/dangerous-terrain @hexenhammer-state))
+  (GET "/event/heavy-casualties" [] (ve/heavy-casualties @hexenhammer-state)))
 
 
 (defroutes controller-handler

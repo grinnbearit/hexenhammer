@@ -26,7 +26,7 @@
        (trigger))))
 
 
-(defmethod trigger-event :dangerous
+(defmethod trigger-event :dangerous-terrain
   [{:keys [game/units] :as state} {:keys [event/cube event/unit-key]}]
   (if-let [unit-cube (tu/get-unit units unit-key)]
     (let [unit (get-in state [:game/battlefield unit-cube])
@@ -36,8 +36,8 @@
           unit-destroyed? (<= models models-destroyed)]
       (-> (if unit-destroyed?
             (tsu/destroy-unit state unit-cube)
-            (tsu/destroy-models state unit-cube models-destroyed))
-          (assoc :game/phase [:event :dangerous])
+            (tsu/destroy-models state unit-cube cube models-destroyed))
+          (assoc :game/phase [:event :dangerous-terrain])
           (update :game/event assoc
                   :unit unit
                   :models-destroyed models-destroyed
@@ -46,3 +46,8 @@
           (tsb/reset-battlemap [cube unit-cube])
           (update :game/battlemap tb/set-presentation :marked)))
     (trigger state)))
+
+
+(defmethod trigger-event :heavy-casualties
+  [state event]
+  (assoc state :game/phase [:event :heavy-casualties]))

@@ -205,3 +205,82 @@
 
    (provided
     (leu/reset-phase :unit-1) => :unit-2)))
+
+
+(facts
+ "panickable?"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (panickable? battlefield :cube-1)
+   => false
+
+   (provided
+    (leu/panicked? :unit-1) => true))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (panickable? battlefield :cube-1)
+   => false
+
+   (provided
+    (leu/panicked? :unit-1) => false
+    (leu/fleeing? :unit-1) => true))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (panickable? battlefield :cube-1)
+   => false
+
+   (provided
+    (leu/panicked? :unit-1) => false
+    (leu/fleeing? :unit-1) => false
+    (engaged? battlefield :cube-1) => true))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (panickable? battlefield :cube-1)
+   => true
+
+   (provided
+    (leu/panicked? :unit-1) => false
+    (leu/fleeing? :unit-1) => false
+    (engaged? battlefield :cube-1) => false)))
+
+
+(facts
+ "heavy casualties?"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (heavy-casualties? battlefield :cube-1)
+   => false
+
+   (provided
+    (leu/unit-strength :unit-1) => 12
+    (leu/phase-strength :unit-1) => 12))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (heavy-casualties? battlefield :cube-1)
+   => false
+
+   (provided
+    (leu/unit-strength :unit-1) => 7
+    (leu/phase-strength :unit-1) => 12
+    (panickable? battlefield :cube-1) => false))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (heavy-casualties? battlefield :cube-1)
+   => true
+
+   (provided
+    (leu/unit-strength :unit-1) => 7
+    (leu/phase-strength :unit-1) => 12
+    (panickable? battlefield :cube-1) => true)))

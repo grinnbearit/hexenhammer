@@ -38,10 +38,10 @@
 
 
 (facts
- "trigger event dangerous"
+ "trigger event dangerous-terrain"
 
  (let [state {:game/units :units-1}
-       event {:event/type :dangerous
+       event {:event/type :dangerous-terrain
               :event/unit-key :unit-key-1}]
 
    (trigger-event state event)
@@ -54,7 +54,7 @@
 
  (let [state {:game/units :units-1
               :game/battlefield {:cube-2 :unit-1}}
-       event {:event/type :dangerous
+       event {:event/type :dangerous-terrain
               :event/cube :cube-1
               :event/unit-key :unit-key-1}]
 
@@ -69,7 +69,7 @@
 
     (tsu/destroy-unit state :cube-2) => {}
 
-    (tsb/reset-battlemap {:game/phase [:event :dangerous]
+    (tsb/reset-battlemap {:game/phase [:event :dangerous-terrain]
                           :game/event {:models-destroyed 3
                                        :unit-destroyed? true
                                        :roll :roll
@@ -82,7 +82,7 @@
 
  (let [state {:game/units :units-1
               :game/battlefield {:cube-2 :unit-1}}
-       event {:event/type :dangerous
+       event {:event/type :dangerous-terrain
               :event/cube :cube-1
               :event/unit-key :unit-key-1}]
 
@@ -95,9 +95,9 @@
     (td/roll! 4) => :roll
     (td/matches :roll 1) => 3
 
-    (tsu/destroy-models state :cube-2 3) => {}
+    (tsu/destroy-models state :cube-2 :cube-1 3) => {}
 
-    (tsb/reset-battlemap {:game/phase [:event :dangerous]
+    (tsb/reset-battlemap {:game/phase [:event :dangerous-terrain]
                           :game/event {:models-destroyed 3
                                        :unit-destroyed? false
                                        :roll :roll
@@ -106,3 +106,10 @@
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 :marked) => :battlemap-2)))
+
+
+(facts
+ "trigger event heavy casualties"
+
+ (trigger-event {} {:event/type :heavy-casualties})
+ => {:game/phase [:event :heavy-casualties]})
