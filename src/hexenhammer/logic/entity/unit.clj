@@ -102,3 +102,9 @@
   "Returns the strength this unit started the phase with"
   [unit]
   (get-in unit [:unit/state :phase :strength]))
+
+
+(defn set-panicked
+  "Updates the unit at to have attempted a panic test"
+  [unit]
+  (assoc-in unit [:unit/state :phase :panicked?] true))

@@ -49,5 +49,26 @@
 
 
 (defmethod trigger-event :heavy-casualties
-  [state event]
-  (assoc state :game/phase [:event :heavy-casualties]))
+  [{:keys [game/units game/battlefield] :as state} {:keys [event/cube event/unit-key]}]
+  (if-let [unit-cube (tu/get-unit units unit-key)]
+    (if-let [panickable? (lbu/panickable? battlefield unit-cube)]
+      (let [unit (battlefield unit-cube)
+            roll (td/roll! 2)
+            passed? (<= (apply + roll) (:unit/Ld unit))]
+        (-> (if passed?
+              (assoc state :game/phase [:event :heavy-casualties :passed])
+              (assoc state :game/phase [:event :heavy-casualties :failed]))
+            (update-in [:game/battlefield unit-cube] leu/set-panicked)
+            (update :game/event assoc
+                    :source-cube cube
+                    :unit-cube unit-cube
+                    :roll roll)
+            (tsb/reset-battlemap [cube unit-cube])
+            (update :game/battlemap tb/set-presentation :marked)))
+      (trigger state))
+    (trigger state)))
+
+
+(defn flee-heavy-casualties
+  [state]
+  (trigger state))

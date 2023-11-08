@@ -137,3 +137,9 @@
  "phase strength"
 
  (phase-strength {:unit/state {:phase {:strength 10}}}) => 10)
+
+
+(facts
+ "set panicked"
+
+ (set-panicked {}) => {:unit/state {:phase {:panicked? true}}})

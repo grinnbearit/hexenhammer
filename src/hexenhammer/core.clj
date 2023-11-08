@@ -31,7 +31,8 @@
   (GET "/movement/march" [] (vm/march @hexenhammer-state))
 
   (GET "/event/dangerous-terrain" [] (ve/dangerous-terrain @hexenhammer-state))
-  (GET "/event/heavy-casualties" [] (ve/heavy-casualties @hexenhammer-state)))
+  (GET "/event/heavy-casualties/passed" [] (ve/heavy-casualties-passed @hexenhammer-state))
+  (GET "/event/heavy-casualties/failed" [] (ve/heavy-casualties-failed @hexenhammer-state)))
 
 
 (defroutes controller-handler
@@ -51,7 +52,8 @@
   (POST "/movement/finish-movement" [] (swap! hexenhammer-state cm/finish-movement))
   (POST "/movement/test-leadership" [] (swap! hexenhammer-state cm/test-leadership))
 
-  (POST "/event/trigger" [] (swap! hexenhammer-state ce/trigger)))
+  (POST "/event/trigger" [] (swap! hexenhammer-state ce/trigger))
+  (POST "/event/heavy-casualties/flee" [] (swap! hexenhammer-state ce/flee-heavy-casualties)))
 
 
 (defroutes select-handler
