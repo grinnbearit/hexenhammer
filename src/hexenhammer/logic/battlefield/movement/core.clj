@@ -1,4 +1,4 @@
-(ns hexenhammer.logic.battlefield.movement
+(ns hexenhammer.logic.battlefield.movement.core
   (:require [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.mover :as lem]

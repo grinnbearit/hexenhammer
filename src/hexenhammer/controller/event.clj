@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.event
   (:require [hexenhammer.logic.entity.unit :as leu]
+            [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]

@@ -3,7 +3,7 @@
             [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
-            [hexenhammer.logic.battlefield.movement :as lbm]
+            [hexenhammer.logic.battlefield.movement.core :as lbm]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]

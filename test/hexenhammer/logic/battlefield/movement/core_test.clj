@@ -1,4 +1,4 @@
-(ns hexenhammer.logic.battlefield.movement-test
+(ns hexenhammer.logic.battlefield.movement.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
@@ -6,7 +6,7 @@
             [hexenhammer.logic.entity.event :as lev]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]
-            [hexenhammer.logic.battlefield.movement :refer :all]))
+            [hexenhammer.logic.battlefield.movement.core :refer :all]))
 
 
 (facts
