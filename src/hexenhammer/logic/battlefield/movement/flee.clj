@@ -62,7 +62,7 @@
 
 (defn path->tweeners
   "Given a path, returns a new map of cube->mover for the passable in between steps in the path"
-  [battlefield unit-cube {:keys [path edge?]}]
+  [battlefield unit-cube path edge?]
   (let [player (get-in battlefield [unit-cube :unit/player])
         new-bf (lbu/remove-unit battlefield unit-cube)
         tween-path (cond-> (compress-path path)
@@ -77,3 +77,14 @@
                                           :presentation :past)]]
            [cube (let/place entity mover)])
          (into {}))))
+
+
+(defn flee
+  [battlefield unit-cube source-cube roll]
+  (let [hexes (lc/hexes roll)
+        {:keys [path edge?] :as fp} (flee-path battlefield unit-cube source-cube hexes)
+        end (last path)
+        cube->tweeners (path->tweeners battlefield unit-cube path edge?)]
+    {:end end
+     :cube->tweeners cube->tweeners
+     :edge? edge?}))

@@ -143,3 +143,9 @@
  "set panicked"
 
  (set-panicked {}) => {:unit/state {:phase {:panicked? true}}})
+
+
+(facts
+ "set flee"
+
+ (set-flee {}) => {:unit/flags {:fleeing? true}})

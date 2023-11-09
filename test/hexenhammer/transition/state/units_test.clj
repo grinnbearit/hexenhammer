@@ -65,3 +65,19 @@
     (lbu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
     (leu/unit-key :unit-1) => :unit-key-1
     (lev/heavy-casualties :cube-1 :unit-key-1) => :heavy-casualties)))
+
+
+(facts
+ "escape unit"
+
+ (let [state {:game/units :units-1
+              :game/battlefield :battlefield-1}]
+
+   (escape-unit state :cube-1 :cube-2)
+   => {:game/units :units-2
+       :game/battlefield :battlefield-2}
+
+   (provided
+    (lbu/unit-key :battlefield-1 :cube-1) => :unit-key-1
+    (tu/remove-unit :units-1 :unit-key-1) => :units-2
+    (lbu/remove-unit :battlefield-1 :cube-1) => :battlefield-2)))

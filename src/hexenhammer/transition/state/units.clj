@@ -32,3 +32,11 @@
       (lbu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj
               (lev/heavy-casualties source-cube (leu/unit-key unit))))))
+
+
+(defn escape-unit
+  "Destroys the unit at `unit-cube`, the unit escapes the battlfield at `end-cube`"
+  [{:keys [game/battlefield] :as state} unit-cube end-cube]
+  (let [unit-key (lbu/unit-key battlefield unit-cube)]
+    (-> (update state :game/units tu/remove-unit unit-key)
+        (update :game/battlefield lbu/remove-unit unit-cube))))

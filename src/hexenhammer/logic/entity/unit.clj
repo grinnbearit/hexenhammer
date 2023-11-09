@@ -108,3 +108,9 @@
   "Updates the unit at to have attempted a panic test"
   [unit]
   (assoc-in unit [:unit/state :phase :panicked?] true))
+
+
+(defn set-flee
+  "Updates the unit to be fleeing"
+  [unit]
+  (assoc-in unit [:unit/flags :fleeing?] true))

@@ -1,6 +1,7 @@
 (ns hexenhammer.controller.event
   (:require [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.movement.flee :as lbmf]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
@@ -71,5 +72,23 @@
 
 
 (defn flee-heavy-casualties
-  [state]
-  (trigger state))
+  [{:keys [game/battlefield] :as state}]
+  (let [{:keys [unit-cube source-cube]} (:game/event state)
+        unit (get-in state [:game/battlefield unit-cube])
+        roll (td/roll! 2)
+        {:keys [end cube->tweeners edge?]} (lbmf/flee battlefield
+                                                      unit-cube
+                                                      source-cube
+                                                      (apply + roll))]
+    (-> (if edge?
+          (tsu/escape-unit state unit-cube (:cube end))
+          (-> (update-in state [:game/battlefield unit-cube] leu/set-flee)
+              (tsu/move-unit unit-cube end)))
+        (assoc :game/phase [:event :heavy-casualties :flee])
+        (update :game/event assoc
+                :edge? edge?
+                :unit unit
+                :roll roll)
+        (tsb/reset-battlemap [source-cube (:cube end)])
+        (update :game/battlemap merge cube->tweeners)
+        (update :game/battlemap tb/set-presentation [source-cube (:cube end)] :marked))))

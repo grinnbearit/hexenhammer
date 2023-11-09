@@ -66,3 +66,21 @@
         (rs/dice roll 7)
         [:form {:action "/event/heavy-casualties/flee" :method "post"}
          [:input {:type "submit" :value "Flee!"}]]]]])))
+
+
+(defn heavy-casualties-flee
+  [state]
+  (let [{:keys [edge? unit roll]} (:game/event state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Heavy Casualties - Flee!"]
+       [:style STYLESHEET]
+       [:body
+        (r/render-battlefield state) [:br] [:br]
+        (r/render-profile unit) [:br]
+        (r/render-events (:game/events state)) [:br]
+        (rs/dice roll)
+        [:form {:action "/event/trigger" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))

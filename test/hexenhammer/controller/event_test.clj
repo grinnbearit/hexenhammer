@@ -1,7 +1,9 @@
 (ns hexenhammer.controller.event-test
   (:require [midje.sweet :refer :all]
+            [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.movement.flee :as lbmf]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
@@ -201,8 +203,77 @@
 (facts
  "flee heavy casualties"
 
- (flee-heavy-casualties :state)
- => :trigger
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/event {:unit-cube :cube-1
+                           :source-cube :cube-2}
+              :game/battlefield battlefield}
+       pointer (lc/->Pointer :cube-3 :n)
+       cube->tweeners {:cube-1 :mover-1}]
 
- (provided
-  (trigger :state) => :trigger))
+   (flee-heavy-casualties state)
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (td/roll! 2) => [1 2]
+
+    (lbmf/flee battlefield :cube-1 :cube-2 3)
+    => {:end pointer
+        :cube->tweeners cube->tweeners
+        :edge? true}
+
+    (tsu/escape-unit state :cube-1 :cube-3)
+    => {}
+
+    (tsb/reset-battlemap {:game/phase [:event :heavy-casualties :flee]
+                          :game/event {:edge? true
+                                       :unit :unit-1
+                                       :roll [1 2]}}
+                         [:cube-2 :cube-3])
+    => {:game/battlemap {:cube-2 :mover-2}}
+
+    (tb/set-presentation {:cube-1 :mover-1
+                          :cube-2 :mover-2}
+                         [:cube-2 :cube-3]
+                         :marked)
+    => :battlemap-3))
+
+
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/event {:unit-cube :cube-1
+                           :source-cube :cube-2}
+              :game/battlefield battlefield}
+       pointer (lc/->Pointer :cube-3 :n)
+       cube->tweeners {:cube-1 :mover-1}]
+
+   (flee-heavy-casualties state)
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (td/roll! 2) => [1 2]
+
+    (lbmf/flee battlefield :cube-1 :cube-2 3)
+    => {:end pointer
+        :cube->tweeners cube->tweeners
+        :edge? false}
+
+    (leu/set-flee :unit-1) => :unit-2
+
+    (tsu/move-unit {:game/battlefield {:cube-1 :unit-2}
+                    :game/event {:unit-cube :cube-1
+                                 :source-cube :cube-2}}
+                   :cube-1
+                   pointer)
+    => {}
+
+    (tsb/reset-battlemap {:game/phase [:event :heavy-casualties :flee]
+                          :game/event {:edge? false
+                                       :unit :unit-1
+                                       :roll [1 2]}}
+                         [:cube-2 :cube-3])
+    => {:game/battlemap {:cube-2 :mover-2}}
+
+    (tb/set-presentation {:cube-1 :mover-1
+                          :cube-2 :mover-2}
+                         [:cube-2 :cube-3]
+                         :marked)
+    => :battlemap-3)))

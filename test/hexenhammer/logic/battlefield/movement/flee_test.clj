@@ -136,7 +136,7 @@
 
  (let [battlefield {:cube-1 {:unit/player 1}}]
 
-   (path->tweeners battlefield :cube-1 {:path :path-1 :edge? false})
+   (path->tweeners battlefield :cube-1 :path-1 false)
    => {:cube-1 :place}
 
    (provided
@@ -159,7 +159,7 @@
 
  (let [battlefield {:cube-1 {:unit/player 1}}]
 
-   (path->tweeners battlefield :cube-1 {:path :path-1 :edge? true})
+   (path->tweeners battlefield :cube-1 :path-1 true)
    => {:cube-1 :place}
 
    (provided
@@ -179,3 +179,23 @@
 
     (let/place :terrain-1 :mover-1)
     => :place)))
+
+
+(facts
+ "flee"
+
+ (let [path [:pointer-1 :pointer-2]]
+
+   (flee :battlefield-1 :cube-1 :cube-2 3)
+   => {:end :pointer-2
+       :cube->tweeners :cube->tweeners-1
+       :edge? false}
+
+   (provided
+    (lc/hexes 3) => 1
+
+    (flee-path :battlefield-1 :cube-1 :cube-2 1)
+    => {:path path :edge? false}
+
+    (path->tweeners :battlefield-1 :cube-1 path false)
+    => :cube->tweeners-1)))
