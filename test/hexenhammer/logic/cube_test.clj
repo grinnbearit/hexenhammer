@@ -65,3 +65,55 @@
      (->Cube 0 1 -1)
      (->Cube 1 -1 0)
      (->Cube 1 0 -1)])
+
+
+(facts
+ "distance"
+
+ (distance (->Cube 0 0 0) (->Cube 0 0 0)) => 0
+ (distance (->Cube 0 0 0) (->Cube 1 -1 0)) => 1
+ (distance (->Cube 0 0 0) (->Cube 0 2 -2)) => 2)
+
+
+(facts
+ "round"
+
+ (round (->Cube 0 0 0)) => (->Cube 0 0 0)
+
+ (round (->Cube 1/2 -1/4 -1/4)) => (->Cube 0 0 0)
+
+ (round (->Cube -1/4 1/2 -1/4)) => (->Cube 0 0 0)
+
+ (round (->Cube -1/4 -1/4 1/2)) => (->Cube 0 0 0))
+
+
+(facts
+ "cubes between"
+
+ (cubes-between (->Cube 0 1 -1) (->Cube 0 -1 1)) => [(->Cube 0 0 0)]
+
+ (cubes-between (->Cube 1 1 -2) (->Cube -1 -1 2))
+ => [(->Cube 1 0 -1)
+     (->Cube 0 0 0)
+     (->Cube 0 -1 1)])
+
+
+(facts
+ "direction"
+
+ (direction :cube-1 :cube-2)
+ => :ne
+
+ (provided
+  (cubes-between :cube-1 :cube-2) => []
+  (step :cube-1 :n) => :cube-3
+  (step :cube-1 :ne) => :cube-2)
+
+
+ (direction :cube-1 :cube-3)
+ => :ne
+
+ (provided
+  (cubes-between :cube-1 :cube-3) => [:cube-2]
+  (step :cube-1 :n) => :cube-4
+  (step :cube-1 :ne) => :cube-2))

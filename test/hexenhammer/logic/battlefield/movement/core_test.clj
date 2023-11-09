@@ -294,60 +294,14 @@
 
 
 (facts
- "path events"
-
- (let [battlefield-1 {:cube-1 :unit-1
-                      :cube-2 :terrain-2
-                      :cube-3 :terrain-3}
-       battlefield-2 {:cube-1 :terrain-1
-                      :cube-2 :terrain-2
-                      :cube-3 :terrain-3}]
-
-   (path-events battlefield-1 :cube-1 [{:cube :cube-1 :facing :n}
-                                       {:cube :cube-1 :facing :ne}
-                                       {:cube :cube-2 :facing :ne}
-                                       {:cube :cube-3 :facing :ne}])
-   => [:dangerous-1 :dangerous-2]
-
-   (provided
-    (lbu/unit-key battlefield-1 :cube-1) => :unit-key-1
-
-    (lbu/remove-unit battlefield-1 :cube-1)
-    => battlefield-2
-
-    (let/dangerous? :terrain-1) => true
-    (lev/dangerous-terrain :cube-1 :unit-key-1) => :dangerous-1
-
-    (let/dangerous? :terrain-2) => true
-    (lev/dangerous-terrain :cube-2 :unit-key-1) => :dangerous-2
-
-    (let/dangerous? :terrain-3) => false)))
-
-
-(facts
- "paths events"
-
- (paths-events :battlefield-1 :cube-1 [[:pointer-1]
-                                       [:pointer-1 :pointer-2]])
- => {:pointer-1 [:event-1]
-     :pointer-2 []}
-
- (provided
-  (path-events :battlefield-1 :cube-1 [:pointer-1]) => [:event-1]
-  (path-events :battlefield-1 :cube-1 [:pointer-1 :pointer-2]) => []))
-
-
-(facts
  "reform"
 
  (reform :battlefield-1 :cube-1)
- => {:cube->enders :cube->enders-1
-     :pointer->events :pointer->events-1}
+ => {:cube->enders :cube->enders-1}
 
  (provided
   (reform-paths :battlefield-1 :cube-1) => :paths-1
-  (paths->enders :battlefield-1 :cube-1 :paths-1) => :cube->enders-1
-  (paths-events :battlefield-1 :cube-1 :paths-1) => :pointer->events-1))
+  (paths->enders :battlefield-1 :cube-1 :paths-1) => :cube->enders-1))
 
 
 (facts
@@ -357,15 +311,13 @@
 
    (forward battlefield :cube-1)
    => {:cube->enders :cube->enders-1
-       :pointer->cube->tweeners :pointer->cube->tweeners-1
-       :pointer->events :pointer->events-1}
+       :pointer->cube->tweeners :pointer->cube->tweeners-1}
 
    (provided
     (lc/hexes 4) => :hexes
     (forward-paths battlefield :cube-1 :hexes) => :forward-paths
     (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1
-    (paths->tweeners battlefield :cube-1 :forward-paths) => :pointer->cube->tweeners-1
-    (paths-events battlefield :cube-1 :forward-paths) => :pointer->events-1)))
+    (paths->tweeners battlefield :cube-1 :forward-paths) => :pointer->cube->tweeners-1)))
 
 
 (facts
@@ -375,93 +327,10 @@
 
    (reposition battlefield :cube-1)
    => {:cube->enders :cube->enders-1
-       :pointer->cube->tweeners :pointer->cube->tweeners-1
-       :pointer->events :pointer->events-1}
+       :pointer->cube->tweeners :pointer->cube->tweeners-1}
 
    (provided
     (lc/hexes 2) => :hexes
     (reposition-paths battlefield :cube-1 :hexes) => :reposition-paths
     (paths->enders battlefield :cube-1 :reposition-paths) => :cube->enders-1
-    (paths->tweeners battlefield :cube-1 :reposition-paths) => :pointer->cube->tweeners-1
-    (paths-events battlefield :cube-1 :reposition-paths) => :pointer->events-1)))
-
-
-(facts
- "march"
-
- (let [battlefield {:cube-1 {:unit/M 4}}]
-
-   (march battlefield :cube-1)
-   => {:cube->enders :cube->enders-1
-       :pointer->cube->tweeners :pointer->cube->tweeners-1
-       :pointer->events :pointer->events-1}
-
-   (provided
-    (lc/hexes 8) => :hexes
-    (forward-paths battlefield :cube-1 :hexes) => :forward-paths
-    (paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1
-    (paths->tweeners battlefield :cube-1 :forward-paths) => :pointer->cube->tweeners-1
-    (paths-events battlefield :cube-1 :forward-paths) => :pointer->events-1)))
-
-
-(facts
- "list threats"
-
- (list-threats {:cube-1 :unit-1} :cube-1)
- => []
-
- (provided
-  (lc/neighbours-within :cube-1 3)
-  => [])
-
-
- (list-threats {:cube-1 :unit-1} :cube-1)
- => []
-
- (provided
-  (lc/neighbours-within :cube-1 3)
-  => [:cube-2])
-
-
- (list-threats {:cube-1 :unit-1
-                :cube-2 :terrain-1} :cube-1)
- => []
-
- (provided
-  (lc/neighbours-within :cube-1 3)
-  => [:cube-2]
-
-  (leu/unit? :terrain-1)
-  => false)
-
-
- (list-threats {:cube-1 :unit-1
-                :cube-2 :unit-2}
-               :cube-1)
- => []
-
- (provided
-  (lc/neighbours-within :cube-1 3)
-  => [:cube-2]
-
-  (leu/unit? :unit-2)
-  => true
-
-  (leu/enemies? :unit-1 :unit-2)
-  => false)
-
-
- (list-threats {:cube-1 :unit-1
-                :cube-2 :unit-2}
-               :cube-1)
- => [:cube-2]
-
- (provided
-  (lc/neighbours-within :cube-1 3)
-  => [:cube-2]
-
-  (leu/unit? :unit-2)
-  => true
-
-  (leu/enemies? :unit-1 :unit-2)
-  => true))
+    (paths->tweeners battlefield :cube-1 :reposition-paths) => :pointer->cube->tweeners-1)))

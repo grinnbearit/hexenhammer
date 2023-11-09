@@ -4,6 +4,7 @@
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.core :as lbm]
+            [hexenhammer.logic.battlefield.movement.march :as lbmm]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
@@ -39,8 +40,7 @@
  (let [state {:game/battlefield :battlefield-1}
        cube->enders {:cube-1 :mover-1}
        logic-fn (fn [_ _] {:cube->enders cube->enders
-                           :pointer->cube->tweeners :pointer->cube->tweeners-1
-                           :pointer->events :pointer->events-1})]
+                           :pointer->cube->tweeners :pointer->cube->tweeners-1})]
 
    (set-movement state logic-fn :phase-1 :cube-1)
    => {:game/battlefield :battlefield-1
@@ -48,8 +48,7 @@
        :game/phase :phase-1
        :game/battlemap :battlemap-2
        :game/movement {:battlemap cube->enders
-                       :pointer->cube->tweeners :pointer->cube->tweeners-1
-                       :pointer->events :pointer->events-1}}
+                       :pointer->cube->tweeners :pointer->cube->tweeners-1}}
 
    (provided
     (tb/set-presentation cube->enders [:cube-1] :selected)
@@ -60,8 +59,7 @@
        state {:game/battlefield battlefield}
        cube->enders {:cube-2 :mover-2}
        logic-fn (fn [_ _] {:cube->enders cube->enders
-                           :pointer->cube->tweeners :pointer->cube->tweeners-1
-                           :pointer->events :pointer->events-1})
+                           :pointer->cube->tweeners :pointer->cube->tweeners-1})
        battlemap {:cube-1 :unit-1
                   :cube-2 :mover-2}]
 
@@ -71,8 +69,7 @@
        :game/phase :phase-1
        :game/battlemap :battlemap-2
        :game/movement {:battlemap battlemap
-                       :pointer->cube->tweeners :pointer->cube->tweeners-1
-                       :pointer->events :pointer->events-1}}
+                       :pointer->cube->tweeners :pointer->cube->tweeners-1}}
 
    (provided
     (tb/set-presentation battlemap [:cube-1] :selected)
@@ -91,10 +88,8 @@
                                                   :mover/presentation :past}
                                          :cube-3 {:entity/class :mover
                                                   :mover/presentation :past}}}
-       pointer->events {pointer [:event-1]}
        state {:game/movement {:battlemap battlemap
-                              :pointer->cube->tweeners pointer->cube->tweeners
-                              :pointer->events pointer->events}}]
+                              :pointer->cube->tweeners pointer->cube->tweeners}}]
 
    (move-forward state pointer)
    => {:game/pointer pointer
@@ -108,9 +103,7 @@
                                  :mover/presentation :past}}
        :game/movement {:moved? true
                        :battlemap battlemap
-                       :pointer->cube->tweeners pointer->cube->tweeners
-                       :pointer->events pointer->events
-                       :events [:event-1]}}))
+                       :pointer->cube->tweeners pointer->cube->tweeners}}))
 
 
 (facts
@@ -201,29 +194,33 @@
 
 
 (facts
- "set march"
+ "set threats"
 
- (let [state {:game/battlefield :battlefield-1}]
+ (let [state {:game/cube :cube-1
+              :game/battlefield :battlefield-1}]
 
-   (set-march state :cube-1)
-   => {:game/movement {:march :unnecessary}}
+   (set-threats state)
+   => {:game/cube :cube-1
+       :game/battlefield :battlefield-1
+       :game/movement {:march :unnecessary}}
 
    (provided
-    (lbm/list-threats :battlefield-1 :cube-1) => []
-    (set-movement state lbm/march [:movement :march] :cube-1) => {}))
+    (lbmm/list-threats :battlefield-1 :cube-1) => []))
 
 
  (let [battlefield {:cube-1 :unit-1}
-       state {:game/battlefield battlefield}]
+       state {:game/cube :cube-1
+              :game/battlefield battlefield}]
 
-   (set-march state :cube-1)
+   (set-threats state)
    => {:game/battlemap :battlemap-2}
 
    (provided
-    (lbm/list-threats battlefield :cube-1) => [:cube-2]
-    (set-movement state lbm/march [:movement :march] :cube-1) => {}
+    (lbmm/list-threats battlefield :cube-1) => [:cube-2]
 
-    (tsb/refresh-battlemap {:game/movement {:march :required
+    (tsb/refresh-battlemap {:game/cube :cube-1
+                            :game/battlefield battlefield
+                            :game/movement {:march :required
                                             :threats [:cube-2]}}
                            [:cube-2])
     => {:game/battlemap :battlemap-1}
@@ -235,16 +232,18 @@
  (let [battlefield {:cube-1 {:unit/flags {:marched? true}
                              :unit/state {:movement {:roll :roll-1
                                                      :passed? false}}}}
-       state {:game/battlefield battlefield}]
+       state {:game/cube :cube-1
+              :game/battlefield battlefield}]
 
-   (set-march state :cube-1)
+   (set-threats state)
    => {:game/battlemap :battlemap-2}
 
    (provided
-    (lbm/list-threats battlefield :cube-1) => [:cube-2]
-    (set-movement state lbm/march [:movement :march] :cube-1) => {}
+    (lbmm/list-threats battlefield :cube-1) => [:cube-2]
 
-    (tsb/refresh-battlemap {:game/movement {:march :failed
+    (tsb/refresh-battlemap {:game/cube :cube-1
+                            :game/battlefield battlefield
+                            :game/movement {:march :failed
                                             :roll :roll-1
                                             :threats [:cube-2]}}
                            [:cube-2])
@@ -257,16 +256,18 @@
  (let [battlefield {:cube-1 {:unit/flags {:marched? true}
                              :unit/state {:movement {:roll :roll-1
                                                      :passed? true}}}}
-       state {:game/battlefield battlefield}]
+       state {:game/cube :cube-1
+              :game/battlefield battlefield}]
 
-   (set-march state :cube-1)
+   (set-threats state)
    => {:game/battlemap :battlemap-2}
 
    (provided
-    (lbm/list-threats battlefield :cube-1) => [:cube-2]
-    (set-movement state lbm/march [:movement :march] :cube-1) => {}
+    (lbmm/list-threats battlefield :cube-1) => [:cube-2]
 
-    (tsb/refresh-battlemap {:game/movement {:march :passed
+    (tsb/refresh-battlemap {:game/cube :cube-1
+                            :game/battlefield battlefield
+                            :game/movement {:march :passed
                                             :roll :roll-1
                                             :threats [:cube-2]}}
                            [:cube-2])
@@ -274,6 +275,63 @@
 
     (tb/set-presentation :battlemap-1 [:cube-2] :marked)
     => :battlemap-2)))
+
+
+(facts
+ "set march"
+
+ (let [state {:game/battlefield :battlefield-1}
+       cube->enders {:cube-1 :mover-1}]
+
+   (set-march state :cube-1)
+   => :set-threats
+
+   (provided
+    (lbmm/march :battlefield-1 :cube-1)
+    => {:cube->enders cube->enders
+        :pointer->cube->tweeners :pointer->cube->tweeners-1
+        :pointer->events :pointer->events-1}
+
+    (tb/set-presentation cube->enders [:cube-1] :selected)
+    => :battlemap-2
+
+    (set-threats {:game/battlefield :battlefield-1
+                  :game/cube :cube-1
+                  :game/phase [:movement :march]
+                  :game/battlemap :battlemap-2
+                  :game/movement {:battlemap cube->enders
+                                  :pointer->cube->tweeners :pointer->cube->tweeners-1
+                                  :pointer->events :pointer->events-1}})
+    => :set-threats))
+
+
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/battlefield battlefield}
+       cube->enders {:cube-2 :mover-2}
+
+       battlemap {:cube-1 :unit-1
+                  :cube-2 :mover-2}]
+
+   (set-march state :cube-1)
+   => :set-threats
+
+   (provided
+    (lbmm/march battlefield :cube-1)
+    => {:cube->enders cube->enders
+        :pointer->cube->tweeners :pointer->cube->tweeners-1
+        :pointer->events :pointer->events-1}
+
+    (tb/set-presentation battlemap [:cube-1] :selected)
+    => :battlemap-2
+
+    (set-threats {:game/battlefield battlefield
+                  :game/cube :cube-1
+                  :game/phase [:movement :march]
+                  :game/battlemap :battlemap-2
+                  :game/movement {:battlemap battlemap
+                                  :pointer->cube->tweeners :pointer->cube->tweeners-1
+                                  :pointer->events :pointer->events-1}})
+    => :set-threats)))
 
 
 (facts
@@ -289,16 +347,21 @@
 (facts
  "move march"
 
- (let [state {:game/movement {:threats [:cube-2]}}]
+ (let [pointer->events {:pointer-1 [:event-1]}
+       state-2 {:game/movement {:pointer->events pointer->events
+                                :threats [:cube-2]}}]
 
-   (move-march state :pointer)
+   (move-march :state-1 :pointer-1)
    => {:game/battlemap :battlemap-2}
 
    (provided
-    (move-movement state :pointer)
-    => :state-2
+    (move-movement :state-1 :pointer-1)
+    => state-2
 
-    (tsb/refresh-battlemap :state-2 [:cube-2])
+    (tsb/refresh-battlemap {:game/movement {:pointer->events pointer->events
+                                            :threats [:cube-2]
+                                            :events [:event-1]}}
+                           [:cube-2])
     => {:game/battlemap :battlemap-1}
 
     (tb/set-presentation :battlemap-1 [:cube-2] :marked)

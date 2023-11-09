@@ -2,6 +2,7 @@
   (:require [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.core :as lbm]
+            [hexenhammer.logic.battlefield.movement.march :as lbmm]
             [hexenhammer.transition.dice :as td]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
@@ -24,7 +25,7 @@
 
 (defn set-movement
   [{:keys [game/battlefield] :as state} logic-fn phase cube]
-  (let [{:keys [cube->enders pointer->cube->tweeners pointer->events]} (logic-fn battlefield cube)
+  (let [{:keys [cube->enders pointer->cube->tweeners]} (logic-fn battlefield cube)
         battlemap (cond-> cube->enders
                     (not (contains? cube->enders cube))
                     (assoc cube (battlefield cube)))]
@@ -34,22 +35,19 @@
                :game/battlemap battlemap)
         (update :game/movement assoc
                 :battlemap battlemap
-                :pointer->cube->tweeners pointer->cube->tweeners
-                :pointer->events pointer->events)
+                :pointer->cube->tweeners pointer->cube->tweeners)
         (update :game/battlemap tb/set-presentation [cube] :selected))))
 
 
 (defn move-movement
   [state pointer]
   (let [battlemap (get-in state [:game/movement :battlemap])
-        cube->tweeners (get-in state [:game/movement :pointer->cube->tweeners pointer])
-        events (get-in state [:game/movement :pointer->events pointer])]
+        cube->tweeners (get-in state [:game/movement :pointer->cube->tweeners pointer])]
     (-> (assoc state
                :game/pointer pointer
                :game/battlemap (merge battlemap cube->tweeners))
         (update :game/movement assoc
-                :moved? true
-                :events events)
+                :moved? true)
         (update-in [:game/battlemap (:cube pointer)] assoc
                    :entity/presentation :selected
                    :mover/presentation :present
@@ -101,29 +99,47 @@
   (move-movement state pointer))
 
 
-(defn set-march
-  [{:keys [game/battlefield] :as state} cube]
-  (let [threats (lbm/list-threats battlefield cube)
-        new-state (set-movement state lbm/march [:movement :march] cube)
-        unit (battlefield cube)]
+(defn set-threats
+  [{:keys [game/cube game/battlefield] :as state}]
+  (let [threats (lbmm/list-threats battlefield cube)]
 
     (if (seq threats)
-      (-> (if (get-in unit [:unit/flags :marched?])
-            (let [roll (get-in unit [:unit/state :movement :roll])]
-              (if (get-in unit [:unit/state :movement :passed?])
-                (update new-state :game/movement assoc
-                        :march :passed
-                        :roll roll)
-                (update new-state :game/movement assoc
-                        :march :failed
-                        :roll roll)))
-            (assoc-in new-state [:game/movement :march] :required))
+      (let [unit (battlefield cube)]
+        (-> (if (get-in unit [:unit/flags :marched?])
+              (let [roll (get-in unit [:unit/state :movement :roll])]
+                (if (get-in unit [:unit/state :movement :passed?])
+                  (update state :game/movement assoc
+                          :march :passed
+                          :roll roll)
+                  (update state :game/movement assoc
+                          :march :failed
+                          :roll roll)))
+              (assoc-in state [:game/movement :march] :required))
 
-          (assoc-in [:game/movement :threats] threats)
-          (tsb/refresh-battlemap threats)
-          (update :game/battlemap tb/set-presentation threats :marked))
+            (assoc-in [:game/movement :threats] threats)
+            (tsb/refresh-battlemap threats)
+            (update :game/battlemap tb/set-presentation threats :marked)))
 
-      (assoc-in new-state [:game/movement :march] :unnecessary))))
+      (assoc-in state [:game/movement :march] :unnecessary))))
+
+
+(defn set-march
+  [{:keys [game/battlefield] :as state} cube]
+  (let [{:keys [cube->enders pointer->cube->tweeners pointer->events]} (lbmm/march battlefield cube)
+        battlemap (cond-> cube->enders
+                    (not (contains? cube->enders cube))
+                    (assoc cube (battlefield cube)))]
+
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:movement :march]
+               :game/battlemap battlemap)
+        (update :game/movement assoc
+                :battlemap battlemap
+                :pointer->cube->tweeners pointer->cube->tweeners
+                :pointer->events pointer->events)
+        (update :game/battlemap tb/set-presentation [cube] :selected)
+        (set-threats))))
 
 
 (defn select-march
@@ -133,10 +149,12 @@
 
 (defn move-march
   [state pointer]
-  (let [new-state (move-movement state pointer)
-        threats (get-in state [:game/movement :threats])]
+  (let [march-state (move-movement state pointer)
+        events (get-in march-state [:game/movement :pointer->events pointer])
+        threats (get-in march-state [:game/movement :threats])]
 
-    (-> (tsb/refresh-battlemap new-state threats)
+    (-> (assoc-in march-state [:game/movement :events] events)
+        (tsb/refresh-battlemap threats)
         (update :game/battlemap tb/set-presentation threats :marked))))
 
 

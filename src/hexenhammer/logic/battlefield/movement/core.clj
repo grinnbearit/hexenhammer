@@ -1,8 +1,6 @@
 (ns hexenhammer.logic.battlefield.movement.core
   (:require [hexenhammer.logic.cube :as lc]
-            [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.mover :as lem]
-            [hexenhammer.logic.entity.event :as lev]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]))
 
@@ -23,8 +21,7 @@
 
 
 (defn reform-paths
-  "Returns all reform paths, each consisting of two steps
-  start is the starting pointer"
+  "Returns all reform paths, each consisting of two steps"
   [battlefield unit-cube]
   (let [start (lbu/unit-pointer battlefield unit-cube)]
     (for [option (disj #{:n :ne :se :s :sw :nw} (:facing start))
@@ -157,33 +154,11 @@
        (into {})))
 
 
-(defn path-events
-  "Returns a list of dangerous events for the passed path"
-  [battlefield unit-cube path]
-  (let [unit-key (lbu/unit-key battlefield unit-cube)
-        new-bf (lbu/remove-unit battlefield unit-cube)]
-
-    (for [pointer (rest path)
-          :let [terrain (new-bf (:cube pointer))]
-          :when (let/dangerous? terrain)]
-      (lev/dangerous-terrain (:cube pointer) unit-key))))
-
-
-(defn paths-events
-  "Returns a map of pointer->events for all paths"
-  [battlefield unit-cube paths]
-  (->> (for [path paths]
-         [(peek path) (path-events battlefield unit-cube path)])
-       (into {})))
-
-
 (defn reform
   [battlefield unit-cube]
   (let [paths (reform-paths battlefield unit-cube)
-        cube->enders (paths->enders battlefield unit-cube paths)
-        pointer->events (paths-events battlefield unit-cube paths)]
-    {:cube->enders cube->enders
-     :pointer->events pointer->events}))
+        cube->enders (paths->enders battlefield unit-cube paths)]
+    {:cube->enders cube->enders}))
 
 
 (defn forward
@@ -191,11 +166,9 @@
   (let [hexes (lc/hexes (get-in battlefield [unit-cube :unit/M]))
         paths (forward-paths battlefield unit-cube hexes)
         cube->enders (paths->enders battlefield unit-cube paths)
-        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)
-        pointer->events (paths-events battlefield unit-cube paths)]
+        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)]
     {:cube->enders cube->enders
-     :pointer->cube->tweeners pointer->cube->tweeners
-     :pointer->events pointer->events}))
+     :pointer->cube->tweeners pointer->cube->tweeners}))
 
 
 (defn reposition
@@ -203,33 +176,6 @@
   (let [hexes (lc/hexes (/ (get-in battlefield [unit-cube :unit/M]) 2))
         paths (reposition-paths battlefield unit-cube hexes)
         cube->enders (paths->enders battlefield unit-cube paths)
-        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)
-        pointer->events (paths-events battlefield unit-cube paths)]
+        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)]
     {:cube->enders cube->enders
-     :pointer->cube->tweeners pointer->cube->tweeners
-     :pointer->events pointer->events}))
-
-
-(defn march
-  [battlefield unit-cube]
-  (let [hexes (lc/hexes (* 2 (get-in battlefield [unit-cube :unit/M])))
-        paths (forward-paths battlefield unit-cube hexes)
-        cube->enders (paths->enders battlefield unit-cube paths)
-        pointer->cube->tweeners (paths->tweeners battlefield unit-cube paths)
-        pointer->events (paths-events battlefield unit-cube paths)]
-    {:cube->enders cube->enders
-     :pointer->cube->tweeners pointer->cube->tweeners
-     :pointer->events pointer->events}))
-
-
-(defn list-threats
-  "Returns a list of cubes that 'threaten' this unit on the battlefield
-  i.e. enemy units within 3 hexes"
-  [battlefield unit-cube]
-  (let [unit (battlefield unit-cube)]
-    (for [neighbour (lc/neighbours-within unit-cube 3)
-          :when (contains? battlefield neighbour)
-          :let [entity (battlefield neighbour)]
-          :when (and (leu/unit? entity)
-                     (leu/enemies? unit entity))]
-      neighbour)))
+     :pointer->cube->tweeners pointer->cube->tweeners}))

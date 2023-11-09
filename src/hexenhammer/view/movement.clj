@@ -27,7 +27,6 @@
         cube (:game/cube state)
         unit (get-in state [:game/battlefield cube])
         moved? (get-in state [:game/movement :moved?])
-        events (get-in state [:game/movement :events])
         title (str/capitalize (name movement))]
     (html
      [:html
@@ -38,7 +37,6 @@
       [:body
        (r/render-battlefield state)
        (r/render-profile unit) [:br]
-       (r/render-events events) [:br]
 
        [:form {:action "/movement/skip-movement" :method "post"}
         [:input {:type "submit" :value "Skip Movement"}]
