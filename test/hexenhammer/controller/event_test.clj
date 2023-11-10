@@ -219,12 +219,14 @@
     (lbmf/flee battlefield :cube-1 :cube-2 3)
     => {:end pointer
         :cube->tweeners cube->tweeners
-        :edge? true}
+        :edge? true
+        :events [:event-2]}
 
     (tsu/escape-unit state :cube-1 :cube-3)
-    => {}
+    => {:game/events [:event-1]}
 
     (tsb/reset-battlemap {:game/phase [:event :heavy-casualties :flee]
+                          :game/events [:event-1 :event-2]
                           :game/event {:edge? true
                                        :unit :unit-1
                                        :roll [1 2]}}
@@ -254,7 +256,8 @@
     (lbmf/flee battlefield :cube-1 :cube-2 3)
     => {:end pointer
         :cube->tweeners cube->tweeners
-        :edge? false}
+        :edge? false
+        :events [:event-2]}
 
     (leu/set-flee :unit-1) => :unit-2
 
@@ -263,9 +266,10 @@
                                  :source-cube :cube-2}}
                    :cube-1
                    pointer)
-    => {}
+    => {:game/events [:event-1]}
 
     (tsb/reset-battlemap {:game/phase [:event :heavy-casualties :flee]
+                          :game/events [:event-1 :event-2]
                           :game/event {:edge? false
                                        :unit :unit-1
                                        :roll [1 2]}}
@@ -277,3 +281,23 @@
                          [:cube-2 :cube-3]
                          :marked)
     => :battlemap-3)))
+
+
+(facts
+ "panic"
+
+ (let [state {}
+       event {:event/type :panic}]
+
+   (trigger-event state event)
+   => {:game/phase [:event :panic]}))
+
+
+(facts
+ "opportunity attack"
+
+ (let [state {}
+       event {:event/type :opportunity-attack}]
+
+   (trigger-event state event)
+   => {:game/phase [:event :opportunity-attack]}))

@@ -32,30 +32,37 @@
 
 
 (facts
- "passable?"
-
- (passable? :unit-1) => false
-
- (provided
-  (terrain? :unit-1) => false)
-
-
- (let [entity {:terrain/type :impassable}]
-   (passable? entity) => false
-
-   (provided
-    (terrain? entity) => true))
-
-
- (let [entity {:terrain/type :open}]
-   (passable? entity) => true
-
-   (provided
-    (terrain? entity) => true)))
-
-
-(facts
  "dangerous?"
 
  (dangerous? :terrain-1) => false
  (dangerous? {:terrain/type :dangerous}) => true)
+
+
+(facts
+ "impassable?"
+
+ (impassable? :terrain-1) => false
+ (impassable? {:terrain/type :impassable}) => true)
+
+
+(facts
+ "passable?"
+
+ (passable? :entity-1) => false
+
+ (provided
+  (terrain? :entity-1) => false)
+
+
+ (passable? :terrain-1) => false
+
+ (provided
+  (terrain? :terrain-1) => true
+  (impassable? :terrain-1) => true)
+
+
+ (passable? :terrain-1) => true
+
+ (provided
+  (terrain? :terrain-1) => true
+  (impassable? :terrain-1) => false))

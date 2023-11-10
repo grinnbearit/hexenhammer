@@ -33,7 +33,9 @@
   (GET "/event/dangerous-terrain" [] (ve/dangerous-terrain @hexenhammer-state))
   (GET "/event/heavy-casualties/passed" [] (ve/heavy-casualties-passed @hexenhammer-state))
   (GET "/event/heavy-casualties/failed" [] (ve/heavy-casualties-failed @hexenhammer-state))
-  (GET "/event/heavy-casualties/flee" [] (ve/heavy-casualties-flee @hexenhammer-state)))
+  (GET "/event/heavy-casualties/flee" [] (ve/heavy-casualties-flee @hexenhammer-state))
+  (GET "/event/panic" [] (ve/panic @hexenhammer-state))
+  (GET "/event/opportunity-attack" [] (ve/opportunity-attack @hexenhammer-state)))
 
 
 (defroutes controller-handler

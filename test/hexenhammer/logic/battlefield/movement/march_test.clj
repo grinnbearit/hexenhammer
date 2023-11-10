@@ -19,11 +19,7 @@
                       :cube-2 :terrain-2
                       :cube-3 :terrain-3}]
 
-   (path-events battlefield-1 :cube-1 [{:cube :cube-1 :facing :n}
-                                       {:cube :cube-1 :facing :ne}
-                                       {:cube :cube-2 :facing :ne}
-                                       {:cube :cube-2 :facing :n}
-                                       {:cube :cube-3 :facing :n}])
+   (path-events battlefield-1 :cube-1 :path-1)
    => [:dangerous-1]
 
    (provided
@@ -31,6 +27,11 @@
 
     (lbu/remove-unit battlefield-1 :cube-1)
     => battlefield-2
+
+    (lbm/compress-path :path-1)
+    => [{:cube :cube-1}
+        {:cube :cube-2}
+        {:cube :cube-3}]
 
     (let/dangerous? :terrain-2) => true
     (lev/dangerous-terrain :cube-2 :unit-key-1) => :dangerous-1

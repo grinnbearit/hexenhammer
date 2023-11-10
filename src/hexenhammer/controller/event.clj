@@ -76,15 +76,16 @@
   (let [{:keys [unit-cube source-cube]} (:game/event state)
         unit (get-in state [:game/battlefield unit-cube])
         roll (td/roll! 2)
-        {:keys [end cube->tweeners edge?]} (lbmf/flee battlefield
-                                                      unit-cube
-                                                      source-cube
-                                                      (apply + roll))]
+        {:keys [end cube->tweeners edge? events]} (lbmf/flee battlefield
+                                                             unit-cube
+                                                             source-cube
+                                                             (apply + roll))]
     (-> (if edge?
           (tsu/escape-unit state unit-cube (:cube end))
           (-> (update-in state [:game/battlefield unit-cube] leu/set-flee)
               (tsu/move-unit unit-cube end)))
         (assoc :game/phase [:event :heavy-casualties :flee])
+        (update :game/events into events)
         (update :game/event assoc
                 :edge? edge?
                 :unit unit
@@ -92,3 +93,13 @@
         (tsb/reset-battlemap [source-cube (:cube end)])
         (update :game/battlemap merge cube->tweeners)
         (update :game/battlemap tb/set-presentation [source-cube (:cube end)] :marked))))
+
+
+(defmethod trigger-event :panic
+  [state event]
+  (assoc state :game/phase [:event :panic]))
+
+
+(defmethod trigger-event :opportunity-attack
+  [state event]
+  (assoc state :game/phase [:event :opportunity-attack]))

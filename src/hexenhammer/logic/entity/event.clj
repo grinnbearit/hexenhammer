@@ -15,3 +15,19 @@
    :event/type :heavy-casualties
    :event/cube cube
    :event/unit-key unit-key})
+
+
+(defn opportunity-attack
+  [cube unit-key wounds]
+  {:entity/class :event
+   :event/type :opportunity-attack
+   :event/cube cube
+   :event/unit-key unit-key
+   :event/wounds wounds})
+
+
+(defn panic
+  [unit-key]
+  {:entity/class :event
+   :event/type :panic
+   :event/unit-key unit-key})

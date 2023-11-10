@@ -12,9 +12,9 @@
   [battlefield unit-cube path]
   (let [unit-key (lbu/unit-key battlefield unit-cube)
         new-bf (lbu/remove-unit battlefield unit-cube)
-        path-cubes (set (map :cube path))]
+        path-cubes (map :cube (lbm/compress-path path))]
 
-    (for [cube (disj path-cubes unit-cube)
+    (for [cube (rest path-cubes)
           :let [terrain (new-bf cube)]
           :when (let/dangerous? terrain)]
       (lev/dangerous-terrain cube unit-key))))

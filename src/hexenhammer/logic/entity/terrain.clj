@@ -43,14 +43,20 @@
   (dissoc unit :unit/terrain))
 
 
-(defn passable?
-  "Returns true if the passed entity can be moved through"
-  [entity]
-  (and (terrain? entity)
-       (not= :impassable (:terrain/type entity))))
-
-
 (defn dangerous?
   "Returns true if the passed terrain triggers a dangerous terrain test when moved through"
   [terrain]
   (= :dangerous (:terrain/type terrain)))
+
+
+(defn impassable?
+  "Returns true if the passed terrain is impassable"
+  [terrain]
+  (= :impassable (:terrain/type terrain)))
+
+
+(defn passable?
+  "Returns true if the passed entity can be moved through"
+  [entity]
+  (and (terrain? entity)
+       (not (impassable? entity))))

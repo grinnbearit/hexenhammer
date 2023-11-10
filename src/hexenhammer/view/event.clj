@@ -84,3 +84,33 @@
         (rs/dice roll)
         [:form {:action "/event/trigger" :method "post"}
          [:input {:type "submit" :value "Next"}]]]]])))
+
+
+(defn panic
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Event - Panic!"]
+     [:style STYLESHEET]
+     [:body
+      (r/render-battlefield state) [:br] [:br]
+      (r/render-events (:game/events state)) [:br]
+      [:form {:action "/event/trigger" :method "post"}
+       [:input {:type "submit" :value "Next"}]]]]]))
+
+
+(defn opportunity-attack
+  [state]
+  (html
+   [:html
+    [:head
+     [:h1 "Hexenhammer"]
+     [:h2 "Event - Opportunity Attack"]
+     [:style STYLESHEET]
+     [:body
+      (r/render-battlefield state) [:br] [:br]
+      (r/render-events (:game/events state)) [:br]
+      [:form {:action "/event/trigger" :method "post"}
+       [:input {:type "submit" :value "Next"}]]]]]))
