@@ -372,10 +372,93 @@
 (facts
  "flee panic"
 
- (let [state {}]
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/event {:unit-cube :cube-1}
+              :game/battlefield battlefield
+              :game/units :units-1
+              :game/player 1}
+       pointer (lc/->Pointer :cube-3 :n)
+       cube->tweeners {:cube-1 :mover-1}]
 
    (flee-panic state)
-   => {:game/phase [:event :panic :flee]}))
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (tu/enemy-cubes :units-1 1) => :enemy-cubes
+    (lbu/closest-enemy battlefield :cube-1 :enemy-cubes) => :cube-2
+
+    (td/roll! 2) => [1 2]
+
+    (lbmf/flee battlefield :cube-1 :cube-2 3)
+    => {:end pointer
+        :cube->tweeners cube->tweeners
+        :edge? true
+        :events [:event-2]}
+
+    (tsu/escape-unit state :cube-1 :cube-3)
+    => {:game/events [:event-1]}
+
+    (tsb/reset-battlemap {:game/phase [:event :panic :flee]
+                          :game/events [:event-1 :event-2]
+                          :game/event {:edge? true
+                                       :unit :unit-1
+                                       :roll [1 2]}}
+                         [:cube-2 :cube-3])
+    => {:game/battlemap {:cube-2 :mover-2}}
+
+    (tb/set-presentation {:cube-1 :mover-1
+                          :cube-2 :mover-2}
+                         [:cube-2 :cube-3]
+                         :marked)
+    => :battlemap-3))
+
+
+ (let [battlefield {:cube-1 :unit-1}
+       state {:game/event {:unit-cube :cube-1}
+              :game/battlefield battlefield
+              :game/units :units-1
+              :game/player 1}
+       pointer (lc/->Pointer :cube-3 :n)
+       cube->tweeners {:cube-1 :mover-1}]
+
+   (flee-panic state)
+   => {:game/battlemap :battlemap-3}
+
+   (provided
+    (tu/enemy-cubes :units-1 1) => :enemy-cubes
+    (lbu/closest-enemy battlefield :cube-1 :enemy-cubes) => :cube-2
+
+    (td/roll! 2) => [1 2]
+
+    (lbmf/flee battlefield :cube-1 :cube-2 3)
+    => {:end pointer
+        :cube->tweeners cube->tweeners
+        :edge? false
+        :events [:event-2]}
+
+    (leu/set-flee :unit-1) => :unit-2
+
+    (tsu/move-unit {:game/event {:unit-cube :cube-1}
+                    :game/battlefield {:cube-1 :unit-2}
+                    :game/units :units-1
+                    :game/player 1}
+                   :cube-1
+                   pointer)
+    => {:game/events [:event-1]}
+
+    (tsb/reset-battlemap {:game/phase [:event :panic :flee]
+                          :game/events [:event-1 :event-2]
+                          :game/event {:edge? false
+                                       :unit :unit-1
+                                       :roll [1 2]}}
+                         [:cube-2 :cube-3])
+    => {:game/battlemap {:cube-2 :mover-2}}
+
+    (tb/set-presentation {:cube-1 :mover-1
+                          :cube-2 :mover-2}
+                         [:cube-2 :cube-3]
+                         :marked)
+    => :battlemap-3)))
 
 
 (facts

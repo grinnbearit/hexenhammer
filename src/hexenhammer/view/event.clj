@@ -128,17 +128,20 @@
 
 (defn panic-flee
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 "Hexenhammer"]
-     [:h2 "Event - Panic - Flee!"]
-     [:style STYLESHEET]
-     [:body
-      (r/render-battlefield state) [:br] [:br]
-      (r/render-events (:game/events state)) [:br]
-      [:form {:action "/event/trigger" :method "post"}
-       [:input {:type "submit" :value "Next"}]]]]]))
+  (let [{:keys [edge? unit roll]} (:game/event state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Panic - Flee!"]
+       [:style STYLESHEET]
+       [:body
+        (r/render-battlefield state) [:br] [:br]
+        (r/render-profile unit) [:br]
+        (r/render-events (:game/events state)) [:br]
+        (rs/dice roll)
+        [:form {:action "/event/trigger" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
 
 
 (defn opportunity-attack

@@ -83,3 +83,15 @@
                 (leu/phase-strength unit))
              3/4)
          (panickable? battlefield unit-cube))))
+
+
+(defn closest-enemy
+  "Returns the closest enemy cube to unit-cube from enemy-cubes,
+  if tied returns the strongest"
+  [battlefield unit-cube enemy-cubes]
+  (letfn [(keyfn [enemy-cube]
+            (let [enemy (battlefield enemy-cube)]
+              (- (* (lc/distance unit-cube enemy-cube) 100)
+                 (leu/unit-strength enemy))))]
+
+    (apply min-key keyfn enemy-cubes)))

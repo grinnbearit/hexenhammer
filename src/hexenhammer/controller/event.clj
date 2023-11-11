@@ -74,7 +74,7 @@
 (defn flee-heavy-casualties
   [{:keys [game/battlefield] :as state}]
   (let [{:keys [unit-cube source-cube]} (:game/event state)
-        unit (get-in state [:game/battlefield unit-cube])
+        unit (battlefield unit-cube)
         roll (td/roll! 2)
         {:keys [end cube->tweeners edge? events]} (lbmf/flee battlefield
                                                              unit-cube
@@ -116,8 +116,29 @@
 
 
 (defn flee-panic
-  [state]
-  (assoc state :game/phase [:event :panic :flee]))
+  [{:keys [game/battlefield] :as state}]
+  (let [{:keys [unit-cube]} (:game/event state)
+        unit (battlefield unit-cube)
+        enemy-cubes (tu/enemy-cubes (:game/units state) (:game/player state))
+        source-cube (lbu/closest-enemy battlefield unit-cube enemy-cubes)
+        roll (td/roll! 2)
+        {:keys [end cube->tweeners edge? events]} (lbmf/flee battlefield
+                                                             unit-cube
+                                                             source-cube
+                                                             (apply + roll))]
+    (-> (if edge?
+          (tsu/escape-unit state unit-cube (:cube end))
+          (-> (update-in state [:game/battlefield unit-cube] leu/set-flee)
+              (tsu/move-unit unit-cube end)))
+        (assoc :game/phase [:event :panic :flee])
+        (update :game/events into events)
+        (update :game/event assoc
+                :edge? edge?
+                :unit unit
+                :roll roll)
+        (tsb/reset-battlemap [source-cube (:cube end)])
+        (update :game/battlemap merge cube->tweeners)
+        (update :game/battlemap tb/set-presentation [source-cube (:cube end)] :marked))))
 
 
 (defmethod trigger-event :opportunity-attack

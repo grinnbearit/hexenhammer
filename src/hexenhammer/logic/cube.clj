@@ -108,3 +108,20 @@
   (let [closest-cube (or (first (cubes-between cx cy)) cy)]
     (->> (drop-while #(not= (step cx %) closest-cube) [:n :ne :se :s :sw :nw])
          (first))))
+
+
+(defn rotate
+  "Rotates a cube around the origin in 60° increments"
+  [cube]
+  (let [{:keys [q r s]} cube]
+    (->Cube (- r) (- s) (- q))))
+
+
+(defn neighbours-at
+  "Returns all cubes at `distance` of cube"
+  [cube distance]
+  (->> (for [q (range distance)]
+         (->> (iterate rotate (->Cube q (- distance) (- distance q)))
+              (take 6)
+              (map (partial add cube))))
+       (apply concat)))

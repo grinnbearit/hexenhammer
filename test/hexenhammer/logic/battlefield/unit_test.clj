@@ -284,3 +284,24 @@
     (leu/unit-strength :unit-1) => 7
     (leu/phase-strength :unit-1) => 12
     (panickable? battlefield :cube-1) => true)))
+
+
+(facts
+ "closest enemy"
+
+ (let [battlefield {:cube-1 :unit-1
+                    :cube-2 :unit-2
+                    :cube-3 :unit-3
+                    :cube-4 :unit-4}]
+
+   (closest-enemy battlefield :cube-1 [:cube-2 :cube-3 :cube-4])
+   => :cube-3
+
+   (provided
+    (lc/distance :cube-1 :cube-2) => 3
+    (lc/distance :cube-1 :cube-3) => 2
+    (lc/distance :cube-1 :cube-4) => 2
+
+    (leu/unit-strength :unit-2) => 10
+    (leu/unit-strength :unit-3) => 8
+    (leu/unit-strength :unit-4) => 7)))

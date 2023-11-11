@@ -10,6 +10,14 @@
         (mapcat (comp vals :cubes)))))
 
 
+(defn enemy-cubes
+  "Returns all unit cubes belonging to the other player"
+  [units player]
+  (condp = player
+    1 (unit-cubes units 2)
+    2 (unit-cubes units 1)))
+
+
 (defn next-id
   "Returns the next id for the passed unit"
   [units player name]

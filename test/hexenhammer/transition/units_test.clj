@@ -20,6 +20,21 @@
 
 
 (facts
+ "enemy cubes"
+
+ (enemy-cubes :units-1 1) => :unit-cubes
+
+ (provided
+  (unit-cubes :units-1 2) => :unit-cubes)
+
+
+ (enemy-cubes :units-1 2) => :unit-cubes
+
+ (provided
+  (unit-cubes :units-1 1) => :unit-cubes))
+
+
+(facts
  "next id"
 
  (next-id {} 1 "unit") => 1

@@ -117,3 +117,28 @@
   (cubes-between :cube-1 :cube-3) => [:cube-2]
   (step :cube-1 :n) => :cube-4
   (step :cube-1 :ne) => :cube-2))
+
+
+(facts
+ "rotate"
+
+ (rotate (->Cube 0 -2 2))
+ => (->Cube 2 -2 0))
+
+
+(facts
+ "neighbours at"
+
+ (neighbours-at (->Cube 0 0 0) 2)
+ => [(->Cube 0 -2 2)
+     (->Cube 2 -2 0)
+     (->Cube 2 0 -2)
+     (->Cube 0 2 -2)
+     (->Cube -2 2 0)
+     (->Cube -2 0 2)
+     (->Cube 1 -2 1)
+     (->Cube 2 -1 -1)
+     (->Cube 1 1 -2)
+     (->Cube -1 2 -1)
+     (->Cube -2 1 1)
+     (->Cube  -1 -1 2)])
