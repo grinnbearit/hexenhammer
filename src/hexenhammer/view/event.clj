@@ -86,13 +86,53 @@
          [:input {:type "submit" :value "Next"}]]]]])))
 
 
-(defn panic
+(defn panic-passed
+  [state]
+  (let [{:keys [roll unit-cube]} (:game/event state)
+        unit (get-in state [:game/battlefield unit-cube])]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Panic"]
+       [:style STYLESHEET]
+       [:body
+        (r/render-battlefield state) [:br] [:br]
+        (r/render-profile unit) [:br]
+        (r/render-events (:game/events state)) [:br]
+        [:h3 "Passed!"]
+        (rs/dice roll 1)
+        [:form {:action "/event/trigger" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))
+
+
+(defn panic-failed
+  [state]
+  (let [{:keys [roll unit-cube]} (:game/event state)
+        unit (get-in state [:game/battlefield unit-cube])]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Panic"]
+       [:style STYLESHEET]
+       [:body
+        (r/render-battlefield state) [:br] [:br]
+        (r/render-profile unit) [:br]
+        (r/render-events (:game/events state)) [:br]
+        [:h3 "Failed!"]
+        (rs/dice roll 7)
+        [:form {:action "/event/panic/flee" :method "post"}
+         [:input {:type "submit" :value "Flee!"}]]]]])))
+
+
+(defn panic-flee
   [state]
   (html
    [:html
     [:head
      [:h1 "Hexenhammer"]
-     [:h2 "Event - Panic!"]
+     [:h2 "Event - Panic - Flee!"]
      [:style STYLESHEET]
      [:body
       (r/render-battlefield state) [:br] [:br]

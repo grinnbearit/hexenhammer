@@ -96,8 +96,28 @@
 
 
 (defmethod trigger-event :panic
-  [state event]
-  (assoc state :game/phase [:event :panic]))
+  [{:keys [game/units game/battlefield] :as state} {:keys [event/unit-key]}]
+  (if-let [unit-cube (tu/get-unit units unit-key)]
+    (if-let [panickable? (lbu/panickable? battlefield unit-cube)]
+      (let [unit (battlefield unit-cube)
+            roll (td/roll! 2)
+            passed? (<= (apply + roll) (:unit/Ld unit))]
+        (-> (if passed?
+              (assoc state :game/phase [:event :panic :passed])
+              (assoc state :game/phase [:event :panic :failed]))
+            (update-in [:game/battlefield unit-cube] leu/set-panicked)
+            (update :game/event assoc
+                    :unit-cube unit-cube
+                    :roll roll)
+            (tsb/reset-battlemap [unit-cube])
+            (update :game/battlemap tb/set-presentation :marked)))
+      (trigger state))
+    (trigger state)))
+
+
+(defn flee-panic
+  [state]
+  (assoc state :game/phase [:event :panic :flee]))
 
 
 (defmethod trigger-event :opportunity-attack

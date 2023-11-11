@@ -284,13 +284,98 @@
 
 
 (facts
- "panic"
+ "trigger event panic"
 
- (let [state {}
-       event {:event/type :panic}]
+ (let [state {:game/units :units-1}
+       event {:event/type :panic
+              :event/unit-key :unit-key-1}]
 
    (trigger-event state event)
-   => {:game/phase [:event :panic]}))
+   => :trigger
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => nil
+    (trigger state) => :trigger))
+
+
+ (let [state {:game/units :units-1
+              :game/battlefield :battlefield-1}
+       event {:event/type :panic
+              :event/unit-key :unit-key-1}]
+
+   (trigger-event state event)
+   => :trigger
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => :cube-2
+    (lbu/panickable? :battlefield-1 :cube-2) => false
+    (trigger state) => :trigger))
+
+
+ (let [unit {:unit/Ld 3}
+       battlefield {:cube-2 unit}
+       state {:game/units :units-1
+              :game/battlefield battlefield}
+       event {:event/type :panic
+              :event/unit-key :unit-key-1}]
+
+   (trigger-event state event)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => :cube-2
+    (lbu/panickable? battlefield :cube-2) => true
+    (td/roll! 2) => [1 1]
+    (leu/set-panicked unit) => :unit-2
+
+    (tsb/reset-battlemap {:game/phase [:event :panic :passed]
+                          :game/units :units-1
+                          :game/battlefield {:cube-2 :unit-2}
+                          :game/event {:unit-cube :cube-2
+                                       :roll [1 1]}}
+                         [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 :marked)
+    => :battlemap-2))
+
+
+ (let [unit {:unit/Ld 3}
+       battlefield {:cube-2 unit}
+       state {:game/units :units-1
+              :game/battlefield battlefield}
+       event {:event/type :panic
+              :event/cube :cube-1
+              :event/unit-key :unit-key-1}]
+
+   (trigger-event state event)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => :cube-2
+    (lbu/panickable? battlefield :cube-2) => true
+    (td/roll! 2) => [1 3]
+    (leu/set-panicked unit) => :unit-2
+
+    (tsb/reset-battlemap {:game/phase [:event :panic :failed]
+                          :game/units :units-1
+                          :game/battlefield {:cube-2 :unit-2}
+                          :game/event {:unit-cube :cube-2
+                                       :roll [1 3]}}
+                         [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 :marked)
+    => :battlemap-2)))
+
+
+(facts
+ "flee panic"
+
+ (let [state {}]
+
+   (flee-panic state)
+   => {:game/phase [:event :panic :flee]}))
 
 
 (facts

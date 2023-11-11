@@ -34,7 +34,9 @@
   (GET "/event/heavy-casualties/passed" [] (ve/heavy-casualties-passed @hexenhammer-state))
   (GET "/event/heavy-casualties/failed" [] (ve/heavy-casualties-failed @hexenhammer-state))
   (GET "/event/heavy-casualties/flee" [] (ve/heavy-casualties-flee @hexenhammer-state))
-  (GET "/event/panic" [] (ve/panic @hexenhammer-state))
+  (GET "/event/panic/passed" [] (ve/panic-passed @hexenhammer-state))
+  (GET "/event/panic/failed" [] (ve/panic-failed @hexenhammer-state))
+  (GET "/event/panic/flee" [] (ve/panic-flee @hexenhammer-state))
   (GET "/event/opportunity-attack" [] (ve/opportunity-attack @hexenhammer-state)))
 
 
@@ -56,7 +58,8 @@
   (POST "/movement/test-leadership" [] (swap! hexenhammer-state cm/test-leadership))
 
   (POST "/event/trigger" [] (swap! hexenhammer-state ce/trigger))
-  (POST "/event/heavy-casualties/flee" [] (swap! hexenhammer-state ce/flee-heavy-casualties)))
+  (POST "/event/heavy-casualties/flee" [] (swap! hexenhammer-state ce/flee-heavy-casualties))
+  (POST "/event/panic/flee" [] (swap! hexenhammer-state ce/flee-panic)))
 
 
 (defroutes select-handler
