@@ -105,7 +105,7 @@
         [:table
          [:tr
           (for [option [:reform :forward :reposition]]
-            [:td [:a {:href (str "/movement/" (name option))}
+            [:td [:a {:href (str "/movement/switch-movement/" (name option))}
                   (str/capitalize (name option))]])
           [:td "March"]]]
 
