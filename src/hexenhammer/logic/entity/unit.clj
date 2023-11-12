@@ -145,3 +145,9 @@
   "Updates the unit to be fleeing"
   [unit]
   (assoc-in unit [:unit/flags :fleeing?] true))
+
+
+(defn friendly?
+  "True if the unit is owned by the passed player"
+  [unit player]
+  (= (:unit/player unit) player))

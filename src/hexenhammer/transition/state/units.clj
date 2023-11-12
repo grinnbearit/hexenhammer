@@ -2,6 +2,7 @@
   (:require [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.event :as lev]
             [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.event :as lbv]
             [hexenhammer.transition.units :as tu]))
 
 
@@ -15,10 +16,17 @@
 
 (defn destroy-unit
   "Destroys the unit at unit-cube"
-  [{:keys [game/battlefield] :as state} unit-cube]
-  (let [unit-key (lbu/unit-key battlefield unit-cube)]
-    (-> (update state :game/units tu/remove-unit unit-key)
-        (update :game/battlefield lbu/remove-unit unit-cube))))
+  [{:keys [game/player game/battlefield] :as state} unit-cube]
+  (let [unit (battlefield unit-cube)
+        unit-key (leu/unit-key unit)
+        removed-bf (lbu/remove-unit battlefield unit-cube)]
+
+    (cond-> (-> (assoc state :game/battlefield removed-bf)
+                (update :game/units tu/remove-unit unit-key))
+
+      (<= 8 (leu/unit-strength unit))
+      (update :game/events into
+              (lbv/nearby-friend-annihilated removed-bf unit-cube player)))))
 
 
 (defn destroy-models

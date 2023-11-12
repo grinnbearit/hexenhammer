@@ -38,117 +38,86 @@
  "flee path"
 
  (flee-path :battlefield-1 :cube-1 :cube-1 0)
- => {:path [:pointer-1] :edge? false}
+ => {:path [:pointer-2] :edge? false}
 
  (provided
   (lbu/unit-pointer :battlefield-1 :cube-1) => :pointer-1
-  (flee-direction :pointer-1 :cube-1) => :pointer-1
-  (lbm/valid-move? :battlefield-1 :cube-1 :pointer-1) => true
-  (lbm/valid-end? :battlefield-1 :cube-1 :pointer-1) => true)
-
-
- (flee-path :battlefield-1 :cube-1 :cube-2 0)
- => {:path [:pointer-1 :pointer-2] :edge? false}
-
- (provided
-  (lbu/unit-pointer :battlefield-1 :cube-1) => :pointer-1
-  (flee-direction :pointer-1 :cube-2) => :pointer-2
+  (flee-direction :pointer-1 :cube-1) => :pointer-2
   (lbm/valid-move? :battlefield-1 :cube-1 :pointer-2) => true
   (lbm/valid-end? :battlefield-1 :cube-1 :pointer-2) => true)
 
 
  (let [battlefield {:cube-2 :entity-1}
-       pointer-2 (lc/->Pointer :cube-2 :n)]
+       pointer-3 (lc/->Pointer :cube-2 :n)]
 
    (flee-path battlefield :cube-1 :cube-1 1)
-   => {:path [:pointer-1 pointer-2] :edge? false}
+   => {:path [:pointer-2 pointer-3] :edge? false}
 
    (provided
     (lbu/unit-pointer battlefield :cube-1) => :pointer-1
-    (flee-direction :pointer-1 :cube-1) => :pointer-1
-    (flee-step :pointer-1) => pointer-2
-    (lbm/valid-move? battlefield :cube-1 pointer-2) => true
-    (lbm/valid-end? battlefield :cube-1 pointer-2) => true))
+    (flee-direction :pointer-1 :cube-1) => :pointer-2
+    (flee-step :pointer-2) => pointer-3
+    (lbm/valid-move? battlefield :cube-1 pointer-3) => true
+    (lbm/valid-end? battlefield :cube-1 pointer-3) => true))
 
 
  (let [battlefield {:cube-2 :entity-1}
-       pointer-2 (lc/->Pointer :cube-2 :n)]
+       pointer-3 (lc/->Pointer :cube-2 :n)]
 
    (flee-path battlefield :cube-1 :cube-1 0)
-   => {:path [:pointer-1 pointer-2] :edge? false}
+   => {:path [:pointer-2 pointer-3] :edge? false}
 
    (provided
     (lbu/unit-pointer battlefield :cube-1) => :pointer-1
-    (flee-direction :pointer-1 :cube-1) => :pointer-1
-    (lbm/valid-move? battlefield :cube-1 :pointer-1) => false
-    (flee-step :pointer-1) => pointer-2
-    (lbm/valid-move? battlefield :cube-1 pointer-2) => true
-    (lbm/valid-end? battlefield :cube-1 pointer-2) => true))
+    (flee-direction :pointer-1 :cube-1) => :pointer-2
+    (lbm/valid-move? battlefield :cube-1 :pointer-2) => false
+    (flee-step :pointer-2) => pointer-3
+    (lbm/valid-move? battlefield :cube-1 pointer-3) => true
+    (lbm/valid-end? battlefield :cube-1 pointer-3) => true))
 
 
  (let [battlefield {:cube-2 :entity-1}
-       pointer-2 (lc/->Pointer :cube-2 :n)]
+       pointer-3 (lc/->Pointer :cube-2 :n)]
 
    (flee-path battlefield :cube-1 :cube-1 0)
-   => {:path [:pointer-1 pointer-2] :edge? false}
+   => {:path [:pointer-2 pointer-3] :edge? false}
 
    (provided
     (lbu/unit-pointer battlefield :cube-1) => :pointer-1
-    (flee-direction :pointer-1 :cube-1) => :pointer-1
-    (lbm/valid-move? battlefield :cube-1 :pointer-1) => true
-    (lbm/valid-end? battlefield :cube-1 :pointer-1) => false
-    (flee-step :pointer-1) => pointer-2
-    (lbm/valid-move? battlefield :cube-1 pointer-2) => true
-    (lbm/valid-end? battlefield :cube-1 pointer-2) => true))
+    (flee-direction :pointer-1 :cube-1) => :pointer-2
+    (lbm/valid-move? battlefield :cube-1 :pointer-2) => true
+    (lbm/valid-end? battlefield :cube-1 :pointer-2) => false
+    (flee-step :pointer-2) => pointer-3
+    (lbm/valid-move? battlefield :cube-1 pointer-3) => true
+    (lbm/valid-end? battlefield :cube-1 pointer-3) => true))
 
 
  (let [battlefield {}
-       pointer-2 (lc/->Pointer :cube-2 :n)]
+       pointer-3 (lc/->Pointer :cube-2 :n)]
 
    (flee-path battlefield :cube-1 :cube-1 1)
-   => {:path [:pointer-1] :edge? true}
+   => {:path [:pointer-2] :edge? true}
 
    (provided
     (lbu/unit-pointer battlefield :cube-1) => :pointer-1
-    (flee-direction :pointer-1 :cube-1) => :pointer-1
-    (flee-step :pointer-1) => pointer-2)))
-
-
-(facts
- "compress path"
-
- (compress-path [:pointer-1])
- => [:pointer-1]
-
-
- (let [pointer-1 (lc/->Pointer :cube-1 :n)
-       pointer-2 (lc/->Pointer :cube-2 :n)]
-   (compress-path [pointer-1 pointer-2])
-   => [pointer-1 pointer-2])
-
-
- (let [pointer-1 (lc/->Pointer :cube-1 :n)
-       pointer-2 (lc/->Pointer :cube-1 :s)]
-   (compress-path [pointer-1 pointer-2])
-   => [pointer-2]))
+    (flee-direction :pointer-1 :cube-1) => :pointer-2
+    (flee-step :pointer-2) => pointer-3)))
 
 
 (facts
  "path -> tweeners"
 
- (let [battlefield {:cube-1 {:unit/player 1}}]
+ (let [battlefield {:cube-1 {:unit/player 1}}
+       path [{:cube :cube-1 :facing :n}
+             {:cube :cube-2 :facing :n}]]
 
-   (path->tweeners battlefield :cube-1 :path-1 false)
+   (path->tweeners battlefield :cube-1 path false)
    => {:cube-1 :place}
 
    (provided
     (lbu/remove-unit battlefield :cube-1)
     => {:cube-1 :terrain-1
         :cube-2 :terrain-2}
-
-    (compress-path :path-1)
-    => [{:cube :cube-1 :facing :n}
-        {:cube :cube-2 :facing :n}]
 
     (let/passable? :terrain-1) => true
 
@@ -159,19 +128,17 @@
     => :place))
 
 
- (let [battlefield {:cube-1 {:unit/player 1}}]
+ (let [battlefield {:cube-1 {:unit/player 1}}
+       path [{:cube :cube-1 :facing :n}
+             {:cube :cube-2 :facing :n}]]
 
-   (path->tweeners battlefield :cube-1 :path-1 true)
+   (path->tweeners battlefield :cube-1 path true)
    => {:cube-1 :place}
 
    (provided
     (lbu/remove-unit battlefield :cube-1)
     => {:cube-1 :terrain-1
         :cube-2 :terrain-2}
-
-    (compress-path :path-1)
-    => [{:cube :cube-1 :facing :n}
-        {:cube :cube-2 :facing :n}]
 
     (let/passable? :terrain-1) => true
     (let/passable? :terrain-2) => false
@@ -193,9 +160,18 @@
                       :cube-5 :unit-2
                       :cube-6 :unit-3
                       :cube-7 :unit-4
-                      :cube-8 :unit-5}]
+                      :cube-8 :unit-5}
 
-   (path-events battlefield-1 :cube-1 :path-1)
+       path [{:cube :cube-1}
+             {:cube :cube-2}
+             {:cube :cube-3}
+             {:cube :cube-4}
+             {:cube :cube-5}
+             {:cube :cube-6}
+             {:cube :cube-7}
+             {:cube :cube-8}]]
+
+   (path-events battlefield-1 :cube-1 path)
    => [:dangerous-terrain-1
        :dangerous-terrain-2
        :opportunity-attack
@@ -204,16 +180,6 @@
    (provided
     (leu/unit-key :unit-1) => :unit-key-1
     (lbu/remove-unit battlefield-1 :cube-1) => battlefield-2
-
-    (compress-path :path-1)
-    => [{:cube :cube-1}
-        {:cube :cube-2}
-        {:cube :cube-3}
-        {:cube :cube-4}
-        {:cube :cube-5}
-        {:cube :cube-6}
-        {:cube :cube-7}
-        {:cube :cube-8}]
 
     (let/terrain? :terrain-1) => true
     (let/dangerous? :terrain-1) => false
@@ -251,18 +217,17 @@
 
 
  (let [battlefield-1 {:cube-1 :unit-1}
-       battlefield-2 {:cube-2 :unit-2}]
+       battlefield-2 {:cube-2 :unit-2}
 
-   (path-events battlefield-1 :cube-1 :path-1)
+       path [{:cube :cube-1}
+             {:cube :cube-2}]]
+
+   (path-events battlefield-1 :cube-1 path)
    => []
 
    (provided
     (leu/unit-key :unit-1) => :unit-key-1
     (lbu/remove-unit battlefield-1 :cube-1) => battlefield-2
-
-    (compress-path :path-1)
-    => [{:cube :cube-1}
-        {:cube :cube-2}]
 
     (let/terrain? :unit-2) => false
     (leu/enemies? :unit-1 :unit-2) => false

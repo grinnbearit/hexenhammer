@@ -3,6 +3,7 @@
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.event :as lev]
             [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.event :as lbv]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.state.units :refer :all]))
 
@@ -27,17 +28,43 @@
 (facts
  "destroy unit"
 
- (let [state {:game/units :units-1
-              :game/battlefield :battlefield-1}]
+ (let [battlefield-1 {:cube-1 :unit-1}
+       state {:game/player 1
+              :game/units :units-1
+              :game/battlefield battlefield-1}]
 
    (destroy-unit state :cube-1)
-   => {:game/units :units-2
+   => {:game/player 1
+       :game/units :units-2
        :game/battlefield :battlefield-2}
 
    (provided
-    (lbu/unit-key :battlefield-1 :cube-1) => :unit-key-1
+    (leu/unit-key :unit-1) => :unit-key-1
+    (lbu/remove-unit battlefield-1 :cube-1) => :battlefield-2
     (tu/remove-unit :units-1 :unit-key-1) => :units-2
-    (lbu/remove-unit :battlefield-1 :cube-1) => :battlefield-2)))
+
+    (leu/unit-strength :unit-1) => 7))
+
+
+ (let [battlefield-1 {:cube-1 :unit-1}
+       state {:game/player 1
+              :game/units :units-1
+              :game/battlefield battlefield-1
+              :game/events []}]
+
+   (destroy-unit state :cube-1)
+   => {:game/player 1
+       :game/units :units-2
+       :game/battlefield :battlefield-2
+       :game/events [:event-1]}
+
+   (provided
+    (leu/unit-key :unit-1) => :unit-key-1
+    (lbu/remove-unit battlefield-1 :cube-1) => :battlefield-2
+    (tu/remove-unit :units-1 :unit-key-1) => :units-2
+
+    (leu/unit-strength :unit-1) => 8
+    (lbv/nearby-friend-annihilated :battlefield-2 :cube-1 1) => [:event-1])))
 
 
 (facts

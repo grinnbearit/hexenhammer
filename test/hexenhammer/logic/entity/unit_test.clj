@@ -185,3 +185,10 @@
  "set flee"
 
  (set-flee {}) => {:unit/flags {:fleeing? true}})
+
+
+(facts
+ "friendly?"
+
+ (friendly? {:unit/player 2} 1) => false
+ (friendly? {:unit/player 2} 2) => true)

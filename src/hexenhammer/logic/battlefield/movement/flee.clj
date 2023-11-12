@@ -34,9 +34,7 @@
   (let [start (lbu/unit-pointer battlefield unit-cube)
         flee-pointer (flee-direction start source-cube)]
 
-    (loop [path (if (= start flee-pointer)
-                  [start]
-                  [start flee-pointer])]
+    (loop [path [flee-pointer]]
 
       (let [pointer (peek path)]
 
@@ -51,24 +49,12 @@
               {:path path :edge? true})))))))
 
 
-(defn compress-path
-  "Returns a compressed flee path which only modifies the first 2 pointers"
-  [path]
-  (cond-> path
-
-    (and (<= 2 (count path))
-         (= (get-in path [0 :cube])
-            (get-in path [1 :cube])))
-    (-> (rest) (vec))))
-
-
 (defn path->tweeners
   "Given a path, returns a new map of cube->mover for the passable in between steps in the path"
   [battlefield unit-cube path edge?]
   (let [player (get-in battlefield [unit-cube :unit/player])
         new-bf (lbu/remove-unit battlefield unit-cube)
-        tween-path (cond-> (compress-path path)
-                     (not edge?) (pop))]
+        tween-path (if edge? path (pop path))]
 
     (->> (for [pointer tween-path
                :let [cube (:cube pointer)
@@ -87,7 +73,7 @@
   (let [unit (battlefield unit-cube)
         unit-key (leu/unit-key unit)
         new-bf (lbu/remove-unit battlefield unit-cube)
-        path-cubes (map :cube (compress-path path))]
+        path-cubes (map :cube path)]
 
     (->> (for [cube (rest path-cubes)
                :let [entity (new-bf cube)]]
