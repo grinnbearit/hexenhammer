@@ -81,6 +81,42 @@
 
 
 (facts
+ "wounds"
+
+ (wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0}) => 12
+ (wounds #:unit{:F 3 :ranks 2 :W 2 :damage 1}) => 11
+ (wounds #:unit{:F 3 :ranks 2 :W 2 :damage 2}) => 10
+ (wounds #:unit{:F 3 :ranks 2 :W 2 :damage 3}) => 9
+ (wounds #:unit{:F 3 :ranks 2 :W 2 :damage 4}) => 8
+ (wounds #:unit{:F 3 :ranks 2 :W 2 :damage 5}) => 7
+ (wounds #:unit{:F 3 :ranks 1 :W 2 :damage 0}) => 6)
+
+
+(facts
+ "set-wounds"
+
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 12) => #:unit{:F 3 :ranks 2 :W 2 :damage 0}
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 11) => #:unit{:F 3 :ranks 2 :W 2 :damage 1}
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 10) => #:unit{:F 3 :ranks 2 :W 2 :damage 2}
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 9) => #:unit{:F 3 :ranks 2 :W 2 :damage 3}
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 8) => #:unit{:F 3 :ranks 2 :W 2 :damage 4}
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 7) => #:unit{:F 3 :ranks 2 :W 2 :damage 5}
+ (set-wounds #:unit{:F 3 :ranks 2 :W 2 :damage 0} 6) => #:unit{:F 3 :ranks 1 :W 2 :damage 0})
+
+
+(facts
+ "damage unit"
+
+ (damage-unit :unit-1 3)
+ => :unit-2
+
+ (provided
+  (wounds :unit-1) => 4
+
+  (set-wounds :unit-1 1) => :unit-2))
+
+
+(facts
  "unit strength"
 
  (let [unit #:unit{:model-strength 1}]

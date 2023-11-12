@@ -67,6 +67,37 @@
   (set-models unit (- (models unit) m)))
 
 
+(defn wounds
+  "Calculate the number of wounds remaining on this unit"
+  [unit]
+  (- (* (:unit/F unit)
+        (:unit/ranks unit)
+        (:unit/W unit))
+     (:unit/damage unit)))
+
+
+(defn set-wounds
+  "Returns a new unit with the passed wounds set, doesn't check for bounds"
+  [unit wounds]
+  (let [rank-wounds (* (:unit/F unit) (:unit/W unit))
+        full-ranks (quot wounds rank-wounds)
+        extra-wounds (rem wounds rank-wounds)]
+    (if (zero? extra-wounds)
+      (assoc unit
+             :unit/ranks full-ranks
+             :unit/damage 0)
+      (assoc unit
+             :unit/ranks (inc full-ranks)
+             :unit/damage (- rank-wounds extra-wounds)))))
+
+
+(defn damage-unit
+  "Given a unit and damage, returns the new unit with the damage taken
+  assumes the damage isn't enought to destroy the unit"
+  [unit damage]
+  (set-wounds unit (- (wounds unit) damage)))
+
+
 (defn unit-strength
   [unit]
   (* (:unit/model-strength unit)

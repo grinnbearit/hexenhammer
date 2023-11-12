@@ -18,12 +18,12 @@
 
 
 (defn opportunity-attack
-  [cube unit-key wounds]
+  [cube unit-key damage]
   {:entity/class :event
    :event/type :opportunity-attack
    :event/cube cube
    :event/unit-key unit-key
-   :event/wounds wounds})
+   :event/damage damage})
 
 
 (defn panic

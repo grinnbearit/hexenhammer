@@ -146,14 +146,20 @@
 
 (defn opportunity-attack
   [state]
-  (html
-   [:html
-    [:head
-     [:h1 "Hexenhammer"]
-     [:h2 "Event - Opportunity Attack"]
-     [:style STYLESHEET]
-     [:body
-      (r/render-battlefield state) [:br] [:br]
-      (r/render-events (:game/events state)) [:br]
-      [:form {:action "/event/trigger" :method "post"}
-       [:input {:type "submit" :value "Next"}]]]]]))
+  (let [{:keys [unit-destroyed? damage unit]} (:game/event state)
+        events (:game/events state)]
+    (html
+     [:html
+      [:head
+       [:h1 "Hexenhammer"]
+       [:h2 "Event - Opportunity Attack"]
+       [:style STYLESHEET]
+       [:body
+        (r/render-battlefield state) [:br] [:br]
+        (r/render-profile unit) [:br]
+        (r/render-events events) [:br]
+        (if unit-destroyed?
+          [:h3 (str (rb/unit-key->str unit) " destroyed")]
+          [:h3 (format "%d Damage Taken" damage)])
+        [:form {:action "/event/trigger" :method "post"}
+         [:input {:type "submit" :value "Next"}]]]]])))

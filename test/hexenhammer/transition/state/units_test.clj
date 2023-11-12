@@ -68,6 +68,33 @@
 
 
 (facts
+ "damage unit"
+
+ (let [state {:game/battlefield {:cube-2 :unit-1}}]
+
+   (damage-unit state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}}
+
+   (provided
+    (leu/damage-unit :unit-1 2) => :unit-2
+    (lbu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => false))
+
+
+ (let [state {:game/battlefield {:cube-2 :unit-1}
+              :game/events []}]
+
+   (damage-unit state :cube-2 :cube-1 2)
+   => {:game/battlefield {:cube-2 :unit-2}
+       :game/events [:heavy-casualties]}
+
+   (provided
+    (leu/damage-unit :unit-1 2) => :unit-2
+    (lbu/heavy-casualties? {:cube-2 :unit-2} :cube-2) => true
+    (leu/unit-key :unit-1) => :unit-key-1
+    (lev/heavy-casualties :cube-1 :unit-key-1) => :heavy-casualties)))
+
+
+(facts
  "escape unit"
 
  (let [state {:game/units :units-1

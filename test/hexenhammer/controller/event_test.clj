@@ -462,10 +462,67 @@
 
 
 (facts
- "opportunity attack"
+ "trigger event opportunity attack"
 
- (let [state {}
-       event {:event/type :opportunity-attack}]
+ (let [state {:game/units :units-1}
+       event {:event/type :opportunity-attack
+              :event/unit-key :unit-key-1}]
 
    (trigger-event state event)
-   => {:game/phase [:event :opportunity-attack]}))
+   => :trigger
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => nil
+    (trigger state) => :trigger))
+
+
+ (let [state {:game/units :units-1
+              :game/battlefield {:cube-2 :unit-1}}
+       event {:event/type :opportunity-attack
+              :event/cube :cube-1
+              :event/unit-key :unit-key-1
+              :event/damage 3}]
+
+   (trigger-event state event)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => :cube-2
+    (leu/wounds :unit-1) => 3
+
+    (tsu/destroy-unit state :cube-2) => {}
+
+    (tsb/reset-battlemap {:game/phase [:event :opportunity-attack]
+                          :game/event {:damage 3
+                                       :unit-destroyed? true
+                                       :unit :unit-1}}
+                         [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 :marked) => :battlemap-2))
+
+
+ (let [state {:game/units :units-1
+              :game/battlefield {:cube-2 :unit-1}}
+       event {:event/type :opportunity-attack
+              :event/cube :cube-1
+              :event/unit-key :unit-key-1
+              :event/damage 3}]
+
+   (trigger-event state event)
+   => {:game/battlemap :battlemap-2}
+
+   (provided
+    (tu/get-unit :units-1 :unit-key-1) => :cube-2
+    (leu/wounds :unit-1) => 4
+
+    (tsu/damage-unit state :cube-2 :cube-1 3) => {}
+
+    (tsb/reset-battlemap {:game/phase [:event :opportunity-attack]
+                          :game/event {:damage 3
+                                       :unit-destroyed? false
+                                       :unit :unit-1}}
+                         [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 :marked) => :battlemap-2)))

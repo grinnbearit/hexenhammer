@@ -142,5 +142,19 @@
 
 
 (defmethod trigger-event :opportunity-attack
-  [state event]
-  (assoc state :game/phase [:event :opportunity-attack]))
+  [{:keys [game/units game/battlefield] :as state} {:keys [event/unit-key event/cube event/damage]}]
+  (if-let [unit-cube (tu/get-unit units unit-key)]
+    (let [unit (battlefield unit-cube)
+          wounds (leu/wounds unit)
+          unit-destroyed? (<= wounds damage)]
+      (-> (if unit-destroyed?
+            (tsu/destroy-unit state unit-cube)
+            (tsu/damage-unit state unit-cube cube damage))
+          (assoc :game/phase [:event :opportunity-attack])
+          (update :game/event assoc
+                  :unit unit
+                  :damage damage
+                  :unit-destroyed? unit-destroyed?)
+          (tsb/reset-battlemap [cube unit-cube])
+          (update :game/battlemap tb/set-presentation :marked)))
+    (trigger state)))

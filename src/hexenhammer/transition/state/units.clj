@@ -27,7 +27,22 @@
   (let [unit (battlefield unit-cube)
         damaged-unit (leu/destroy-models unit models)
         damaged-bf (assoc battlefield unit-cube damaged-unit)]
-    (cond-> (update-in state [:game/battlefield unit-cube] leu/destroy-models models)
+
+    (cond-> (assoc state :game/battlefield damaged-bf)
+
+      (lbu/heavy-casualties? damaged-bf unit-cube)
+      (update :game/events conj
+              (lev/heavy-casualties source-cube (leu/unit-key unit))))))
+
+
+(defn damage-unit
+  "Removes a number of wounds from the unit"
+  [{:keys [game/battlefield] :as state} unit-cube source-cube damage]
+  (let [unit (battlefield unit-cube)
+        damaged-unit (leu/damage-unit unit damage)
+        damaged-bf (assoc battlefield unit-cube damaged-unit)]
+
+    (cond-> (assoc state :game/battlefield damaged-bf)
 
       (lbu/heavy-casualties? damaged-bf unit-cube)
       (update :game/events conj

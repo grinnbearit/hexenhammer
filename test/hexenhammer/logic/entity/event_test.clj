@@ -31,7 +31,7 @@
      :event/type :opportunity-attack
      :event/cube :cube-1
      :event/unit-key :unit-key-1
-     :event/wounds 10})
+     :event/damage 10})
 
 
 (facts
