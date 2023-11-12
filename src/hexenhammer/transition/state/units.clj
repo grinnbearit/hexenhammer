@@ -14,9 +14,9 @@
         (update :game/battlefield lbu/move-unit unit-cube pointer))))
 
 
-(defn destroy-unit
-  "Destroys the unit at unit-cube"
-  [{:keys [game/player game/battlefield] :as state} unit-cube]
+(defn remove-unit
+  "A helper function for destroy-unit and escape unit"
+  [{:keys [game/player game/battlefield] :as state} unit-cube source-cube]
   (let [unit (battlefield unit-cube)
         unit-key (leu/unit-key unit)
         removed-bf (lbu/remove-unit battlefield unit-cube)]
@@ -26,40 +26,41 @@
 
       (<= 8 (leu/unit-strength unit))
       (update :game/events into
-              (lbv/nearby-friend-annihilated removed-bf unit-cube player)))))
+              (lbv/nearby-friend-annihilated removed-bf source-cube player)))))
 
 
-(defn destroy-models
-  "Destroys a number of models in the unit"
-  [{:keys [game/battlefield] :as state} unit-cube source-cube models]
+(defn reduce-unit
+  "A helper function for destroy-models and damage-unit"
+  [{:keys [game/battlefield] :as state} unit-cube source-cube reducer-fn]
   (let [unit (battlefield unit-cube)
-        damaged-unit (leu/destroy-models unit models)
-        damaged-bf (assoc battlefield unit-cube damaged-unit)]
+        reduced-bf (update battlefield unit-cube reducer-fn)]
 
-    (cond-> (assoc state :game/battlefield damaged-bf)
+    (cond-> (assoc state :game/battlefield reduced-bf)
 
-      (lbu/heavy-casualties? damaged-bf unit-cube)
+      (lbu/heavy-casualties? reduced-bf unit-cube)
       (update :game/events conj
               (lev/heavy-casualties source-cube (leu/unit-key unit))))))
 
 
-(defn damage-unit
-  "Removes a number of wounds from the unit"
-  [{:keys [game/battlefield] :as state} unit-cube source-cube damage]
-  (let [unit (battlefield unit-cube)
-        damaged-unit (leu/damage-unit unit damage)
-        damaged-bf (assoc battlefield unit-cube damaged-unit)]
-
-    (cond-> (assoc state :game/battlefield damaged-bf)
-
-      (lbu/heavy-casualties? damaged-bf unit-cube)
-      (update :game/events conj
-              (lev/heavy-casualties source-cube (leu/unit-key unit))))))
+(defn destroy-unit
+  "Destroys the unit at unit-cube"
+  [state unit-cube]
+  (remove-unit state unit-cube unit-cube))
 
 
 (defn escape-unit
   "Destroys the unit at `unit-cube`, the unit escapes the battlfield at `end-cube`"
-  [{:keys [game/battlefield] :as state} unit-cube end-cube]
-  (let [unit-key (lbu/unit-key battlefield unit-cube)]
-    (-> (update state :game/units tu/remove-unit unit-key)
-        (update :game/battlefield lbu/remove-unit unit-cube))))
+  [state unit-cube end-cube]
+  (remove-unit state unit-cube end-cube))
+
+
+(defn destroy-models
+  "Destroys a number of models in the unit"
+  [state unit-cube source-cube models]
+  (reduce-unit state unit-cube source-cube #(leu/destroy-models % models)))
+
+
+(defn damage-unit
+  "Removes a number of wounds from the unit"
+  [state unit-cube source-cube damage]
+  (reduce-unit state unit-cube source-cube #(leu/damage-unit % damage)))
