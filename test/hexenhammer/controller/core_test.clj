@@ -28,7 +28,7 @@
 
  (to-movement {:game/battlefield :battlefield-1
                :game/units :units-1})
- => {:game/battlemap :battlemap-2}
+ => :unselect
 
  (provided
   (tu/unit-cubes :units-1) => [:cube-1 :cube-2 :cube-3 :cube-4]
@@ -42,13 +42,30 @@
   (tf/reset-phase :battlefield-1 [:cube-1 :cube-2 :cube-3 :cube-4])
   => :battlefield-2
 
-  (tsb/reset-battlemap {:game/battlefield :battlefield-2
-                        :game/units :units-1
-                        :game/player 1
-                        :game/phase [:movement :select-hex]
-                        :game/movement {:movable-keys #{:unit-key-1 :unit-key-2}
-                                        :movable-cubes #{:cube-1 :cube-2}}}
-                       [:cube-1 :cube-2])
-  => {:game/battlemap :battlemap-1}
+  (cm/unselect {:game/battlefield :battlefield-2
+                :game/units :units-1
+                :game/player 1
+                :game/phase [:movement :select-hex]
+                :game/movement {:movable-keys #{:unit-key-1 :unit-key-2}
+                                :movable-cubes #{:cube-1 :cube-2}}})
+  => :unselect))
 
-  (tb/set-presentation :battlemap-1 :selectable) => :battlemap-2))
+
+(facts
+ "to close combat"
+
+ (to-close-combat {:game/player 1
+                   :game/units :units-1
+                   :game/battlefield :battlefield-1
+                   :game/movement :movement-1})
+ => {:game/player 1
+     :game/units :units-1
+     :game/battlefield :battlefield-3
+     :game/phase [:close-combat]}
+
+ (provided
+  (tu/unit-cubes :units-1) => :unit-cubes
+  (tu/unit-cubes :units-1 1) => :player-cubes
+
+  (tf/reset-phase :battlefield-1 :unit-cubes) => :battlefield-2
+  (tf/reset-movement :battlefield-2 :player-cubes) => :battlefield-3))

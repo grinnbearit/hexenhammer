@@ -31,7 +31,14 @@
   => {:game/battlemap :battlemap-1}
 
   (tb/set-presentation :battlemap-1 :selectable)
-  => :battlemap-2))
+  => :battlemap-2)
+
+
+ (unselect {:game/movement {:movable-cubes []}
+            :game/cube :cube-1
+            :game/battlemap :battlemap-1})
+ => {:game/movement {:movable-cubes []}
+     :game/phase [:movement :to-close-combat]})
 
 
 (facts

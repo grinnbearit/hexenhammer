@@ -26,5 +26,14 @@
                :game/movement {:movable-keys (set movable-keys)
                                :movable-cubes (set movable-cubes)})
         (update :game/battlefield tf/reset-phase unit-cubes)
-        (tsb/reset-battlemap movable-cubes)
-        (update :game/battlemap tb/set-presentation :selectable))))
+        (cm/unselect))))
+
+
+(defn to-close-combat
+  [{:keys [game/units game/player] :as state}]
+  (let [unit-cubes (tu/unit-cubes units)
+        player-cubes (tu/unit-cubes units player)]
+    (-> (update state :game/battlefield tf/reset-phase unit-cubes)
+        (update :game/battlefield tf/reset-movement player-cubes)
+        (dissoc :game/movement)
+        (assoc :game/phase [:close-combat]))))

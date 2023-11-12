@@ -14,7 +14,7 @@
     (html
      [:html
       [:head
-       [:h1 (rb/player->str (:game/player state))]
+       [:h1 (rb/player->str player)]
        [:h2 "Movement"]
        [:style STYLESHEET]]
       [:body
@@ -31,7 +31,7 @@
     (html
      [:html
       [:head
-       [:h1 (rb/player->str (:game/player state))]
+       [:h1 (rb/player->str player)]
        [:h2 (str "Movement - " title)]
        [:style STYLESHEET]]
       [:body
@@ -84,7 +84,7 @@
     (html
      [:html
       [:head
-       [:h1 (rb/player->str (:game/player state))]
+       [:h1 (rb/player->str player)]
        [:h2 "Movement - March"]
        [:style STYLESHEET]
        [:body
@@ -126,3 +126,18 @@
 
           :unnecessary
           nil)]]])))
+
+
+(defn to-close-combat
+  [state]
+  (let [player (:game/player state)]
+    (html
+     [:html
+      [:head
+       [:h1 (rb/player->str player)]
+       [:h2 "Movement"]
+       [:style STYLESHEET]]
+      [:body
+       (r/render-battlefield state) [:br] [:br]
+       [:form {:action "/to-close-combat" :method "post"}
+        [:input {:type "submit" :value "To Close Combat"}]]]])))

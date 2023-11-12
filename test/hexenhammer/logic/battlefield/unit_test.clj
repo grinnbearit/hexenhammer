@@ -305,3 +305,15 @@
     (leu/unit-strength :unit-2) => 10
     (leu/unit-strength :unit-3) => 8
     (leu/unit-strength :unit-4) => 7)))
+
+
+(facts
+ "reset movement"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (reset-movement battlefield :cube-1)
+   => {:cube-1 :unit-2}
+
+   (provided
+    (leu/reset-movement :unit-1) => :unit-2)))

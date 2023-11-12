@@ -151,3 +151,8 @@
   "True if the unit is owned by the passed player"
   [unit player]
   (= (:unit/player unit) player))
+
+
+(defn reset-movement
+  [unit]
+  (update unit :unit/state dissoc :movement))

@@ -95,3 +95,9 @@
                  (leu/unit-strength enemy))))]
 
     (apply min-key keyfn enemy-cubes)))
+
+
+(defn reset-movement
+  "Resets the movement state for the passed unit-cube"
+  [battlefield unit-cube]
+  (update battlefield unit-cube leu/reset-movement))

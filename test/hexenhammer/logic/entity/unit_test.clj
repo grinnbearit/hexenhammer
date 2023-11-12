@@ -192,3 +192,10 @@
 
  (friendly? {:unit/player 2} 1) => false
  (friendly? {:unit/player 2} 2) => true)
+
+
+(facts
+ "reset movement"
+
+ (reset-movement {:unit/state {:movement :movement-1}})
+ => {:unit/state {}})

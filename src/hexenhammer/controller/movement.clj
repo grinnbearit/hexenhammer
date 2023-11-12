@@ -13,14 +13,16 @@
 
 (defn unselect
   [state]
-  (let [movable-cubes (get-in state [:game/movement :movable-cubes])]
+  (if-let [movable-cubes (seq (get-in state [:game/movement :movable-cubes]))]
     (-> (assoc state
                :game/phase [:movement :select-hex])
         (dissoc :game/cube)
         (update :game/movement select-keys
                 [:movable-keys :movable-cubes])
         (tsb/reset-battlemap movable-cubes)
-        (update :game/battlemap tb/set-presentation :selectable))))
+        (update :game/battlemap tb/set-presentation :selectable))
+    (-> (assoc state :game/phase [:movement :to-close-combat])
+        (dissoc :game/cube :game/battlemap))))
 
 
 (defn set-movement

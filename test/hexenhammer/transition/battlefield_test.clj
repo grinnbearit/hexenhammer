@@ -13,3 +13,14 @@
  (provided
   (lbu/reset-phase :battlefield-1 :cube-1) => :battlefield-2
   (lbu/reset-phase :battlefield-2 :cube-2) => :battlefield-3))
+
+
+(facts
+ "reset movement"
+
+ (reset-movement :battlefield-1 [:cube-1 :cube-2])
+ => :battlefield-3
+
+ (provided
+  (lbu/reset-movement :battlefield-1 :cube-1) => :battlefield-2
+  (lbu/reset-movement :battlefield-2 :cube-2) => :battlefield-3))

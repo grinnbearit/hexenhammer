@@ -5,3 +5,8 @@
 (defn reset-phase
   [battlefield unit-cubes]
   (reduce lbu/reset-phase battlefield unit-cubes))
+
+
+(defn reset-movement
+  [battlefield unit-cubes]
+  (reduce lbu/reset-movement battlefield unit-cubes))

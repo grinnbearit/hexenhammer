@@ -9,6 +9,7 @@
             [hexenhammer.view.setup :as vs]
             [hexenhammer.view.event :as ve]
             [hexenhammer.view.movement :as vm]
+            [hexenhammer.view.close-combat :as vc]
             [hexenhammer.web.server :as ws]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.params :refer [wrap-params]]))
@@ -29,6 +30,7 @@
   (GET "/movement/forward" [] (vm/forward @hexenhammer-state))
   (GET "/movement/reposition" [] (vm/reposition @hexenhammer-state))
   (GET "/movement/march" [] (vm/march @hexenhammer-state))
+  (GET "/movement/to-close-combat" [] (vm/to-close-combat @hexenhammer-state))
 
   (GET "/event/dangerous-terrain" [] (ve/dangerous-terrain @hexenhammer-state))
   (GET "/event/heavy-casualties/passed" [] (ve/heavy-casualties-passed @hexenhammer-state))
@@ -37,12 +39,15 @@
   (GET "/event/panic/passed" [] (ve/panic-passed @hexenhammer-state))
   (GET "/event/panic/failed" [] (ve/panic-failed @hexenhammer-state))
   (GET "/event/panic/flee" [] (ve/panic-flee @hexenhammer-state))
-  (GET "/event/opportunity-attack" [] (ve/opportunity-attack @hexenhammer-state)))
+  (GET "/event/opportunity-attack" [] (ve/opportunity-attack @hexenhammer-state))
+
+  (GET "/close-combat" [] (vc/close-combat @hexenhammer-state)))
 
 
 (defroutes controller-handler
   (POST "/to-setup" [] (swap! hexenhammer-state c/to-setup))
   (POST "/to-movement" [] (swap! hexenhammer-state c/to-movement))
+  (POST "/to-close-combat" [] (swap! hexenhammer-state c/to-close-combat))
   (POST "/setup/add-unit" [player facing M Ld R] (swap! hexenhammer-state cs/add-unit
                                                         (Integer/parseInt player)
                                                         (keyword facing)
