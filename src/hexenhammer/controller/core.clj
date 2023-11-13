@@ -14,6 +14,15 @@
       (update :game/battlemap tb/set-presentation :silent-selectable)))
 
 
+(declare to-movement)
+
+
+(defn to-start
+  [state]
+  (-> (assoc state :game/player 1)
+      (to-movement)))
+
+
 (defn to-movement
   [{:keys [game/battlefield game/units] :as state}]
   (let [unit-cubes (tu/unit-cubes units)
@@ -21,7 +30,6 @@
         movable-cubes (filter #(lbu/movable? battlefield %) player-cubes)
         movable-keys (map #(lbu/unit-key battlefield %) movable-cubes)]
     (-> (assoc state
-               :game/player 1
                :game/phase [:movement :select-hex]
                :game/movement {:movable-keys (set movable-keys)
                                :movable-cubes (set movable-cubes)})

@@ -15,8 +15,8 @@
      [:style STYLESHEET]
      [:body
       (r/render-battlefield state) [:br] [:br]
-      [:form {:action "/to-movement" :method "post"}
-       [:input {:type "submit" :value "To Movement"}]]]]]))
+      [:form {:action "/to-start" :method "post"}
+       [:input {:type "submit" :value "Start"}]]]]]))
 
 
 (defn add-unit

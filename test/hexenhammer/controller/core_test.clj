@@ -24,6 +24,16 @@
 
 
 (facts
+ "to start"
+
+ (to-start {})
+ => :to-movement
+
+ (provided
+  (to-movement {:game/player 1}) => :to-movement))
+
+
+(facts
  "to movement"
 
  (to-movement {:game/battlefield :battlefield-1
@@ -44,7 +54,6 @@
 
   (cm/unselect {:game/battlefield :battlefield-2
                 :game/units :units-1
-                :game/player 1
                 :game/phase [:movement :select-hex]
                 :game/movement {:movable-keys #{:unit-key-1 :unit-key-2}
                                 :movable-cubes #{:cube-1 :cube-2}}})

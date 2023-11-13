@@ -46,7 +46,7 @@
 
 (defroutes controller-handler
   (POST "/to-setup" [] (swap! hexenhammer-state c/to-setup))
-  (POST "/to-movement" [] (swap! hexenhammer-state c/to-movement))
+  (POST "/to-start" [] (swap! hexenhammer-state c/to-start))
   (POST "/to-close-combat" [] (swap! hexenhammer-state c/to-close-combat))
   (POST "/setup/add-unit" [player facing M Ld R] (swap! hexenhammer-state cs/add-unit
                                                         (Integer/parseInt player)
