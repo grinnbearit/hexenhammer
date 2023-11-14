@@ -13,3 +13,15 @@
          (iterate #(map hop-down %))
          (take rows)
          (apply concat))))
+
+
+(defn visible?
+  "Returns true if every cube between cx and cy has a los value
+  less than either of their los"
+  [battlefield cx cy]
+  (let [max-los (max (:entity/los (battlefield cx))
+                     (:entity/los (battlefield cy)))]
+    (->> (lc/cubes-between cx cy)
+         (map (comp :entity/los battlefield))
+         (remove #(< % max-los))
+         (empty?))))

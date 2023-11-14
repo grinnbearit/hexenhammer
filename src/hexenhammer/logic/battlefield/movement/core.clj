@@ -1,8 +1,17 @@
 (ns hexenhammer.logic.battlefield.movement.core
   (:require [hexenhammer.logic.cube :as lc]
+            [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.entity.mover :as lem]
             [hexenhammer.logic.entity.terrain :as let]
             [hexenhammer.logic.battlefield.unit :as lbu]))
+
+
+(defn movable?
+  "Returns true if the unit isn't engaged in combat or fleeing"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (not (or (lbu/engaged? battlefield unit-cube)
+             (leu/fleeing? unit)))))
 
 
 (defn valid-move?

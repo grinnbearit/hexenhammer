@@ -20,6 +20,67 @@
     (let/clear :unit-1) => :terrain-1)))
 
 
+(facts
+ "list engaged"
+
+ (list-engaged :battlefield :cube-1)
+ => []
+
+ (provided
+  (lc/neighbours :cube-1) => [])
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (list-engaged battlefield :cube-1)
+   => []
+
+   (provided
+    (lc/neighbours :cube-1) => [:cube-2]))
+
+
+ (let [battlefield {:cube-1 :unit-1
+                    :cube-2 :terrain-1}]
+
+   (list-engaged battlefield :cube-1)
+   => []
+
+   (provided
+    (lc/neighbours :cube-1) => [:cube-2]
+
+    (leu/unit? :terrain-1) => false))
+
+
+ (let [battlefield {:cube-1 :unit-1
+                    :cube-2 :unit-2}]
+
+   (list-engaged battlefield :cube-1)
+   => []
+
+   (provided
+    (lc/neighbours :cube-1) => [:cube-2]
+
+    (leu/unit? :unit-2) => true
+
+    (engaged? battlefield :cube-1 :cube-2) => false))
+
+
+ (let [unit-1 {:unit/id 1 :unit/facing :n}
+       unit-2 {:unit/id 2 :unit/facing :n}
+       battlefield {:cube-1 unit-1
+                    :cube-2 unit-2}]
+
+   (list-engaged battlefield :cube-1)
+   => [:cube-2]
+
+   (provided
+    (lc/neighbours :cube-1) => [:cube-2]
+
+    (leu/unit? unit-2) => true
+
+    (engaged? battlefield :cube-1 :cube-2) => true)))
+
+
 
 (facts
  "engaged?"
@@ -67,91 +128,20 @@
     (lc/forward-arc :cube-2 :n) => [:cube-1]))
 
 
- (engaged? :battlefield :cube-1)
+ (engaged? :battlefield-1 :cube-1)
  => false
 
  (provided
-  (lc/neighbours :cube-1) => [])
+  (list-engaged :battlefield-1 :cube-1)
+  => [])
 
 
- (let [battlefield {:cube-1 :unit-1}]
+ (engaged? :battlefield-1 :cube-1)
+ => true
 
-   (engaged? battlefield :cube-1)
-   => false
-
-   (provided
-    (lc/neighbours :cube-1) => [:cube-2]))
-
-
- (let [battlefield {:cube-1 :unit-1
-                    :cube-2 :terrain-1}]
-
-   (engaged? battlefield :cube-1)
-   => false
-
-   (provided
-    (lc/neighbours :cube-1) => [:cube-2]
-
-    (leu/unit? :terrain-1) => false))
-
-
- (let [battlefield {:cube-1 :unit-1
-                    :cube-2 :unit-2}]
-
-   (engaged? battlefield :cube-1)
-   => false
-
-   (provided
-    (lc/neighbours :cube-1) => [:cube-2]
-
-    (leu/unit? :unit-2) => true
-
-    (leu/enemies? :unit-1 :unit-2) => false))
-
-
- (let [unit-1 {:unit/id 1 :unit/facing :n}
-       unit-2 {:unit/id 2 :unit/facing :n}
-       battlefield {:cube-1 unit-1
-                    :cube-2 unit-2}]
-
-   (engaged? battlefield :cube-1)
-   => true
-
-   (provided
-    (lc/neighbours :cube-1) => [:cube-2]
-
-    (leu/unit? unit-2) => true
-
-    (leu/enemies? unit-1 unit-2) => true
-    (lc/forward-arc :cube-1 :n) => [:cube-2])))
-
-
-(facts
- "movable?"
-
- (let [battlefield {:cube-1 :unit-1}]
-
-   (movable? battlefield :cube-1)
-   => false
-
-   (provided
-    (engaged? battlefield :cube-1) => true)
-
-
-   (movable? battlefield :cube-1)
-   => false
-
-   (provided
-    (engaged? battlefield :cube-1) => false
-    (leu/fleeing? :unit-1) => true)
-
-
-   (movable? battlefield :cube-1)
-   => true
-
-   (provided
-    (engaged? battlefield :cube-1) => false
-    (leu/fleeing? :unit-1) => false)))
+ (provided
+  (list-engaged :battlefield-1 :cube-1)
+  => [:cube-2]))
 
 
 (facts
@@ -317,3 +307,43 @@
 
    (provided
     (leu/reset-movement :unit-1) => :unit-2)))
+
+
+(facts
+ "field of view"
+
+ (field-of-view {:cube-1 {:unit/facing :n}} :cube-1)
+ => []
+
+ (provided
+  (lc/forward-slice :cube-1 :n 1) => [])
+
+
+ (field-of-view {:cube-1 {:unit/facing :n}} :cube-1)
+ => []
+
+ (provided
+  (lc/forward-slice :cube-1 :n 1) => [:cube-2])
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}
+                    :cube-2 :entity-1}]
+
+   (field-of-view battlefield :cube-1)
+   => []
+
+   (provided
+    (lc/forward-slice :cube-1 :n 1) => [:cube-2]
+    (lb/visible? battlefield :cube-1 :cube-2) => false))
+
+
+ (let [battlefield {:cube-1 {:unit/facing :n}
+                    :cube-2 :entity-1}]
+
+   (field-of-view battlefield :cube-1)
+   => [:cube-2]
+
+   (provided
+    (lc/forward-slice :cube-1 :n 1) => [:cube-2]
+    (lb/visible? battlefield :cube-1 :cube-2) => true
+    (lc/forward-slice :cube-1 :n 2) => [])))

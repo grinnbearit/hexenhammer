@@ -1,13 +1,29 @@
 (ns hexenhammer.logic.battlefield.unit
   (:require [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
-            [hexenhammer.logic.entity.terrain :as let]))
+            [hexenhammer.logic.entity.terrain :as let]
+            [hexenhammer.logic.battlefield.core :as lb]))
 
 
 (defn remove-unit
   "Returns a new battlefield with the unit removed from the old cube"
   [battlefield unit-cube]
   (update battlefield unit-cube let/clear))
+
+
+(declare engaged?)
+
+
+(defn list-engaged
+  "Returns a list of enemy cubes engaged to the passed unit-cube"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (for [neighbour (lc/neighbours unit-cube)
+          :when (contains? battlefield neighbour)
+          :let [entity (battlefield neighbour)]
+          :when (and (leu/unit? entity)
+                     (engaged? battlefield unit-cube neighbour))]
+      neighbour)))
 
 
 (defn engaged?
@@ -23,19 +39,9 @@
                          unit-cube-1)))))
 
   ([battlefield unit-cube]
-   (->> (lc/neighbours unit-cube)
-        (filter #(contains? battlefield %))
-        (filter #(leu/unit? (battlefield %)))
-        (filter #(engaged? battlefield unit-cube %))
-        ((comp boolean seq)))))
-
-
-(defn movable?
-  "Returns true if the unit isn't engaged in combat or fleeing"
-  [battlefield unit-cube]
-  (let [unit (battlefield unit-cube)]
-    (not (or (engaged? battlefield unit-cube)
-             (leu/fleeing? unit)))))
+   (-> (list-engaged battlefield unit-cube)
+       (seq)
+       (boolean))))
 
 
 (defn unit-key
@@ -101,3 +107,18 @@
   "Resets the movement state for the passed unit-cube"
   [battlefield unit-cube]
   (update battlefield unit-cube leu/reset-movement))
+
+
+(defn field-of-view
+  "Returns the list of cubes in the unit's forward cone, visible to it"
+  [battlefield unit-cube]
+  (let [unit (battlefield unit-cube)]
+    (letfn [(reducer [acc d]
+              (let [slice (->> (lc/forward-slice unit-cube (:unit/facing unit) d)
+                               (filter #(and (contains? battlefield %)
+                                             (lb/visible? battlefield unit-cube %))))]
+                (if (empty? slice)
+                  (reduced acc)
+                  (concat acc slice))))]
+
+      (reduce reducer [] (drop 1 (range))))))

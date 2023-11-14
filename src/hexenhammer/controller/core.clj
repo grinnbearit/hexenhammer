@@ -1,10 +1,13 @@
 (ns hexenhammer.controller.core
   (:require [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.movement.core :as lbm]
+            [hexenhammer.logic.battlefield.movement.charge :as lbmc]
             [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.battlefield :as tf]
             [hexenhammer.transition.state.battlemap :as tsb]
-            [hexenhammer.controller.movement :as cm]))
+            [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.charge :as cc]))
 
 
 (defn to-setup
@@ -14,26 +17,38 @@
       (update :game/battlemap tb/set-presentation :silent-selectable)))
 
 
-(declare to-movement)
+(declare to-charge)
 
 
 (defn to-start
   [state]
   (-> (assoc state :game/player 1)
-      (to-movement)))
+      (to-charge)))
+
+
+(defn to-charge
+  [{:keys [game/battlefield game/units] :as state}]
+  (let [unit-cubes (tu/unit-cubes units)
+        player-cubes (tu/unit-cubes units 1)
+        charger-cubes (filter #(lbmc/charger? battlefield %) player-cubes)
+        charger-keys (map #(lbu/unit-key battlefield %) charger-cubes)]
+    (-> (assoc state
+               :game/phase [:charge :select-hex]
+               :game/charge {:charger-keys (set charger-keys)
+                             :charger-cubes (set charger-cubes)})
+        (update :game/battlefield tf/reset-phase unit-cubes)
+        (cc/unselect))))
 
 
 (defn to-movement
   [{:keys [game/battlefield game/units] :as state}]
-  (let [unit-cubes (tu/unit-cubes units)
-        player-cubes (tu/unit-cubes units 1)
-        movable-cubes (filter #(lbu/movable? battlefield %) player-cubes)
+  (let [player-cubes (tu/unit-cubes units 1)
+        movable-cubes (filter #(lbm/movable? battlefield %) player-cubes)
         movable-keys (map #(lbu/unit-key battlefield %) movable-cubes)]
     (-> (assoc state
                :game/phase [:movement :select-hex]
                :game/movement {:movable-keys (set movable-keys)
                                :movable-cubes (set movable-cubes)})
-        (update :game/battlefield tf/reset-phase unit-cubes)
         (cm/unselect))))
 
 

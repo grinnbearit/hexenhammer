@@ -10,6 +10,34 @@
 
 
 (facts
+ "movable?"
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (movable? battlefield :cube-1)
+   => false
+
+   (provided
+    (lbu/engaged? battlefield :cube-1) => true)
+
+
+   (movable? battlefield :cube-1)
+   => false
+
+   (provided
+    (lbu/engaged? battlefield :cube-1) => false
+    (leu/fleeing? :unit-1) => true)
+
+
+   (movable? battlefield :cube-1)
+   => true
+
+   (provided
+    (lbu/engaged? battlefield :cube-1) => false
+    (leu/fleeing? :unit-1) => false)))
+
+
+(facts
  "valid move?"
 
  (let [battlefield-2 {:cube-1 :terrain-1}]

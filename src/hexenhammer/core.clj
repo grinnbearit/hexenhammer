@@ -4,12 +4,14 @@
             [hexenhammer.controller.core :as c]
             [hexenhammer.controller.setup :as cs]
             [hexenhammer.controller.event :as ce]
+            [hexenhammer.controller.charge :as cc]
             [hexenhammer.controller.movement :as cm]
             [hexenhammer.view.core :as v]
             [hexenhammer.view.setup :as vs]
             [hexenhammer.view.event :as ve]
+            [hexenhammer.view.charge :as vc]
             [hexenhammer.view.movement :as vm]
-            [hexenhammer.view.close-combat :as vc]
+            [hexenhammer.view.close-combat :as vcc]
             [hexenhammer.web.server :as ws]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.params :refer [wrap-params]]))
@@ -24,6 +26,10 @@
   (GET "/setup/select-hex" [] (vs/select-hex @hexenhammer-state))
   (GET "/setup/add-unit" [] (vs/add-unit @hexenhammer-state))
   (GET "/setup/remove-unit" [] (vs/remove-unit @hexenhammer-state))
+
+  (GET "/charge/select-hex" [] (vc/select-hex @hexenhammer-state))
+  (GET "/charge/skip-charge" [] (vc/skip-charge @hexenhammer-state))
+  (GET "/charge/to-movement" [] (vc/to-movement @hexenhammer-state))
 
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
   (GET "/movement/reform" [] (vm/reform @hexenhammer-state))
@@ -41,12 +47,13 @@
   (GET "/event/panic/flee" [] (ve/panic-flee @hexenhammer-state))
   (GET "/event/opportunity-attack" [] (ve/opportunity-attack @hexenhammer-state))
 
-  (GET "/close-combat" [] (vc/close-combat @hexenhammer-state)))
+  (GET "/close-combat" [] (vcc/close-combat @hexenhammer-state)))
 
 
 (defroutes controller-handler
   (POST "/to-setup" [] (swap! hexenhammer-state c/to-setup))
   (POST "/to-start" [] (swap! hexenhammer-state c/to-start))
+  (POST "/to-movement" [] (swap! hexenhammer-state c/to-movement))
   (POST "/to-close-combat" [] (swap! hexenhammer-state c/to-close-combat))
   (POST "/setup/add-unit" [player facing M Ld R] (swap! hexenhammer-state cs/add-unit
                                                         (Integer/parseInt player)
@@ -56,6 +63,8 @@
                                                         (Integer/parseInt R)))
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state cs/remove-unit))
   (POST "/setup/swap-terrain" [terrain] (swap! hexenhammer-state cs/swap-terrain (keyword terrain)))
+
+  (POST "/charge/skip-charge" [] (swap! hexenhammer-state cc/skip-charge))
 
   (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state cm/skip-movement))
@@ -71,6 +80,10 @@
   (GET "/select/setup/select-hex" [cube] (swap! hexenhammer-state cs/select-hex cube))
   (GET "/select/setup/add-unit" [cube] (swap! hexenhammer-state cs/select-add-unit cube))
   (GET "/select/setup/remove-unit" [cube] (swap! hexenhammer-state cs/select-remove-unit cube))
+
+  (GET "/select/charge/select-hex" [cube] (swap! hexenhammer-state cc/select-hex cube))
+  (GET "/select/charge/skip-charge" [cube] (swap! hexenhammer-state cc/select-skip cube))
+
   (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
   (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube))
   (GET "/select/movement/forward" [cube] (swap! hexenhammer-state cm/select-forward cube))

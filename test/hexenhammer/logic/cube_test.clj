@@ -123,7 +123,13 @@
  "rotate"
 
  (rotate (->Cube 0 -2 2))
- => (->Cube 2 -2 0))
+ => (->Cube 2 -2 0)
+
+ (rotate (->Cube 0 -2 2) 3)
+ => (->Cube 0 2 -2)
+
+ (rotate (->Cube 0 -2 2) 6)
+ => (->Cube 0 -2 2))
 
 
 (facts
@@ -142,3 +148,44 @@
      (->Cube -1 2 -1)
      (->Cube -2 1 1)
      (->Cube  -1 -1 2)])
+
+
+(facts
+ "forward slice"
+
+ (forward-slice (->Cube 0 0 0) :n 0)
+ => [(->Cube 0 0 0)]
+
+
+ (forward-slice (->Cube 0 0 0) :n 1)
+ => [(->Cube -1 0 1)
+     (->Cube 0 -1 1)
+     (->Cube 1 -1 0)]
+
+
+ (forward-slice (->Cube 0 0 0) :n 2)
+ => [(->Cube -2 0 2)
+     (->Cube -1 -1 2)
+     (->Cube 0 -2 2)
+     (->Cube 1 -2 1)
+     (->Cube 2 -2 0)]
+
+
+ (forward-slice (->Cube 0 0 0) :ne 1)
+ => [(->Cube 0 -1 1)
+     (->Cube 1 -1 0)
+     (->Cube 1 0 -1)]
+
+
+ (forward-slice (->Cube 1 -1 0) :n 1)
+ => [(->Cube 0 -1 1)
+     (->Cube 1 -2 1)
+     (->Cube 2 -2 0)])
+
+
+(facts
+ "distance"
+
+ (distance (->Cube 0 0 0) (->Cube 0 0 0)) => 0
+ (distance (->Cube 0 0 0) (->Cube 1 -1 0)) => 1
+ (distance (->Cube 0 0 0) (->Cube 0 2 -2)) => 2)

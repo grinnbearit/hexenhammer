@@ -112,9 +112,11 @@
 
 (defn rotate
   "Rotates a cube around the origin in 60° increments"
-  [cube]
-  (let [{:keys [q r s]} cube]
-    (->Cube (- r) (- s) (- q))))
+  ([cube]
+   (let [{:keys [q r s]} cube]
+     (->Cube (- r) (- s) (- q))))
+  ([cube n]
+   (nth (iterate rotate cube) n)))
 
 
 (defn neighbours-at
@@ -125,3 +127,32 @@
               (take 6)
               (map (partial add cube))))
        (apply concat)))
+
+
+(defn forward-slice
+  "Given a cube, facing and a distance returns all the cubes in the forward arc at
+  `distance` hexes away"
+  [cube facing distance]
+  (let [half-arc (for [q (range (- distance) 0)
+                       :let [s distance
+                             r (- (+ distance q))]]
+                   (->Cube q r s))
+        tail (->Cube distance (- distance) 0)
+
+        full-arc (concat half-arc (map rotate half-arc) [tail])
+
+        facing->turns (zipmap [:n :ne :se :s :sw :nw] (range 7))]
+
+    (for [c full-arc]
+      (-> (rotate c (facing->turns facing))
+          (add cube)))))
+
+
+(defn distance
+  "Given two cubes, returns the number of hops on a hex grid to get from
+  one to the other"
+  [cx cy]
+  (/ (+ (abs (- (:q cx) (:q cy)))
+        (abs (- (:r cx) (:r cy)))
+        (abs (- (:s cx) (:s cy))))
+     2))
