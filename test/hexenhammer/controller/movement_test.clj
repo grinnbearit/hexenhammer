@@ -98,7 +98,7 @@
        state {:game/movement {:battlemap battlemap
                               :pointer->cube->tweeners pointer->cube->tweeners}}]
 
-   (move-forward state pointer)
+   (move-movement state pointer)
    => {:game/pointer pointer
        :game/battlemap {:cube-1 {:entity/class :mover
                                  :mover/presentation :future}

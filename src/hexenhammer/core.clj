@@ -28,7 +28,8 @@
   (GET "/setup/remove-unit" [] (vs/remove-unit @hexenhammer-state))
 
   (GET "/charge/select-hex" [] (vc/select-hex @hexenhammer-state))
-  (GET "/charge/skip-charge" [] (vc/skip-charge @hexenhammer-state))
+  (GET "/charge/pick-targets" [] (vc/pick-targets @hexenhammer-state))
+  (GET "/charge/declare-targets" [] (vc/declare-targets @hexenhammer-state))
   (GET "/charge/to-movement" [] (vc/to-movement @hexenhammer-state))
 
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
@@ -82,7 +83,8 @@
   (GET "/select/setup/remove-unit" [cube] (swap! hexenhammer-state cs/select-remove-unit cube))
 
   (GET "/select/charge/select-hex" [cube] (swap! hexenhammer-state cc/select-hex cube))
-  (GET "/select/charge/skip-charge" [cube] (swap! hexenhammer-state cc/select-skip cube))
+  (GET "/select/charge/pick-targets" [cube] (swap! hexenhammer-state cc/select-pick-targets cube))
+  (GET "/select/charge/declare-targets" [cube] (swap! hexenhammer-state cc/select-declare-targets cube))
 
   (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
   (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube))
@@ -92,6 +94,9 @@
 
 
 (defroutes move-handler
+  (GET "/move/charge/pick-targets" [pointer] (swap! hexenhammer-state cc/move-pick-targets pointer))
+  (GET "/move/charge/declare-targets" [pointer] (swap! hexenhammer-state cc/move-declare-targets pointer))
+
   (GET "/move/movement/reform" [pointer] (swap! hexenhammer-state cm/move-reform pointer))
   (GET "/move/movement/forward" [pointer] (swap! hexenhammer-state cm/move-forward pointer))
   (GET "/move/movement/reposition" [pointer] (swap! hexenhammer-state cm/move-reposition pointer))

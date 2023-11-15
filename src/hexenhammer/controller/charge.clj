@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.charge
   (:require [hexenhammer.logic.battlefield.unit :as lbu]
+            [hexenhammer.logic.battlefield.movement.charge :as lbmc]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.state.battlemap :as tsb]))
 
@@ -19,17 +20,60 @@
 
 
 (defn select-hex
-  [state cube]
-  (-> (assoc state
-             :game/cube cube
-             :game/phase [:charge :skip-charge])
-      (tsb/reset-battlemap [cube])
-      (update :game/battlemap tb/set-presentation :selected)))
+  [{:keys [game/battlefield] :as state} cube]
+  (let [{:keys [cube->enders pointer->cube->tweeners pointer->events
+                pointer->targets pointer->range]}
+        (lbmc/charge battlefield cube)]
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:charge :pick-targets]
+               :game/battlemap cube->enders)
+        (update :game/charge assoc
+                :cube->enders cube->enders
+                :pointer->cube->tweeners pointer->cube->tweeners
+                :pointer->events pointer->events
+                :pointer->targets pointer->targets
+                :pointer->range pointer->range)
+        (tsb/refresh-battlemap [cube])
+        (update :game/battlemap tb/set-presentation [cube] :selected))))
 
 
-(defn select-skip
+(defn select-pick-targets
   [state _]
   (unselect state))
+
+
+(defn move-pick-targets
+  [{:keys [game/charge] :as state} pointer]
+  (let [cube->enders (:cube->enders charge)
+        cube->tweeners (get-in charge [:pointer->cube->tweeners pointer])
+        events (get-in charge [:pointer->events pointer])
+        targets (get-in charge [:pointer->targets pointer])
+        charge-range (get-in charge [:pointer->range pointer])]
+    (-> (assoc state
+               :game/pointer pointer
+               :game/phase [:charge :declare-targets]
+               :game/battlemap (merge cube->enders cube->tweeners))
+        (update :game/charge assoc
+                :events events
+                :targets targets
+                :charge-range charge-range)
+        (update-in [:game/battlemap (:cube pointer)] assoc
+                   :entity/presentation :selected
+                   :mover/presentation :present
+                   :mover/selected (:facing pointer))
+        (tsb/refresh-battlemap targets)
+        (update :game/battlemap tb/set-presentation targets :marked))))
+
+
+(defn select-declare-targets
+  [state _]
+  (unselect state))
+
+
+(defn move-declare-targets
+  [state pointer]
+  (move-pick-targets state pointer))
 
 
 (defn skip-charge

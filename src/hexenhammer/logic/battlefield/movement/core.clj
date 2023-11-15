@@ -113,7 +113,7 @@
 
 
 (defn paths->enders
-  "Given a battlefield, player and path-list returns a new map of cube->mover for each end cube"
+  "Given a battlefield, unit-cube and path-list returns a new map of cube->mover for each end cube"
   [battlefield unit-cube paths]
   (let [player (get-in battlefield [unit-cube :unit/player])
         new-bf (lbu/remove-unit battlefield unit-cube)]

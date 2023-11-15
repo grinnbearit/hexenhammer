@@ -4,6 +4,7 @@
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.core :as lbm]
+            [hexenhammer.logic.battlefield.movement.march :as lbmm]
             [hexenhammer.logic.battlefield.movement.charge :refer :all]))
 
 
@@ -160,3 +161,46 @@
   (lbm/movable? :battlefield-1 :cube-1) => true
   (list-targets :battlefield-1 :cube-1) => :list-targets
   (charge-paths :battlefield-1 :cube-1 :list-targets) => {:path-1 :targets-1}))
+
+
+(facts
+ "paths -> target-map"
+
+ (paths->target-map {[:pointer-1 :pointer-2] :targets-1
+                     [:pointer-1] :targets-2})
+ => {:pointer-2 :targets-1
+     :pointer-1 :targets-2})
+
+
+(facts
+ "target-map -> range-map"
+
+ (target-map->range-map {:pointer-1 #{:cube-2 :cube-3}
+                         :pointer-2 #{:cube-2}}
+                        :cube-1)
+ => {:pointer-1 2
+     :pointer-2 1}
+
+ (provided
+  (lc/distance :cube-1 :cube-2) => 1
+  (lc/distance :cube-1 :cube-3) => 2))
+
+
+(facts
+ "charge"
+
+ (charge :battlefield-1 :cube-1)
+ => {:cube->enders :cube->enders-1
+     :pointer->cube->tweeners :pointer->cube->tweeners-1
+     :pointer->events :pointer->events-1
+     :pointer->targets :pointer->targets-1
+     :pointer->range :pointer->range-1}
+
+ (provided
+  (list-targets :battlefield-1 :cube-1) => :list-targets
+  (charge-paths :battlefield-1 :cube-1 :list-targets) => {:path-1 :targets-1}
+  (lbm/paths->enders :battlefield-1 :cube-1 [:path-1]) => :cube->enders-1
+  (lbm/paths->tweeners :battlefield-1 :cube-1 [:path-1]) => :pointer->cube->tweeners-1
+  (lbmm/paths-events :battlefield-1 :cube-1 [:path-1]) => :pointer->events-1
+  (paths->target-map {:path-1 :targets-1}) => :pointer->targets-1
+  (target-map->range-map :pointer->targets-1 :cube-1) => :pointer->range-1))

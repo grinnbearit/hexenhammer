@@ -3,7 +3,8 @@
             [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.entity.unit :as leu]
             [hexenhammer.logic.battlefield.unit :as lbu]
-            [hexenhammer.logic.battlefield.movement.core :as lbm]))
+            [hexenhammer.logic.battlefield.movement.core :as lbm]
+            [hexenhammer.logic.battlefield.movement.march :as lbmm]))
 
 
 (defn list-targets
@@ -88,3 +89,36 @@
        (let [targets (list-targets battlefield cube)
              paths (charge-paths battlefield cube targets)]
          (boolean (seq paths)))))
+
+
+(defn paths->target-map
+  "Returns a map of final pointer to targets"
+  [path->targets]
+  (update-keys path->targets peek))
+
+
+(defn target-map->range-map
+  "Given a target-map and a starting cube, returns a map of pointer to charge ranges, if multiple targets returns the furthest"
+  [pointer->targets cube]
+  (letfn [(max-range [targets]
+            (->> (map #(lc/distance cube %) targets)
+                 (apply max)))]
+
+    (update-vals pointer->targets max-range)))
+
+
+(defn charge
+  [battlefield unit-cube]
+  (let [targets (list-targets battlefield unit-cube)
+        path->targets (charge-paths battlefield unit-cube targets)
+        paths (keys path->targets)
+        cube->enders (lbm/paths->enders battlefield unit-cube paths)
+        pointer->cube->tweeners (lbm/paths->tweeners battlefield unit-cube paths)
+        pointer->events (lbmm/paths-events battlefield unit-cube paths)
+        pointer->targets (paths->target-map path->targets)
+        pointer->range (target-map->range-map pointer->targets unit-cube)]
+    {:cube->enders cube->enders
+     :pointer->cube->tweeners pointer->cube->tweeners
+     :pointer->events pointer->events
+     :pointer->targets pointer->targets
+     :pointer->range pointer->range}))
