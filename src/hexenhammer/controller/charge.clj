@@ -7,13 +7,12 @@
 
 (defn unselect
   [state]
-  (if-let [charger-cubes (seq (get-in state [:game/charge :charger-cubes]))]
+  (if-let [chargers (seq (get-in state [:game/charge :chargers]))]
     (-> (assoc state
                :game/phase [:charge :select-hex])
         (dissoc :game/cube)
-        (update :game/charge select-keys
-                [:charger-keys :charger-cubes])
-        (tsb/reset-battlemap charger-cubes)
+        (update :game/charge select-keys [:chargers])
+        (tsb/reset-battlemap chargers)
         (update :game/battlemap tb/set-presentation :selectable))
     (-> (assoc state :game/phase [:charge :to-movement])
         (dissoc :game/cube :game/battlemap))))
@@ -79,6 +78,5 @@
 (defn skip-charge
   [{:keys [game/cube game/battlefield] :as state}]
   (let [unit-key (lbu/unit-key battlefield cube)]
-    (-> (update-in state [:game/charge :charger-cubes] disj cube)
-        (update-in [:game/charge :charger-keys] disj unit-key)
+    (-> (update-in state [:game/charge :chargers] disj cube)
         (unselect))))

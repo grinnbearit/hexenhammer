@@ -11,15 +11,13 @@
 (facts
  "unselect"
 
- (unselect {:game/charge {:charger-keys [:unit-key-1 :unit-key-2]
-                          :charger-cubes [:cube-1 :cube-2]
+ (unselect {:game/charge {:chargers [:cube-1 :cube-2]
                           :cube->enders {}}
             :game/cube :cube-1})
  => {:game/battlemap :battlemap-2}
 
  (provided
-  (tsb/reset-battlemap {:game/charge {:charger-keys [:unit-key-1 :unit-key-2]
-                                      :charger-cubes [:cube-1 :cube-2]}
+  (tsb/reset-battlemap {:game/charge {:chargers [:cube-1 :cube-2]}
                         :game/phase [:charge :select-hex]}
                        [:cube-1 :cube-2])
   => {:game/battlemap :battlemap-1}
@@ -28,10 +26,10 @@
   => :battlemap-2)
 
 
- (unselect {:game/charge {:charger-cubes []}
+ (unselect {:game/charge {:chargers []}
             :game/cube :cube-1
             :game/battlemap :battlemap-1})
- => {:game/charge {:charger-cubes []}
+ => {:game/charge {:chargers []}
      :game/phase [:charge :to-movement]})
 
 
@@ -152,17 +150,13 @@
 
  (let [state {:game/cube :cube-1
               :game/battlefield :battlefield-1
-              :game/charge {:charger-keys #{:unit-key-1 :unit-key-2}
-                            :charger-cubes #{:cube-1 :cube-2}}}]
+              :game/charge {:chargers #{:cube-1 :cube-2}}}]
 
    (skip-charge state)
    => :unselect
 
    (provided
-    (lbu/unit-key :battlefield-1 :cube-1) => :unit-key-1
-
     (unselect {:game/cube :cube-1
                :game/battlefield :battlefield-1
-               :game/charge {:charger-keys #{:unit-key-2}
-                             :charger-cubes #{:cube-2}}})
+               :game/charge {:chargers #{:cube-2}}})
     => :unselect)))

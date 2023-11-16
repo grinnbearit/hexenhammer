@@ -30,12 +30,10 @@
   [{:keys [game/battlefield game/units] :as state}]
   (let [unit-cubes (tu/unit-cubes units)
         player-cubes (tu/unit-cubes units 1)
-        charger-cubes (filter #(lbmc/charger? battlefield %) player-cubes)
-        charger-keys (map #(lbu/unit-key battlefield %) charger-cubes)]
+        charger-cubes (filter #(lbmc/charger? battlefield %) player-cubes)]
     (-> (assoc state
                :game/phase [:charge :select-hex]
-               :game/charge {:charger-keys (set charger-keys)
-                             :charger-cubes (set charger-cubes)})
+               :game/charge {:chargers (set charger-cubes)})
         (update :game/battlefield tf/reset-phase unit-cubes)
         (cc/unselect))))
 
