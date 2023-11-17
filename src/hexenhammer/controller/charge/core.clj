@@ -1,8 +1,9 @@
-(ns hexenhammer.controller.charge
+(ns hexenhammer.controller.charge.core
   (:require [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.charge :as lbmc]
             [hexenhammer.transition.battlemap :as tb]
-            [hexenhammer.transition.state.battlemap :as tsb]))
+            [hexenhammer.transition.state.battlemap :as tsb]
+            [hexenhammer.controller.charge.reaction :as ccr]))
 
 
 (defn unselect
@@ -73,6 +74,17 @@
 (defn move-declare-targets
   [state pointer]
   (move-pick-targets state pointer))
+
+
+(defn declare-targets
+  [{:keys [game/cube] :as state}]
+  (let [targets (get-in state [:game/charge :targets])]
+    (-> (assoc state :game/charge {:targets targets
+                                   :charger cube})
+        (assoc-in [:game/battlefield cube :unit/state :charge]
+                  {:declared? true
+                   :targets targets})
+        (ccr/unselect))))
 
 
 (defn skip-charge

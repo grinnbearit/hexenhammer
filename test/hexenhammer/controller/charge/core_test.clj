@@ -1,11 +1,12 @@
-(ns hexenhammer.controller.charge-test
+(ns hexenhammer.controller.charge.core-test
   (:require [midje.sweet :refer :all]
             [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.charge :as lbmc]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.state.battlemap :as tsb]
-            [hexenhammer.controller.charge :refer :all]))
+            [hexenhammer.controller.charge.reaction :as ccr]
+            [hexenhammer.controller.charge.core :refer :all]))
 
 
 (facts
@@ -143,6 +144,27 @@
 
  (provided
   (move-pick-targets :state-1 :pointer-1) => :move-pick-targets))
+
+
+(facts
+ "declare targets"
+
+ (let [battlefield {:cube-1 {}}
+       targets #{:cube-2}
+       state {:game/cube :cube-1
+              :game/battlefield battlefield
+              :game/charge {:targets targets}}]
+
+   (declare-targets state)
+   => :unselect
+
+   (provided
+    (ccr/unselect {:game/cube :cube-1
+                   :game/battlefield {:cube-1 {:unit/state {:charge {:declared? true
+                                                                     :targets targets}}}}
+                   :game/charge {:targets targets
+                                 :charger :cube-1}})
+    => :unselect)))
 
 
 (facts

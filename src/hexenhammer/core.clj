@@ -4,14 +4,16 @@
             [hexenhammer.controller.core :as c]
             [hexenhammer.controller.setup :as cs]
             [hexenhammer.controller.event :as ce]
-            [hexenhammer.controller.charge :as cc]
             [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.charge.core :as cc]
+            [hexenhammer.controller.charge.reaction :as ccr]
             [hexenhammer.view.core :as v]
             [hexenhammer.view.setup :as vs]
             [hexenhammer.view.event :as ve]
-            [hexenhammer.view.charge :as vc]
             [hexenhammer.view.movement :as vm]
-            [hexenhammer.view.close-combat :as vcc]
+            [hexenhammer.view.close-combat :as vo]
+            [hexenhammer.view.charge.core :as vc]
+            [hexenhammer.view.charge.reaction :as vcr]
             [hexenhammer.web.server :as ws]
             [ring.adapter.jetty :refer [run-jetty]]
             [ring.middleware.params :refer [wrap-params]]))
@@ -32,6 +34,9 @@
   (GET "/charge/declare-targets" [] (vc/declare-targets @hexenhammer-state))
   (GET "/charge/to-movement" [] (vc/to-movement @hexenhammer-state))
 
+  (GET "/charge/reaction/select-hex" [] (vcr/select-hex @hexenhammer-state))
+  (GET "/charge/reaction/react" [] (vcr/react @hexenhammer-state))
+
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
   (GET "/movement/reform" [] (vm/reform @hexenhammer-state))
   (GET "/movement/forward" [] (vm/forward @hexenhammer-state))
@@ -48,7 +53,7 @@
   (GET "/event/panic/flee" [] (ve/panic-flee @hexenhammer-state))
   (GET "/event/opportunity-attack" [] (ve/opportunity-attack @hexenhammer-state))
 
-  (GET "/close-combat" [] (vcc/close-combat @hexenhammer-state)))
+  (GET "/close-combat" [] (vo/close-combat @hexenhammer-state)))
 
 
 (defroutes controller-handler
@@ -65,6 +70,7 @@
   (POST "/setup/remove-unit" [] (swap! hexenhammer-state cs/remove-unit))
   (POST "/setup/swap-terrain" [terrain] (swap! hexenhammer-state cs/swap-terrain (keyword terrain)))
 
+  (POST "/charge/declare-targets" [] (swap! hexenhammer-state cc/declare-targets))
   (POST "/charge/skip-charge" [] (swap! hexenhammer-state cc/skip-charge))
 
   (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
@@ -85,6 +91,9 @@
   (GET "/select/charge/select-hex" [cube] (swap! hexenhammer-state cc/select-hex cube))
   (GET "/select/charge/pick-targets" [cube] (swap! hexenhammer-state cc/select-pick-targets cube))
   (GET "/select/charge/declare-targets" [cube] (swap! hexenhammer-state cc/select-declare-targets cube))
+
+  (GET "/select/charge/reaction/select-hex" [cube] (swap! hexenhammer-state ccr/select-hex cube))
+  (GET "/select/charge/reaction/react" [cube] (swap! hexenhammer-state ccr/select-react cube))
 
   (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
   (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube))

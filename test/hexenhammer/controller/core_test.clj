@@ -7,8 +7,8 @@
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.battlefield :as tf]
             [hexenhammer.transition.state.battlemap :as tsb]
-            [hexenhammer.controller.charge :as cc]
             [hexenhammer.controller.movement :as cm]
+            [hexenhammer.controller.charge.core :as cc]
             [hexenhammer.controller.core :refer :all]))
 
 

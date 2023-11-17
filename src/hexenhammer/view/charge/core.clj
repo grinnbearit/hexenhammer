@@ -1,4 +1,4 @@
-(ns hexenhammer.view.charge
+(ns hexenhammer.view.charge.core
   (:require [hiccup.core :refer [html]]
             [hexenhammer.logic.probability :as lp]
             [hexenhammer.render.core :as r]
@@ -73,7 +73,7 @@
        [:form {:action "/charge/skip-charge" :method "post"}
         [:input {:type "submit" :value "Skip Charge"}]
         [:input {:type "submit" :value (format "Declare Targets (~%d%%)" charge-perc)
-                 :formaction "/charge/declare-targets" :disabled true}]]]])))
+                 :formaction "/charge/declare-targets"}]]]])))
 
 
 (defn to-movement

@@ -7,7 +7,7 @@
             [hexenhammer.transition.battlefield :as tf]
             [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.movement :as cm]
-            [hexenhammer.controller.charge :as cc]))
+            [hexenhammer.controller.charge.core :as cc]))
 
 
 (defn to-setup
