@@ -217,7 +217,7 @@
   (list-targets :battlefield-1 :cube-1) => :list-targets
   (charge-paths :battlefield-1 :cube-1 :list-targets) => {:path-1 :targets-1}
   (lbm/paths->enders :battlefield-1 :cube-1 [:path-1]) => :cube->enders-1
-  (lbm/paths->tweeners :battlefield-1 :cube-1 [:path-1]) => :pointer->cube->tweeners-1
+  (lbm/paths->tweeners :battlefield-1 :cube-1 :cube->enders-1 [:path-1]) => :pointer->cube->tweeners-1
   (lbmm/paths-events :battlefield-1 :cube-1 [:path-1]) => :pointer->events-1
   (paths->target-map {:path-1 :targets-1}) => :pointer->targets-1
   (target-map->range-map :pointer->targets-1 :cube-1) => :pointer->range-1))

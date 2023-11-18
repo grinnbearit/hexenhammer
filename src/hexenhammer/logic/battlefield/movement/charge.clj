@@ -115,7 +115,7 @@
         path->targets (charge-paths battlefield unit-cube targets)
         paths (keys path->targets)
         cube->enders (lbm/paths->enders battlefield unit-cube paths)
-        pointer->cube->tweeners (lbm/paths->tweeners battlefield unit-cube paths)
+        pointer->cube->tweeners (lbm/paths->tweeners battlefield unit-cube cube->enders paths)
         pointer->events (lbmm/paths-events battlefield unit-cube paths)
         pointer->targets (paths->target-map path->targets)
         pointer->range (target-map->range-map pointer->targets unit-cube)]

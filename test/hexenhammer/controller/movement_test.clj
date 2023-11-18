@@ -45,72 +45,49 @@
  "set movement"
 
  (let [state {:game/battlefield :battlefield-1}
-       cube->enders {:cube-1 :mover-1}
-       logic-fn (fn [_ _] {:cube->enders cube->enders
+       logic-fn (fn [_ _] {:cube->enders :cube->enders-1
                            :pointer->cube->tweeners :pointer->cube->tweeners-1})]
 
    (set-movement state logic-fn :phase-1 :cube-1)
-   => {:game/battlefield :battlefield-1
-       :game/cube :cube-1
-       :game/phase :phase-1
-       :game/battlemap :battlemap-2
-       :game/movement {:battlemap cube->enders
-                       :pointer->cube->tweeners :pointer->cube->tweeners-1}}
+   => {:game/battlemap :battlemap-2}
 
    (provided
-    (tb/set-presentation cube->enders [:cube-1] :selected)
-    => :battlemap-2))
+    (tsb/refill-battlemap {:game/battlefield :battlefield-1
+                           :game/cube :cube-1
+                           :game/phase :phase-1
+                           :game/battlemap :cube->enders-1
+                           :game/movement {:cube->enders :cube->enders-1
+                                           :pointer->cube->tweeners :pointer->cube->tweeners-1}}
+                          [:cube-1])
+    => {:game/battlemap :battlemap-1}
 
-
- (let [battlefield {:cube-1 :unit-1}
-       state {:game/battlefield battlefield}
-       cube->enders {:cube-2 :mover-2}
-       logic-fn (fn [_ _] {:cube->enders cube->enders
-                           :pointer->cube->tweeners :pointer->cube->tweeners-1})
-       battlemap {:cube-1 :unit-1
-                  :cube-2 :mover-2}]
-
-   (set-movement state logic-fn :phase-1 :cube-1)
-   => {:game/battlefield battlefield
-       :game/cube :cube-1
-       :game/phase :phase-1
-       :game/battlemap :battlemap-2
-       :game/movement {:battlemap battlemap
-                       :pointer->cube->tweeners :pointer->cube->tweeners-1}}
-
-   (provided
-    (tb/set-presentation battlemap [:cube-1] :selected)
+    (tb/set-presentation :battlemap-1 [:cube-1] :selected)
     => :battlemap-2)))
 
 
 (facts
  "move movement"
 
- (let [battlemap {:cube-1 {:entity/class :mover
-                           :mover/presentation :future}
-                  :cube-2 {:entity/class :mover
-                           :mover/presentation :future}}
-       pointer (lc/->Pointer :cube-2 :n)
-       pointer->cube->tweeners {pointer {:cube-2 {:entity/class :mover
-                                                  :mover/presentation :past}
-                                         :cube-3 {:entity/class :mover
-                                                  :mover/presentation :past}}}
-       state {:game/movement {:battlemap battlemap
-                              :pointer->cube->tweeners pointer->cube->tweeners}}]
+ (let [pointer (lc/->Pointer :cube-2 :n)
+       cube->enders {:cube-1 :mover-1}
+       pointer->cube->tweeners {pointer {:cube-2 :mover-2
+                                         :cube-3 :mover-3}}
+       state {:game/movement {:cube->enders cube->enders
+                              :pointer->cube->tweeners pointer->cube->tweeners}}
+       battlemap-1 {:cube-1 :mover-1
+                    :cube-2 :mover-2
+                    :cube-3 :mover-3}]
 
    (move-movement state pointer)
    => {:game/pointer pointer
-       :game/battlemap {:cube-1 {:entity/class :mover
-                                 :mover/presentation :future}
-                        :cube-2 {:entity/class :mover
-                                 :entity/presentation :selected
-                                 :mover/presentation :present
-                                 :mover/selected :n}
-                        :cube-3 {:entity/class :mover
-                                 :mover/presentation :past}}
+       :game/battlemap :battlemap-2
        :game/movement {:moved? true
-                       :battlemap battlemap
-                       :pointer->cube->tweeners pointer->cube->tweeners}}))
+                       :cube->enders cube->enders
+                       :pointer->cube->tweeners pointer->cube->tweeners}}
+
+   (provided
+    (tb/set-presentation battlemap-1 [:cube-2] :selected)
+    => :battlemap-2)))
 
 
 (facts

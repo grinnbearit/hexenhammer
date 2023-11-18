@@ -27,33 +27,28 @@
 
 (defn set-movement
   [{:keys [game/battlefield] :as state} logic-fn phase cube]
-  (let [{:keys [cube->enders pointer->cube->tweeners]} (logic-fn battlefield cube)
-        battlemap (cond-> cube->enders
-                    (not (contains? cube->enders cube))
-                    (assoc cube (battlefield cube)))]
+  (let [{:keys [cube->enders pointer->cube->tweeners]} (logic-fn battlefield cube)]
     (-> (assoc state
                :game/cube cube
                :game/phase phase
-               :game/battlemap battlemap)
+               :game/battlemap cube->enders)
         (update :game/movement assoc
-                :battlemap battlemap
+                :cube->enders cube->enders
                 :pointer->cube->tweeners pointer->cube->tweeners)
+        (tsb/refill-battlemap [cube])
         (update :game/battlemap tb/set-presentation [cube] :selected))))
 
 
 (defn move-movement
   [state pointer]
-  (let [battlemap (get-in state [:game/movement :battlemap])
+  (let [cube->enders (get-in state [:game/movement :cube->enders])
         cube->tweeners (get-in state [:game/movement :pointer->cube->tweeners pointer])]
     (-> (assoc state
                :game/pointer pointer
-               :game/battlemap (merge battlemap cube->tweeners))
+               :game/battlemap (merge cube->enders cube->tweeners))
         (update :game/movement assoc
                 :moved? true)
-        (update-in [:game/battlemap (:cube pointer)] assoc
-                   :entity/presentation :selected
-                   :mover/presentation :present
-                   :mover/selected (:facing pointer)))))
+        (update :game/battlemap tb/set-presentation [(:cube pointer)] :selected))))
 
 
 (defn set-reform

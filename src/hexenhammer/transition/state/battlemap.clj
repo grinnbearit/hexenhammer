@@ -15,3 +15,11 @@
   [state cubes]
   (->> (select-keys (:game/battlefield state) cubes)
        (update state :game/battlemap merge)))
+
+
+(defn refill-battlemap
+  "Updates the battlemap with cubes pulled from the battlefield IFF the keys
+  aren't already present on the battlemap"
+  [{:keys [game/battlemap] :as state} cubes]
+  (let [missing (remove #(contains? battlemap %) cubes)]
+    (refresh-battlemap state missing)))

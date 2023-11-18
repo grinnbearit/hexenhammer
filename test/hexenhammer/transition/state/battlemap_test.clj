@@ -33,3 +33,19 @@
                         :cube-2 :terrain-2}
      :game/battlemap {:cube-1 :terrain-1
                       :cube-2 :unit-2}})
+
+
+(facts
+ "refill battlemap"
+
+ (let [battlefield {:cube-1 :entity-1
+                    :cube-2 :entity-2
+                    :cube-3 :entity-3}
+       battlemap {:cube-2 :entity-3}
+       state {:game/battlefield battlefield
+              :game/battlemap battlemap}]
+
+   (refill-battlemap state [:cube-1 :cube-2])
+   => {:game/battlefield battlefield
+       :game/battlemap {:cube-1 :entity-1
+                        :cube-2 :entity-3}}))

@@ -129,5 +129,5 @@
     (lc/hexes 8) => :hexes
     (lbm/forward-paths battlefield :cube-1 :hexes) => :forward-paths
     (lbm/paths->enders battlefield :cube-1 :forward-paths) => :cube->enders-1
-    (lbm/paths->tweeners battlefield :cube-1 :forward-paths) => :pointer->cube->tweeners-1
+    (lbm/paths->tweeners battlefield :cube-1 :cube->enders-1 :forward-paths) => :pointer->cube->tweeners-1
     (paths-events battlefield :cube-1 :forward-paths) => :pointer->events-1)))

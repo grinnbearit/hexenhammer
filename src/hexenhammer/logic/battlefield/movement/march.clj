@@ -46,7 +46,7 @@
   (let [hexes (lc/hexes (* 2 (get-in battlefield [unit-cube :unit/M])))
         paths (lbm/forward-paths battlefield unit-cube hexes)
         cube->enders (lbm/paths->enders battlefield unit-cube paths)
-        pointer->cube->tweeners (lbm/paths->tweeners battlefield unit-cube paths)
+        pointer->cube->tweeners (lbm/paths->tweeners battlefield unit-cube cube->enders paths)
         pointer->events (paths-events battlefield unit-cube paths)]
     {:cube->enders cube->enders
      :pointer->cube->tweeners pointer->cube->tweeners
