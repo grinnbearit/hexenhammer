@@ -85,10 +85,12 @@
 (defn charger?
   "Returns true if this unit is movable and has any viable charge targets"
   [battlefield cube]
-  (and (lbm/movable? battlefield cube)
-       (let [targets (list-targets battlefield cube)
-             paths (charge-paths battlefield cube targets)]
-         (boolean (seq paths)))))
+  (let [unit (battlefield cube)]
+    (and (not (leu/declared? unit))
+         (lbm/movable? battlefield cube)
+         (let [targets (list-targets battlefield cube)
+               paths (charge-paths battlefield cube targets)]
+           (boolean (seq paths))))))
 
 
 (defn paths->target-map

@@ -141,26 +141,43 @@
 (facts
  "charger?"
 
- (charger? :battlefield-1 :cube-1) => false
+ (let [battlefield {:cube-1 :unit-1}]
 
- (provided
-  (lbm/movable? :battlefield-1 :cube-1) => false)
+   (charger? battlefield :cube-1) => false
 
-
- (charger? :battlefield-1 :cube-1) => false
-
- (provided
-  (lbm/movable? :battlefield-1 :cube-1) => true
-  (list-targets :battlefield-1 :cube-1) => :list-targets
-  (charge-paths :battlefield-1 :cube-1 :list-targets) => {})
+   (provided
+    (leu/declared? :unit-1) => true))
 
 
- (charger? :battlefield-1 :cube-1) => true
+ (let [battlefield {:cube-1 :unit-1}]
 
- (provided
-  (lbm/movable? :battlefield-1 :cube-1) => true
-  (list-targets :battlefield-1 :cube-1) => :list-targets
-  (charge-paths :battlefield-1 :cube-1 :list-targets) => {:path-1 :targets-1}))
+   (charger? battlefield :cube-1) => false
+
+   (provided
+    (leu/declared? :unit-1) => false
+    (lbm/movable? battlefield :cube-1) => false))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (charger? battlefield :cube-1) => false
+
+   (provided
+    (leu/declared? :unit-1) => false
+    (lbm/movable? battlefield :cube-1) => true
+    (list-targets battlefield :cube-1) => :list-targets
+    (charge-paths battlefield :cube-1 :list-targets) => {}))
+
+
+ (let [battlefield {:cube-1 :unit-1}]
+
+   (charger? battlefield :cube-1) => true
+
+   (provided
+    (leu/declared? :unit-1) => false
+    (lbm/movable? battlefield :cube-1) => true
+    (list-targets battlefield :cube-1) => :list-targets
+    (charge-paths battlefield :cube-1 :list-targets) => {:path-1 :targets-1})))
 
 
 (facts

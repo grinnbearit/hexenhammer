@@ -18,7 +18,7 @@
        (r/render-battlefield state)]])))
 
 
-(defn react
+(defn hold
   [state]
   (let [player (:game/player state)
         cube (:game/cube state)
@@ -27,8 +27,51 @@
      [:html
       [:head
        [:h1 (rb/player->str player)]
-       [:h2 "Charge - Reaction - React"]
+       [:h2 "Charge - Reaction - Hold"]
        [:style STYLESHEET]]
       [:body
        (r/render-battlefield state)
-       (r/render-profile unit) [:br]]])))
+       (r/render-profile unit) [:br]
+       [:form {:action "/charge/reaction/hold" :method "post"}
+        [:input {:type "submit" :value "Hold"}]]
+       [:table
+        [:tr
+         [:td "Hold"]
+         [:td [:a {:href "/charge/reaction/switch-reaction/flee"} "Flee"]]]]]])))
+
+
+(defn flee
+  [state]
+  (let [player (:game/player state)
+        cube (:game/cube state)
+        unit (get-in state [:game/battlefield cube])]
+    (html
+     [:html
+      [:head
+       [:h1 (rb/player->str player)]
+       [:h2 "Charge - Reaction - Flee"]
+       [:style STYLESHEET]]
+      [:body
+       (r/render-battlefield state)
+       (r/render-profile unit) [:br]
+       [:form {:action "/charge/reaction/flee" :method "post"}
+        [:input {:type "submit" :value "Flee" :disabled true}]]
+       [:table
+        [:tr
+         [:td [:a {:href "/charge/reaction/switch-reaction/hold"} "Hold"]]
+         [:td "Flee"]]]]])))
+
+
+(defn finish-reaction
+  [state]
+  (let [player (:game/player state)]
+    (html
+     [:html
+      [:head
+       [:h1 (rb/player->str player)]
+       [:h2 "Charge - Reaction"]
+       [:style STYLESHEET]]
+      [:body
+       (r/render-battlefield state) [:br] [:br]
+       [:form {:action "/charge/finish-reaction" :method "post"}
+        [:input {:type "submit" :value "Finish Reaction"}]]]])))

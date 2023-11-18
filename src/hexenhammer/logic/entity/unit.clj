@@ -114,13 +114,13 @@
 (defn fleeing?
   "Returns true if the unit is fleeing"
   [unit]
-  (boolean (get-in unit [:unit/flags :fleeing?])))
+  (get-in unit [:unit/flags :fleeing?] false))
 
 
 (defn panicked?
   "Returns true if the has taken a panic test this phase"
   [unit]
-  (boolean (get-in unit [:unit/state :phase :panicked?])))
+  (get-in unit [:unit/state :phase :panicked?] false))
 
 
 (defn reset-phase
@@ -136,7 +136,7 @@
 
 
 (defn set-panicked
-  "Updates the unit at to have attempted a panic test"
+  "Updates the unit to have attempted a panic test"
   [unit]
   (assoc-in unit [:unit/state :phase :panicked?] true))
 
@@ -156,3 +156,15 @@
 (defn reset-movement
   [unit]
   (update unit :unit/state dissoc :movement))
+
+
+(defn set-declared
+  "Updates to unit to have declared a charge"
+  [unit]
+  (assoc-in unit [:unit/state :charge :declared?] true))
+
+
+(defn declared?
+  "Returns true if the unit has declared a charge in the charge phase"
+  [unit]
+  (get-in unit [:unit/state :charge :declared?] false))

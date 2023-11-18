@@ -41,23 +41,17 @@
 
  (to-charge {:game/battlefield :battlefield-1
              :game/units :units-1})
- => :unselect
+ => :reset-charge
 
  (provided
   (tu/unit-cubes :units-1) => [:cube-1 :cube-2 :cube-3 :cube-4]
-  (tu/unit-cubes :units-1 1) => [:cube-1 :cube-2 :cube-3]
-  (lbmc/charger? :battlefield-1 :cube-1) => true
-  (lbmc/charger? :battlefield-1 :cube-2) => true
-  (lbmc/charger? :battlefield-1 :cube-3) => false
 
   (tf/reset-phase :battlefield-1 [:cube-1 :cube-2 :cube-3 :cube-4])
   => :battlefield-2
 
-  (cc/unselect {:game/battlefield :battlefield-2
-                :game/units :units-1
-                :game/phase [:charge :select-hex]
-                :game/charge {:chargers #{:cube-1 :cube-2}}})
-  => :unselect))
+  (cc/reset-charge {:game/battlefield :battlefield-2
+                    :game/units :units-1})
+  => :reset-charge))
 
 
 (facts

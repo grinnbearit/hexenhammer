@@ -3,6 +3,7 @@
             [hexenhammer.logic.cube :as lc]
             [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.charge :as lbmc]
+            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.charge.reaction :as ccr]
@@ -32,6 +33,27 @@
             :game/battlemap :battlemap-1})
  => {:game/charge {:chargers []}
      :game/phase [:charge :to-movement]})
+
+
+(facts
+ "reset charge"
+
+ (reset-charge {:game/player 1
+                :game/battlefield :battlefield-1
+                :game/units :units-1})
+ => :unselect
+
+ (provided
+  (tu/unit-cubes :units-1 1) => [:cube-1 :cube-2 :cube-3]
+  (lbmc/charger? :battlefield-1 :cube-1) => true
+  (lbmc/charger? :battlefield-1 :cube-2) => true
+  (lbmc/charger? :battlefield-1 :cube-3) => false
+
+  (unselect {:game/player 1
+             :game/battlefield :battlefield-1
+             :game/units :units-1
+             :game/charge {:chargers #{:cube-1 :cube-2}}})
+  => :unselect))
 
 
 (facts
@@ -182,3 +204,13 @@
                :game/battlefield :battlefield-1
                :game/charge {:chargers #{:cube-2}}})
     => :unselect)))
+
+
+(facts
+ "finish reaction"
+
+ (finish-reaction :state-1)
+ => :reset-charge
+
+ (provided
+  (reset-charge :state-1) => :reset-charge))

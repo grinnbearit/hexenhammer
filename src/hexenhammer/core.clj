@@ -35,7 +35,9 @@
   (GET "/charge/to-movement" [] (vc/to-movement @hexenhammer-state))
 
   (GET "/charge/reaction/select-hex" [] (vcr/select-hex @hexenhammer-state))
-  (GET "/charge/reaction/react" [] (vcr/react @hexenhammer-state))
+  (GET "/charge/reaction/hold" [] (vcr/hold @hexenhammer-state))
+  (GET "/charge/reaction/flee" [] (vcr/flee @hexenhammer-state))
+  (GET "/charge/reaction/finish-reaction" [] (vcr/finish-reaction @hexenhammer-state))
 
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
   (GET "/movement/reform" [] (vm/reform @hexenhammer-state))
@@ -72,6 +74,10 @@
 
   (POST "/charge/declare-targets" [] (swap! hexenhammer-state cc/declare-targets))
   (POST "/charge/skip-charge" [] (swap! hexenhammer-state cc/skip-charge))
+  (POST "/charge/finish-reaction" [] (swap! hexenhammer-state cc/finish-reaction))
+
+  (GET "/charge/reaction/switch-reaction/:reaction" [reaction] (swap! hexenhammer-state ccr/switch-reaction (keyword reaction)))
+  (POST "/charge/reaction/hold" [] (swap! hexenhammer-state ccr/hold))
 
   (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state cm/skip-movement))
@@ -93,7 +99,8 @@
   (GET "/select/charge/declare-targets" [cube] (swap! hexenhammer-state cc/select-declare-targets cube))
 
   (GET "/select/charge/reaction/select-hex" [cube] (swap! hexenhammer-state ccr/select-hex cube))
-  (GET "/select/charge/reaction/react" [cube] (swap! hexenhammer-state ccr/select-react cube))
+  (GET "/select/charge/reaction/hold" [cube] (swap! hexenhammer-state ccr/select-hold cube))
+  (GET "/select/charge/reaction/flee" [cube] (swap! hexenhammer-state ccr/select-flee cube))
 
   (GET "/select/movement/select-hex" [cube] (swap! hexenhammer-state cm/select-hex cube))
   (GET "/select/movement/reform" [cube] (swap! hexenhammer-state cm/select-reform cube))

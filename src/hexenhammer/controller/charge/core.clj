@@ -1,6 +1,7 @@
 (ns hexenhammer.controller.charge.core
   (:require [hexenhammer.logic.battlefield.unit :as lbu]
             [hexenhammer.logic.battlefield.movement.charge :as lbmc]
+            [hexenhammer.transition.units :as tu]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.charge.reaction :as ccr]))
@@ -17,6 +18,14 @@
         (update :game/battlemap tb/set-presentation :selectable))
     (-> (assoc state :game/phase [:charge :to-movement])
         (dissoc :game/cube :game/battlemap))))
+
+
+(defn reset-charge
+  [{:keys [game/player game/battlefield game/units] :as state}]
+  (let [player-cubes (tu/unit-cubes units player)
+        charger-cubes (filter #(lbmc/charger? battlefield %) player-cubes)]
+    (-> (assoc state :game/charge {:chargers (set charger-cubes)})
+        (unselect))))
 
 
 (defn select-hex
@@ -92,3 +101,8 @@
   (let [unit-key (lbu/unit-key battlefield cube)]
     (-> (update-in state [:game/charge :chargers] disj cube)
         (unselect))))
+
+
+(defn finish-reaction
+  [state]
+  (reset-charge state))

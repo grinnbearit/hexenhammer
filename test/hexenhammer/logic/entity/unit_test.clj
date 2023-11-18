@@ -199,3 +199,16 @@
 
  (reset-movement {:unit/state {:movement :movement-1}})
  => {:unit/state {}})
+
+
+(facts
+ "set declared"
+
+ (set-declared {}) => {:unit/state {:charge {:declared? true}}})
+
+
+(facts
+ "declared?"
+
+ (declared? {}) => false
+ (declared? {:unit/state {:charge {:declared? true}}}) => true)
