@@ -1,5 +1,6 @@
 (ns hexenhammer.controller.charge.reaction-test
   (:require [midje.sweet :refer :all]
+            [hexenhammer.logic.battlefield.movement.flee :as lbmf]
             [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.state.battlemap :as tsb]
             [hexenhammer.controller.charge.reaction :refer :all]))
@@ -15,54 +16,80 @@
    (unselect state)
    => {:game/phase [:charge :reaction :finish-reaction]})
 
+
  (let [targets #{:cube-2 :cube-3}
        reacted #{:cube-2}
-       state {:game/charge {:targets targets}
+       state {:game/charge {:charger :cube-1
+                            :targets targets}
               :game/cube :cube-1}]
 
    (unselect state)
-   => {:game/battlemap :battlemap-2}
+   => {:game/battlemap :battlemap-3}
 
    (provided
-    (tsb/reset-battlemap {:game/charge {:targets targets}
+    (tsb/reset-battlemap {:game/charge {:charger :cube-1
+                                        :targets targets}
                           :game/phase [:charge :reaction :select-hex]}
-                         targets)
+                         #{:cube-1 :cube-2 :cube-3})
     => {:game/battlemap :battlemap-1}
 
-    (tb/set-presentation :battlemap-1 :selectable)
-    => :battlemap-2)))
+    (tb/set-presentation :battlemap-1 targets :selectable)
+    => :battlemap-2
+
+    (tb/set-presentation :battlemap-2 [:cube-1] :marked)
+    => :battlemap-3)))
 
 
 (facts
  "set hold"
 
- (set-hold {} :cube-1)
- => {:game/battlemap :battlemap-2}
+ (let [state {:game/charge {:charger :cube-2}}]
 
- (provided
-  (tsb/reset-battlemap {:game/cube :cube-1
-                        :game/phase [:charge :reaction :hold]}
-                       [:cube-1])
-  => {:game/battlemap :battlemap-1}
+   (set-hold state :cube-1)
+   => {:game/battlemap :battlemap-3}
 
-  (tb/set-presentation :battlemap-1 :selected)
-  => :battlemap-2))
+   (provided
+    (tsb/reset-battlemap {:game/charge {:charger :cube-2}
+                          :game/cube :cube-1
+                          :game/phase [:charge :reaction :hold]}
+                         [:cube-1 :cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-1] :selected)
+    => :battlemap-2
+
+    (tb/set-presentation :battlemap-2 [:cube-2] :marked)
+    => :battlemap-3)))
 
 
 (facts
  "set flee"
 
- (set-flee {} :cube-1)
- => {:game/battlemap :battlemap-2}
+ (let [state {:game/battlefield :battlefield-1
+              :game/charge {:charger :cube-2}}]
 
- (provided
-  (tsb/reset-battlemap {:game/cube :cube-1
-                        :game/phase [:charge :reaction :flee]}
-                       [:cube-1])
-  => {:game/battlemap :battlemap-1}
+   (set-flee state :cube-1)
+   => {:game/battlemap :battlemap-3}
 
-  (tb/set-presentation :battlemap-1 :selected)
-  => :battlemap-2))
+   (provided
+    (lbmf/flee :battlefield-1 :cube-1 :cube-2 12)
+    => {:cube->tweeners :cube->tweeners-1
+        :events :events-1}
+
+    (tsb/refresh-battlemap {:game/battlefield :battlefield-1
+                            :game/charge {:charger :cube-2
+                                          :events :events-1}
+                            :game/cube :cube-1
+                            :game/phase [:charge :reaction :flee]
+                            :game/battlemap :cube->tweeners-1}
+                           [:cube-2])
+    => {:game/battlemap :battlemap-1}
+
+    (tb/set-presentation :battlemap-1 [:cube-1] :selected)
+    => :battlemap-2
+
+    (tb/set-presentation :battlemap-2 [:cube-2] :marked)
+    => :battlemap-3)))
 
 
 (facts

@@ -1,36 +1,47 @@
 (ns hexenhammer.controller.charge.reaction
-  (:require [hexenhammer.transition.battlemap :as tb]
+  (:require [hexenhammer.logic.battlefield.movement.flee :as lbmf]
+            [hexenhammer.transition.battlemap :as tb]
             [hexenhammer.transition.state.battlemap :as tsb]))
 
 
 (defn unselect
-  [state]
-  (let [targets (get-in state [:game/charge :targets])]
+  [{:keys [game/charge] :as state}]
+  (let [charger (:charger charge)
+        targets (:targets charge)]
     (if (empty? targets)
       (-> (assoc state :game/phase [:charge :reaction :finish-reaction])
           (dissoc :game/cube :game/charge :game/battlemap))
       (-> (assoc state :game/phase [:charge :reaction :select-hex])
           (dissoc :game/cube)
-          (tsb/reset-battlemap targets)
-          (update :game/battlemap tb/set-presentation :selectable)))))
+          (tsb/reset-battlemap (conj targets charger))
+          (update :game/battlemap tb/set-presentation targets :selectable)
+          (update :game/battlemap tb/set-presentation [charger] :marked)))))
 
 
 (defn set-hold
-  [state cube]
-  (-> (assoc state
-             :game/cube cube
-             :game/phase [:charge :reaction :hold])
-      (tsb/reset-battlemap [cube])
-      (update :game/battlemap tb/set-presentation :selected)))
+  [{:keys [game/charge] :as state} cube]
+  (let [charger (:charger charge)]
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:charge :reaction :hold])
+        (tsb/reset-battlemap [cube charger])
+        (update :game/battlemap tb/set-presentation [cube] :selected)
+        (update :game/battlemap tb/set-presentation [charger] :marked))))
 
 
 (defn set-flee
-  [state cube]
-  (-> (assoc state
-             :game/cube cube
-             :game/phase [:charge :reaction :flee])
-      (tsb/reset-battlemap [cube])
-      (update :game/battlemap tb/set-presentation :selected)))
+  [{:keys [game/battlefield game/charge] :as state} cube]
+  (let [charger (:charger charge)
+        {:keys [cube->tweeners events]} (lbmf/flee battlefield cube charger 12)]
+    (-> (assoc state
+               :game/cube cube
+               :game/phase [:charge :reaction :flee]
+               :game/battlemap cube->tweeners)
+        (update :game/charge assoc
+                :events events)
+        (tsb/refresh-battlemap [charger])
+        (update :game/battlemap tb/set-presentation [cube] :selected)
+        (update :game/battlemap tb/set-presentation [charger] :marked))))
 
 
 (defn select-hex

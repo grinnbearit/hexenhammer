@@ -54,17 +54,23 @@
   [battlefield unit-cube path edge?]
   (let [player (get-in battlefield [unit-cube :unit/player])
         new-bf (lbu/remove-unit battlefield unit-cube)
-        tween-path (if edge? path (pop path))]
+        end (peek path)]
 
-    (->> (for [pointer tween-path
-               :let [cube (:cube pointer)
-                     entity (new-bf cube)]
-               :when (let/passable? entity)
-               :let [mover (lem/gen-mover player
-                                          :highlighted (:facing pointer)
-                                          :presentation :past)]]
-           [cube (let/place entity mover)])
-         (into {}))))
+    (letfn [(reducer [mover-acc pointer]
+              (let [cube (:cube pointer)
+                    facing (:facing pointer)
+                    entity (new-bf cube)]
+                (if (let/passable? entity)
+                  (->> (lem/gen-mover player
+                                      :highlighted facing
+                                      :presentation :past)
+                       (let/place entity)
+                       (assoc mover-acc cube))
+                  mover-acc)))]
+
+      (cond-> (reduce reducer {} path)
+        (not edge?)
+        (assoc-in [(:cube end) :mover/presentation] :present)))))
 
 
 (defn path-events

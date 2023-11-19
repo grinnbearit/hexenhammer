@@ -230,7 +230,7 @@
                           :game/event {:edge? true
                                        :unit :unit-1
                                        :roll [1 2]}}
-                         [:cube-2 :cube-3])
+                         [:cube-2])
     => {:game/battlemap {:cube-2 :mover-2}}
 
     (tb/set-presentation {:cube-1 :mover-1
@@ -273,7 +273,7 @@
                           :game/event {:edge? false
                                        :unit :unit-1
                                        :roll [1 2]}}
-                         [:cube-2 :cube-3])
+                         [:cube-2])
     => {:game/battlemap {:cube-2 :mover-2}}
 
     (tb/set-presentation {:cube-1 :mover-1
@@ -403,7 +403,7 @@
                           :game/event {:edge? true
                                        :unit :unit-1
                                        :roll [1 2]}}
-                         [:cube-2 :cube-3])
+                         [:cube-2])
     => {:game/battlemap {:cube-2 :mover-2}}
 
     (tb/set-presentation {:cube-1 :mover-1
@@ -451,7 +451,7 @@
                           :game/event {:edge? false
                                        :unit :unit-1
                                        :roll [1 2]}}
-                         [:cube-2 :cube-3])
+                         [:cube-2])
     => {:game/battlemap {:cube-2 :mover-2}}
 
     (tb/set-presentation {:cube-1 :mover-1

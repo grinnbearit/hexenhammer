@@ -90,7 +90,7 @@
                 :edge? edge?
                 :unit unit
                 :roll roll)
-        (tsb/reset-battlemap [source-cube (:cube end)])
+        (tsb/reset-battlemap [source-cube])
         (update :game/battlemap merge cube->tweeners)
         (update :game/battlemap tb/set-presentation [source-cube (:cube end)] :marked))))
 
@@ -136,7 +136,7 @@
                 :edge? edge?
                 :unit unit
                 :roll roll)
-        (tsb/reset-battlemap [source-cube (:cube end)])
+        (tsb/reset-battlemap [source-cube])
         (update :game/battlemap merge cube->tweeners)
         (update :game/battlemap tb/set-presentation [source-cube (:cube end)] :marked))))
 

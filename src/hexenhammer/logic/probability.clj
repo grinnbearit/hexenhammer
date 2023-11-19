@@ -43,3 +43,9 @@
    (if (<= distance (lc/hexes (+ 1 M)))
      1
      (get (charge M) distance 0))))
+
+
+(def FLEE
+  (->> (for [[roll prob] ROLL-2D6]
+         {(lc/hexes roll) prob})
+       (apply merge-with +)))

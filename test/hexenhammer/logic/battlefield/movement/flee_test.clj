@@ -112,7 +112,8 @@
              {:cube :cube-2 :facing :n}]]
 
    (path->tweeners battlefield :cube-1 path false)
-   => {:cube-1 :place}
+   => {:cube-1 :place-1
+       :cube-2 {:mover/presentation :present}}
 
    (provided
     (lbu/remove-unit battlefield :cube-1)
@@ -120,12 +121,16 @@
         :cube-2 :terrain-2}
 
     (let/passable? :terrain-1) => true
+    (let/passable? :terrain-2) => true
 
     (lem/gen-mover 1 :highlighted :n :presentation :past)
-    => :mover-1
+    => :mover
 
-    (let/place :terrain-1 :mover-1)
-    => :place))
+    (let/place :terrain-1 :mover)
+    => :place-1
+
+    (let/place :terrain-2 :mover)
+    => {}))
 
 
  (let [battlefield {:cube-1 {:unit/player 1}}
