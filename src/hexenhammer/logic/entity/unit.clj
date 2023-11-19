@@ -114,7 +114,7 @@
 (defn fleeing?
   "Returns true if the unit is fleeing"
   [unit]
-  (get-in unit [:unit/flags :fleeing?] false))
+  (get-in unit [:unit/state :game :fleeing?] false))
 
 
 (defn panicked?
@@ -144,7 +144,7 @@
 (defn set-flee
   "Updates the unit to be fleeing"
   [unit]
-  (assoc-in unit [:unit/flags :fleeing?] true))
+  (assoc-in unit [:unit/state :game :fleeing?] true))
 
 
 (defn friendly?
@@ -168,3 +168,15 @@
   "Returns true if the unit has declared a charge in the charge phase"
   [unit]
   (get-in unit [:unit/state :charge :declared?] false))
+
+
+(defn set-marched
+  "Updates the unit to have marched"
+  [unit]
+  (assoc-in unit [:unit/state :turn :marched?] true))
+
+
+(defn marched?
+  "Return true if the unit marched this turn"
+  [unit]
+  (get-in unit [:unit/state :turn :marched?] false))

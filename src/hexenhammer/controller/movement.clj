@@ -102,7 +102,7 @@
 
     (if (seq threats)
       (let [unit (battlefield cube)]
-        (-> (if (get-in unit [:unit/flags :marched?])
+        (-> (if (leu/marched? unit)
               (let [roll (get-in unit [:unit/state :movement :roll])]
                 (if (get-in unit [:unit/state :movement :passed?])
                   (update state :game/movement assoc
@@ -221,7 +221,7 @@
         unit (get-in state [:game/battlefield cube])
         roll (td/roll! 2)]
     (-> (assoc-in state [:game/battlefield cube]
-                  (-> (assoc-in unit [:unit/flags :marched?] true)
+                  (-> (leu/set-marched unit)
                       (assoc-in [:unit/state :movement]
                                 {:roll roll
                                  :passed? (<= (apply + roll) (:unit/Ld unit))})))

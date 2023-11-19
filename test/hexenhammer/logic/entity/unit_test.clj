@@ -146,7 +146,7 @@
  "fleeing?"
 
  (fleeing? {}) => false
- (fleeing? {:unit/flags {:fleeing? true}}) => true)
+ (fleeing? {:unit/state {:game {:fleeing? true}}}) => true)
 
 
 (facts
@@ -184,7 +184,7 @@
 (facts
  "set flee"
 
- (set-flee {}) => {:unit/flags {:fleeing? true}})
+ (set-flee {}) => {:unit/state {:game {:fleeing? true}}})
 
 
 (facts
@@ -212,3 +212,16 @@
 
  (declared? {}) => false
  (declared? {:unit/state {:charge {:declared? true}}}) => true)
+
+
+(facts
+ "set marched"
+
+ (set-marched {}) => {:unit/state {:turn {:marched? true}}})
+
+
+(facts
+ "marched?"
+
+ (marched? {}) => false
+ (marched? {:unit/state {:turn {:marched? true}}}) => true)
