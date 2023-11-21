@@ -144,7 +144,14 @@
 (defn set-flee
   "Updates the unit to be fleeing"
   [unit]
-  (assoc-in unit [:unit/state :game :fleeing?] true))
+  (-> (assoc-in unit [:unit/state :game :fleeing?] true)
+      (assoc-in [:unit/state :phase :fled?] true)))
+
+
+(defn fled?
+  "Returns true if the unit has already fled in this phase"
+  [unit]
+  (get-in unit [:unit/state :phase :fled?] false))
 
 
 (defn friendly?

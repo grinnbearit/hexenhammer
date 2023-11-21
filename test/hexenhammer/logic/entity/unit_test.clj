@@ -184,7 +184,15 @@
 (facts
  "set flee"
 
- (set-flee {}) => {:unit/state {:game {:fleeing? true}}})
+ (set-flee {}) => {:unit/state {:game {:fleeing? true}
+                                :phase {:fled? true}}})
+
+
+(facts
+ "fled?"
+
+ (fled? {}) => false
+ (fled? {:unit/state {:phase {:fled? true}}}) => true)
 
 
 (facts

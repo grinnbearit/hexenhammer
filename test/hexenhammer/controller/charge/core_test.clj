@@ -181,10 +181,12 @@
    => :unselect
 
    (provided
+    (lbu/unit-key battlefield :cube-2) => :unit-key-1
     (ccr/unselect {:game/cube :cube-1
                    :game/battlefield {:cube-1 {:unit/state {:charge {:declared? true
-                                                                     :targets targets}}}}
-                   :game/charge {:targets targets
+                                                                     :target-keys #{:unit-key-1}}}}}
+                   :game/charge {:target-cubes #{:cube-2}
+                                 :target-keys #{:unit-key-1}
                                  :charger :cube-1}})
     => :unselect)))
 

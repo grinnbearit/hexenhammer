@@ -86,13 +86,15 @@
 
 
 (defn declare-targets
-  [{:keys [game/cube] :as state}]
-  (let [targets (get-in state [:game/charge :targets])]
-    (-> (assoc state :game/charge {:targets targets
+  [{:keys [game/battlefield game/cube] :as state}]
+  (let [target-cubes (get-in state [:game/charge :targets])
+        target-keys (set (map #(lbu/unit-key battlefield %) target-cubes))]
+    (-> (assoc state :game/charge {:target-cubes target-cubes
+                                   :target-keys target-keys
                                    :charger cube})
         (assoc-in [:game/battlefield cube :unit/state :charge]
                   {:declared? true
-                   :targets targets})
+                   :target-keys target-keys})
         (ccr/unselect))))
 
 

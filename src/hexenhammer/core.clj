@@ -36,7 +36,11 @@
 
   (GET "/charge/reaction/select-hex" [] (vcr/select-hex @hexenhammer-state))
   (GET "/charge/reaction/hold" [] (vcr/hold @hexenhammer-state))
+  (GET "/charge/reaction/fled" [] (vcr/fled @hexenhammer-state))
   (GET "/charge/reaction/flee" [] (vcr/flee @hexenhammer-state))
+  (GET "/charge/reaction/fleeing" [] (vcr/fleeing @hexenhammer-state))
+
+  (GET "/charge/reaction/flee/roll" [] (vcr/flee-roll @hexenhammer-state))
   (GET "/charge/reaction/finish-reaction" [] (vcr/finish-reaction @hexenhammer-state))
 
   (GET "/movement/select-hex" [] (vm/select-hex @hexenhammer-state))
@@ -78,6 +82,10 @@
 
   (GET "/charge/reaction/switch-reaction/:reaction" [reaction] (swap! hexenhammer-state ccr/switch-reaction (keyword reaction)))
   (POST "/charge/reaction/hold" [] (swap! hexenhammer-state ccr/hold))
+  (POST "/charge/reaction/fled" [] (swap! hexenhammer-state ccr/fled))
+  (POST "/charge/reaction/flee" [] (swap! hexenhammer-state ccr/flee))
+  (POST "/charge/reaction/fleeing" [] (swap! hexenhammer-state ccr/fleeing))
+  (POST "/charge/reaction/trigger" [] (swap! hexenhammer-state ccr/trigger))
 
   (GET "/movement/switch-movement/:movement" [movement] (swap! hexenhammer-state cm/switch-movement (keyword movement)))
   (POST "/movement/skip-movement" [] (swap! hexenhammer-state cm/skip-movement))
